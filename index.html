@@ -7,7 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        /* ===== الألوان المخصصة (تم تعديل الأحمر إلى ذهبي) ===== */
+        /* ===== الألوان المخصصة (ذهبي) ===== */
         :root {
             --primary-blue: #04185C;
             --primary-blue-dark: #090A28;
@@ -149,6 +149,9 @@
             font-weight: 800;
             color: #FFFFFF;
             letter-spacing: -0.5px;
+            display: inline-block;
+            /* حركة الشعار السريعة (wiggle) */
+            animation: wiggle 1.5s ease-in-out infinite;
         }
         .logo span .accent { color: var(--primary-gold); }
 
@@ -202,7 +205,7 @@
             cursor: pointer;
         }
 
-        /* ===== HERO ===== */
+        /* ===== HERO - خلفية متحركة ===== */
         .hero {
             min-height: 100vh;
             position: relative;
@@ -221,12 +224,12 @@
             height: 120%;
             background: url('https://github.com/darkonovic51-hash/Academy-Tecnho-football-/raw/bc8f5fa98c6a5536771f5d6df88692cb9d18dd6b/file_0000000072e871f4ac3fd1c6f3928600.png') no-repeat center center/cover;
             z-index: -2;
-            transform: scale(1.05);
-            animation: heroZoom 25s infinite alternate ease-in-out;
+            /* حركة الخلفية الأفقية السريعة */
+            animation: heroSlide 12s ease-in-out infinite alternate;
         }
-        @keyframes heroZoom {
-            0% { transform: scale(1.05); }
-            100% { transform: scale(1.15); }
+        @keyframes heroSlide {
+            0% { transform: scale(1.1) translateX(-5%); }
+            100% { transform: scale(1.1) translateX(5%); }
         }
         .hero-overlay {
             position: absolute;
@@ -258,8 +261,14 @@
             margin-bottom: 20px;
             color: #FFFFFF;
             text-shadow: 0 4px 30px rgba(0,0,0,0.5);
+            /* حركة النص من الأسفل للأعلى */
+            animation: fadeUp 0.8s ease forwards;
         }
-        .hero h1 .highlight { color: var(--primary-gold); }
+        .hero h1 .highlight { 
+            color: var(--primary-gold);
+            display: inline-block;
+            animation: wiggle 1.5s ease-in-out infinite;
+        }
         .hero p {
             font-size: 1.3rem;
             color: rgba(255, 255, 255, 0.9);
@@ -267,12 +276,16 @@
             max-width: 650px;
             margin-left: auto;
             margin-right: auto;
+            animation: fadeUp 0.8s 0.2s ease forwards;
+            opacity: 0;
         }
         .hero-buttons {
             display: flex;
             gap: 18px;
             justify-content: center;
             flex-wrap: wrap;
+            animation: fadeUp 0.8s 0.4s ease forwards;
+            opacity: 0;
         }
 
         /* ===== DIVIDER ===== */
@@ -292,6 +305,11 @@
             font-size: 1.2rem;
             background: #0A0A0F;
             padding: 0 20px;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); }
+            50% { transform: translate(-50%, -50%) scale(1.3); }
         }
 
         /* ===== SECTIONS ===== */
@@ -302,7 +320,7 @@
             background: linear-gradient(135deg, var(--primary-gold), var(--secondary-gold));
         }
 
-        /* ===== CARDS ===== */
+        /* ===== CARDS - حركة من اليمين ===== */
         .card-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -316,7 +334,12 @@
             text-align: center;
             border: 1px solid rgba(255, 255, 255, 0.1);
             transition: var(--transition);
+            opacity: 0;
+            animation: slideInRight 0.6s ease forwards;
         }
+        .card:nth-child(1) { animation-delay: 0.1s; }
+        .card:nth-child(2) { animation-delay: 0.3s; }
+        .card:nth-child(3) { animation-delay: 0.5s; }
         .card:hover {
             transform: translateY(-8px);
             border-color: var(--primary-gold);
@@ -334,7 +357,7 @@
         }
         .card p { color: var(--light-gray); opacity: 0.8; }
 
-        /* ===== GALLERY ===== */
+        /* ===== GALLERY - حركة متناوبة (يسار ويمين) ===== */
         .gallery-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
@@ -345,7 +368,19 @@
             overflow: hidden;
             position: relative;
             cursor: pointer;
+            opacity: 0;
         }
+        .gallery-item:nth-child(odd) {
+            animation: slideInLeft 0.6s ease forwards;
+        }
+        .gallery-item:nth-child(even) {
+            animation: slideInRight 0.6s ease forwards;
+        }
+        .gallery-item:nth-child(1) { animation-delay: 0.1s; }
+        .gallery-item:nth-child(2) { animation-delay: 0.2s; }
+        .gallery-item:nth-child(3) { animation-delay: 0.3s; }
+        .gallery-item:nth-child(4) { animation-delay: 0.4s; }
+        .gallery-item:nth-child(5) { animation-delay: 0.5s; }
         .gallery-item img {
             width: 100%;
             height: 100%;
@@ -751,6 +786,95 @@
             cursor: pointer;
         }
 
+        /* ===== ANIMATIONS (المؤثرات الحركية المطلوبة) ===== */
+        @keyframes wiggle {
+            0%, 100% { transform: rotate(-2deg) scale(1); }
+            50% { transform: rotate(2deg) scale(1.03); }
+        }
+        @keyframes fadeUp {
+            0% { opacity: 0; transform: translateY(30px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes slideInLeft {
+            0% { opacity: 0; transform: translateX(-60px); }
+            100% { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes slideInRight {
+            0% { opacity: 0; transform: translateX(60px); }
+            100% { opacity: 1; transform: translateX(0); }
+        }
+
+        /* ===== PAYMENT MODAL (نافذة التنبيه) ===== */
+        .payment-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(8px);
+            z-index: 999999;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .payment-modal.active { display: flex; }
+        .payment-modal-content {
+            background: linear-gradient(145deg, #1a1a2e, #0A0A0F);
+            border: 2px solid var(--primary-gold);
+            border-radius: 30px;
+            padding: 40px 30px;
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 0 60px rgba(212, 160, 23, 0.3);
+            position: relative;
+            animation: modalPop 0.4s ease, shake 0.5s 0.4s ease;
+        }
+        @keyframes modalPop {
+            0% { transform: scale(0.5); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20% { transform: translateX(-20px); }
+            40% { transform: translateX(20px); }
+            60% { transform: translateX(-15px); }
+            80% { transform: translateX(15px); }
+        }
+        .payment-modal-content .icon {
+            font-size: 4rem;
+            color: var(--primary-gold);
+            margin-bottom: 15px;
+        }
+        .payment-modal-content h3 {
+            color: #FFFFFF;
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+        }
+        .payment-modal-content p {
+            color: var(--light-gray);
+            font-size: 1.1rem;
+            line-height: 1.8;
+            margin-bottom: 25px;
+        }
+        .payment-modal-content .close-modal {
+            background: var(--primary-gold);
+            border: none;
+            color: #FFFFFF;
+            padding: 12px 30px;
+            border-radius: 60px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .payment-modal-content .close-modal:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(212, 160, 23, 0.5);
+        }
+
         /* ===== RESPONSIVE ===== */
         @media (max-width: 1024px) {
             .hero h1 { font-size: 3.2rem; }
@@ -906,7 +1030,7 @@
 <!-- ===== DIVIDER ===== -->
 <div class="section-divider"></div>
 
-<!-- ===== VIDEOS SECTION (جديد) ===== -->
+<!-- ===== VIDEOS SECTION ===== -->
 <section id="videos" class="section-light">
     <div class="container">
         <h2 class="section-title">🎥 فيديوهات <span>الأكاديمية</span></h2>
@@ -1083,6 +1207,16 @@
     </div>
 </footer>
 
+<!-- ===== نافذة التنبيه (تظهر كل 10 ثوان) ===== -->
+<div class="payment-modal" id="paymentModal">
+    <div class="payment-modal-content">
+        <div class="icon">⚠️</div>
+        <h3>تنبيه هام</h3>
+        <p>يجب عليك دفع مستحقات الموقع حتى تستلمه بالكامل.</p>
+        <button class="close-modal" id="closePaymentModal">✔️ تم الفهم</button>
+    </div>
+</div>
+
 <!-- ===== ADMIN TOGGLE ===== -->
 <button class="admin-toggle" id="adminToggle"><i class="fas fa-cog"></i> إدارة</button>
 
@@ -1172,7 +1306,36 @@
 
 <script>
     // ============================================================
-    // ===== البيانات والـ LocalStorage (نفسها مع تعديل اللون) =====
+    // ===== نافذة التنبيه (تظهر كل 10 ثوان) =====
+    // ============================================================
+    const modal = document.getElementById('paymentModal');
+    const closeModalBtn = document.getElementById('closePaymentModal');
+
+    // إظهار النافذة كل 10 ثوانٍ (10000 مللي)
+    setInterval(() => {
+        modal.classList.add('active');
+        // إعادة تشغيل تأثير الاهتزاز بإزالة وإعادة الإضافة
+        const content = modal.querySelector('.payment-modal-content');
+        content.style.animation = 'none';
+        setTimeout(() => {
+            content.style.animation = 'modalPop 0.4s ease, shake 0.5s 0.4s ease';
+        }, 10);
+    }, 10000);
+
+    // إغلاق النافذة عند الضغط على الزر
+    closeModalBtn.addEventListener('click', () => {
+        modal.classList.remove('active');
+    });
+
+    // إغلاق النافذة عند الضغط خارج المحتوى
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            modal.classList.remove('active');
+        }
+    });
+
+    // ============================================================
+    // ===== البيانات والـ LocalStorage =====
     // ============================================================
 
     const ADMIN_PASSWORD_KEY = 'techno_admin_pass';
