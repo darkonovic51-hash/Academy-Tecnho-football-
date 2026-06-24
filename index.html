@@ -7,7 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
-    <!-- ===== Firebase SDK ===== -->
+    <!-- ===== Firebase SDK (compat) ===== -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
@@ -1325,19 +1325,19 @@
     </div>
 </div>
 
-<!-- ===== جافا سكريبت مع Firebase ===== -->
 <script>
     // ================================================================
-    // 1. ضع كائن الإعداد الخاص بمشروعك هنا (استبدل القيم)
+    // 1. إعدادات Firebase الصحيحة (تم تعديلها)
     // ================================================================
     const firebaseConfig = {
-        apiKey: "AIzaSyD-xxxxxxxxxxxxxxxxxxxxxxxxxx",
-        authDomain: "academy-db.firebaseapp.com",
-        databaseURL: "https://academy-db-default-rtdb.firebaseio.com",
-        projectId: "academy-db",
-        storageBucket: "academy-db.appspot.com",
-        messagingSenderId: "123456789",
-        appId: "1:123456789:web:abcdef"
+        apiKey: "AIzaSyCyNanQ-kKG70ThYujTYXHj6ySYFReSH0s",
+        authDomain: "academy-tecni.firebaseapp.com",
+        databaseURL: "https://academy-tecni-default-rtdb.firebaseio.com",
+        projectId: "academy-tecni",
+        storageBucket: "academy-tecni.firebasestorage.app",
+        messagingSenderId: "857198194842",
+        appId: "1:857198194842:web:f2c077424dca6bd9c5af23",
+        measurementId: "G-FDTN8JMB5R"
     };
 
     // تهيئة Firebase
@@ -1345,50 +1345,63 @@
     const database = firebase.database();
 
     // ================================================================
-    // 2. دوال التعامل مع التسجيلات (قراءة وكتابة)
+    // 2. دوال التسجيل (مع دعم LocalStorage كاحتياطي)
     // ================================================================
 
-    // حفظ طلب تسجيل جديد في Firebase
     async function saveRegistrationToFirebase(regData) {
-        const newRef = database.ref('registrations').push();
-        await newRef.set({
-            firstName: regData.firstName,
-            lastName: regData.lastName,
-            phone: regData.phone,
-            location: regData.location,
-            date: regData.date,
-            timestamp: firebase.database.ServerValue.TIMESTAMP
-        });
-        return newRef.key;
+        try {
+            const newRef = database.ref('registrations').push();
+            await newRef.set({
+                firstName: regData.firstName,
+                lastName: regData.lastName,
+                phone: regData.phone,
+                location: regData.location,
+                date: regData.date,
+                timestamp: firebase.database.ServerValue.TIMESTAMP || Date.now()
+            });
+            console.log('✅ تم الحفظ في Firebase');
+        } catch (error) {
+            console.warn('⚠️ فشل الحفظ في Firebase، نحفظ محلياً:', error);
+            let local = JSON.parse(localStorage.getItem('techno_registrations_local')) || [];
+            local.push({ ...regData, id: Date.now(), timestamp: Date.now() });
+            localStorage.setItem('techno_registrations_local', JSON.stringify(local));
+            throw error;
+        }
     }
 
-    // جلب جميع طلبات التسجيل من Firebase
     function getRegistrationsFromFirebase(callback) {
-        database.ref('registrations').orderByChild('timestamp').once('value', (snapshot) => {
-            const data = snapshot.val();
-            const registrations = [];
-            if (data) {
-                Object.keys(data).forEach((key) => {
-                    registrations.push({
-                        id: key,
-                        ...data[key]
+        database.ref('registrations').orderByChild('timestamp').once('value')
+            .then((snapshot) => {
+                const data = snapshot.val();
+                const registrations = [];
+                if (data) {
+                    Object.keys(data).forEach((key) => {
+                        registrations.push({ id: key, ...data[key] });
                     });
-                });
-            }
-            callback(registrations);
-        });
+                }
+                callback(registrations);
+            })
+            .catch((error) => {
+                console.warn('⚠️ فشل الجلب من Firebase، نستخدم المحلي:', error);
+                const local = JSON.parse(localStorage.getItem('techno_registrations_local')) || [];
+                callback(local);
+            });
     }
 
-    // حذف طلب تسجيل من Firebase
     function deleteRegistrationFromFirebase(id, callback) {
-        database.ref('registrations/' + id).remove().then(() => {
-            callback();
-        });
+        database.ref('registrations/' + id).remove()
+            .then(() => callback())
+            .catch((error) => {
+                console.warn('⚠️ فشل الحذف من Firebase، نحاول محلياً:', error);
+                let local = JSON.parse(localStorage.getItem('techno_registrations_local')) || [];
+                local = local.filter(item => item.id != id);
+                localStorage.setItem('techno_registrations_local', JSON.stringify(local));
+                callback();
+            });
     }
 
     // ================================================================
-    // 3. بقية البيانات (المعرض، الجدول، ...) ما زالت محفوظة في LocalStorage
-    //    لكن يمكن ترقيتها لاحقاً إلى Firebase بنفس الطريقة.
+    // 3. بقية البيانات (المعرض، الجدول، ...) محفوظة في LocalStorage
     // ================================================================
 
     const STORAGE_KEY = 'techno_academy_data';
@@ -1424,7 +1437,7 @@
     function saveAppData() { localStorage.setItem(STORAGE_KEY, JSON.stringify(appData)); }
 
     // ================================================================
-    // 4. عرض البيانات في الصفحة (المعرض، الجدول، ...)
+    // 4. عرض البيانات في الصفحة
     // ================================================================
 
     function renderGallery() {
@@ -1529,7 +1542,7 @@
     }
 
     // ================================================================
-    // 5. نموذج التسجيل (الكتابة إلى Firebase + إرسال البريد)
+    // 5. نموذج التسجيل
     // ================================================================
 
     document.getElementById('registrationForm').addEventListener('submit', async function(e) {
@@ -1553,10 +1566,9 @@
         };
 
         try {
-            // 1. حفظ في Firebase
             await saveRegistrationToFirebase(regData);
             
-            // 2. إرسال بريد إلكتروني (FormSubmit)
+            // إرسال بريد إلكتروني
             const formData = new FormData();
             formData.append('الاسم الشخصي', firstName);
             formData.append('اللقب العائلي', lastName);
@@ -1579,7 +1591,7 @@
     });
 
     // ================================================================
-    // 6. لوحة التحكم (القراءة من Firebase وعرض الطلبات)
+    // 6. لوحة التحكم
     // ================================================================
 
     const ADMIN_PASSWORD_KEY = 'techno_admin_pass';
@@ -1600,9 +1612,7 @@
     }
 
     function renderAdminDashboard() {
-        // جلب طلبات التسجيل من Firebase وعرضها
         getRegistrationsFromFirebase((registrations) => {
-            // إحصائيات
             document.getElementById('adminStats').innerHTML = `
                 <div class="admin-stat"><div class="num">${registrations.length}</div><div class="label">طلبات التسجيل (سحابية)</div></div>
                 <div class="admin-stat"><div class="num">${appData.gallery.length}</div><div class="label">الصور</div></div>
@@ -1612,7 +1622,6 @@
                 <div class="admin-stat"><div class="num">${appData.players.length}</div><div class="label">اللاعبون</div></div>
             `;
 
-            // عرض طلبات التسجيل
             const tbody = document.getElementById('adminRegistrations');
             tbody.innerHTML = '';
             registrations.forEach((reg, idx) => {
@@ -1628,7 +1637,6 @@
             });
         });
 
-        // باقي أقسام لوحة التحكم (معرض، فيديو، جدول، ...) كما هي
         renderAdminGallery();
         renderAdminVideos();
         renderAdminSchedule();
@@ -1643,10 +1651,229 @@
         });
     }
 
-    // ===== باقي دوال الإدارة (معرض، فيديو، جدول، ...) =====
-    // ... (نفس الكود السابق مع تعديلات بسيطة) ...
+    // ===== إدارة المعرض =====
+    function renderAdminGallery() {
+        const container = document.getElementById('adminGalleryList');
+        container.innerHTML = '';
+        appData.gallery.forEach((item, idx) => {
+            const div = document.createElement('div');
+            div.style.cssText = 'display:flex; align-items:center; gap:10px; background:rgba(255,255,255,0.05); border-radius:12px; padding:8px 16px;';
+            div.innerHTML = `
+                <span style="flex:1; color:#fff;">${item.title}</span>
+                <button onclick="deleteGalleryItem(${idx})" style="background:var(--primary-gold); border:none; color:#fff; padding:4px 12px; border-radius:20px; cursor:pointer;">✕</button>
+            `;
+            container.appendChild(div);
+        });
+    }
 
-    // للاختصار، سأضع دوال مختصرة، لكن الكود الكامل في المرفق سيكون مكتملاً.
+    function addGalleryItem() {
+        const title = document.getElementById('newGalleryTitle').value.trim();
+        const url = document.getElementById('newGalleryUrl').value.trim();
+        if (!title || !url) { alert('الرجاء إدخال عنوان ورابط الصورة'); return; }
+        appData.gallery.push({ id: Date.now(), title, url });
+        saveAppData();
+        document.getElementById('newGalleryTitle').value = '';
+        document.getElementById('newGalleryUrl').value = '';
+        renderAdminGallery();
+        renderGallery();
+    }
+
+    function deleteGalleryItem(idx) {
+        appData.gallery.splice(idx, 1);
+        saveAppData();
+        renderAdminGallery();
+        renderGallery();
+    }
+
+    // ===== إدارة الفيديو =====
+    function renderAdminVideos() {
+        const container = document.getElementById('adminVideoList');
+        container.innerHTML = '';
+        appData.videos.forEach((item, idx) => {
+            const div = document.createElement('div');
+            div.style.cssText = 'display:flex; align-items:center; gap:10px; background:rgba(255,255,255,0.05); border-radius:12px; padding:8px 16px; margin-bottom:5px;';
+            div.innerHTML = `
+                <span style="flex:1; color:#fff;">${item.title}</span>
+                <button onclick="deleteVideoItem(${idx})" style="background:var(--primary-gold); border:none; color:#fff; padding:4px 12px; border-radius:20px; cursor:pointer;">✕</button>
+            `;
+            container.appendChild(div);
+        });
+    }
+
+    function addVideo() {
+        const title = document.getElementById('newVideoTitle').value.trim();
+        const url = document.getElementById('newVideoUrl').value.trim();
+        if (!title || !url) { alert('الرجاء إدخال عنوان ورابط الفيديو'); return; }
+        appData.videos.push({ id: Date.now(), title, url });
+        saveAppData();
+        document.getElementById('newVideoTitle').value = '';
+        document.getElementById('newVideoUrl').value = '';
+        renderAdminVideos();
+    }
+
+    function deleteVideoItem(idx) {
+        appData.videos.splice(idx, 1);
+        saveAppData();
+        renderAdminVideos();
+    }
+
+    // ===== إدارة الجدول =====
+    function renderAdminSchedule() {
+        const container = document.getElementById('adminScheduleContainer');
+        let html = `
+            <div style="overflow-x:auto;">
+                <table style="width:100%; border-collapse:collapse;">
+                    <thead>
+                        <tr style="background:rgba(0,0,0,0.3);">
+                            <th style="padding:8px;">الفئة</th>
+                            <th style="padding:8px;">موعد التدريب</th>
+                            <th style="padding:8px;">الوقت</th>
+                            <th style="padding:8px;">الملعب</th>
+                            <th style="padding:8px;">حذف</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+        `;
+        appData.schedule.forEach((row, idx) => {
+            html += `
+                <tr>
+                    <td><input value="${row.category}" data-idx="${idx}" data-field="category" class="schedule-admin-input" style="width:100%; padding:6px 10px; border-radius:12px; border:1px solid rgba(255,255,255,0.1); background:rgba(0,0,0,0.3); color:#fff;"></td>
+                    <td><input value="${row.time}" data-idx="${idx}" data-field="time" class="schedule-admin-input" style="width:100%; padding:6px 10px; border-radius:12px; border:1px solid rgba(255,255,255,0.1); background:rgba(0,0,0,0.3); color:#fff;"></td>
+                    <td><input value="${row.time}" data-idx="${idx}" data-field="time" class="schedule-admin-input" style="width:100%; padding:6px 10px; border-radius:12px; border:1px solid rgba(255,255,255,0.1); background:rgba(0,0,0,0.3); color:#fff;"></td>
+                    <td><input value="${row.field}" data-idx="${idx}" data-field="field" class="schedule-admin-input" style="width:100%; padding:6px 10px; border-radius:12px; border:1px solid rgba(255,255,255,0.1); background:rgba(0,0,0,0.3); color:#fff;"></td>
+                    <td><button onclick="deleteScheduleRow(${idx})" style="background:var(--primary-gold); border:none; color:#fff; padding:4px 12px; border-radius:20px; cursor:pointer;">✕</button></td>
+                </tr>
+            `;
+        });
+        html += `</tbody></table></div>`;
+        container.innerHTML = html;
+
+        document.querySelectorAll('.schedule-admin-input').forEach(inp => {
+            inp.addEventListener('change', function() {
+                const idx = parseInt(this.dataset.idx);
+                const field = this.dataset.field;
+                appData.schedule[idx][field] = this.value;
+            });
+        });
+    }
+
+    function addScheduleRow() {
+        appData.schedule.push({ id: Date.now(), category: 'فئة جديدة', time: '—', field: '—' });
+        saveAppData();
+        renderAdminSchedule();
+        renderSchedule();
+    }
+
+    function deleteScheduleRow(idx) {
+        appData.schedule.splice(idx, 1);
+        saveAppData();
+        renderAdminSchedule();
+        renderSchedule();
+    }
+
+    function saveScheduleAdmin() {
+        saveAppData();
+        renderSchedule();
+        alert('✅ تم حفظ جدول التدريبات');
+    }
+
+    // ===== إدارة المباريات =====
+    function renderAdminMatches() {
+        const container = document.getElementById('adminMatchesContainer');
+        let html = '';
+        appData.matches.forEach((m, idx) => {
+            html += `
+                <div style="display:flex; gap:10px; align-items:center; background:rgba(255,255,255,0.05); border-radius:12px; padding:8px 16px; margin-bottom:5px; flex-wrap:wrap;">
+                    <input value="${m.opponent || ''}" data-idx="${idx}" data-field="opponent" class="match-admin-input" placeholder="الخصم" style="flex:1; padding:6px 10px; border-radius:12px; border:1px solid rgba(255,255,255,0.1); background:rgba(0,0,0,0.3); color:#fff;">
+                    <input value="${m.date || ''}" data-idx="${idx}" data-field="date" class="match-admin-input" placeholder="التاريخ" style="flex:1; padding:6px 10px; border-radius:12px; border:1px solid rgba(255,255,255,0.1); background:rgba(0,0,0,0.3); color:#fff;">
+                    <input value="${m.location || ''}" data-idx="${idx}" data-field="location" class="match-admin-input" placeholder="المكان" style="flex:1; padding:6px 10px; border-radius:12px; border:1px solid rgba(255,255,255,0.1); background:rgba(0,0,0,0.3); color:#fff;">
+                    <button onclick="deleteMatch(${idx})" style="background:var(--primary-gold); border:none; color:#fff; padding:4px 12px; border-radius:20px; cursor:pointer;">✕</button>
+                </div>
+            `;
+        });
+        container.innerHTML = html;
+
+        document.querySelectorAll('.match-admin-input').forEach(inp => {
+            inp.addEventListener('change', function() {
+                const idx = parseInt(this.dataset.idx);
+                const field = this.dataset.field;
+                appData.matches[idx][field] = this.value;
+            });
+        });
+    }
+
+    function addMatch() {
+        appData.matches.push({ id: Date.now(), opponent: 'خصم جديد', date: 'تاريخ', location: 'مكان' });
+        saveAppData();
+        renderAdminMatches();
+        renderMatches();
+    }
+
+    function deleteMatch(idx) {
+        appData.matches.splice(idx, 1);
+        saveAppData();
+        renderAdminMatches();
+        renderMatches();
+    }
+
+    function saveMatchesAdmin() {
+        saveAppData();
+        renderMatches();
+        alert('✅ تم حفظ المباريات');
+    }
+
+    // ===== إدارة اللاعبين =====
+    function renderAdminPlayers() {
+        const container = document.getElementById('adminPlayersContainer');
+        let html = '';
+        appData.players.forEach((p, idx) => {
+            html += `
+                <div style="display:flex; gap:10px; align-items:center; background:rgba(255,255,255,0.05); border-radius:12px; padding:8px 16px; margin-bottom:5px; flex-wrap:wrap;">
+                    <input value="${p.name || ''}" data-idx="${idx}" data-field="name" class="player-admin-input" placeholder="الاسم" style="flex:1; padding:6px 10px; border-radius:12px; border:1px solid rgba(255,255,255,0.1); background:rgba(0,0,0,0.3); color:#fff;">
+                    <input value="${p.category || ''}" data-idx="${idx}" data-field="category" class="player-admin-input" placeholder="الفئة" style="flex:1; padding:6px 10px; border-radius:12px; border:1px solid rgba(255,255,255,0.1); background:rgba(0,0,0,0.3); color:#fff;">
+                    <button onclick="deletePlayer(${idx})" style="background:var(--primary-gold); border:none; color:#fff; padding:4px 12px; border-radius:20px; cursor:pointer;">✕</button>
+                </div>
+            `;
+        });
+        container.innerHTML = html;
+
+        document.querySelectorAll('.player-admin-input').forEach(inp => {
+            inp.addEventListener('change', function() {
+                const idx = parseInt(this.dataset.idx);
+                const field = this.dataset.field;
+                appData.players[idx][field] = this.value;
+            });
+        });
+    }
+
+    function addPlayer() {
+        appData.players.push({ id: Date.now(), name: 'لاعب جديد', category: 'فئة' });
+        saveAppData();
+        renderAdminPlayers();
+        renderPlayers();
+    }
+
+    function deletePlayer(idx) {
+        appData.players.splice(idx, 1);
+        saveAppData();
+        renderAdminPlayers();
+        renderPlayers();
+    }
+
+    function savePlayersAdmin() {
+        saveAppData();
+        renderPlayers();
+        alert('✅ تم حفظ اللاعبين');
+    }
+
+    function changeAdminPassword() {
+        const newPass = document.getElementById('newAdminPass').value.trim();
+        if (newPass.length < 4) { alert('كلمة السر يجب أن تكون 4 أحرف على الأقل'); return; }
+        adminPassword = newPass;
+        localStorage.setItem(ADMIN_PASSWORD_KEY, adminPassword);
+        alert('✅ تم تغيير كلمة السر بنجاح');
+        document.getElementById('newAdminPass').value = '';
+    }
 
     // ================================================================
     // 7. نافذة التنبيه
