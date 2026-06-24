@@ -7,12 +7,12 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        /* ===== الألوان المخصصة ===== */
+        /* ===== الألوان المخصصة (تم تعديل الأحمر إلى ذهبي) ===== */
         :root {
             --primary-blue: #04185C;
             --primary-blue-dark: #090A28;
-            --primary-red: #D70404;
-            --secondary-red: #9E0C0E;
+            --primary-gold: #D4A017;
+            --secondary-gold: #B8860B;
             --white: #FFFFFF;
             --light-gray: #A09DA3;
             --dark-gray: #5A5B66;
@@ -21,16 +21,8 @@
             --transition: 0.4s cubic-bezier(0.2, 0.9, 0.4, 1);
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        html {
-            scroll-behavior: smooth;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
         body {
             font-family: 'Inter', 'Cairo', sans-serif;
             background: #0A0A0F;
@@ -38,27 +30,15 @@
             overflow-x: hidden;
             line-height: 1.6;
         }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--primary-blue-dark); }
+        ::-webkit-scrollbar-thumb { background: var(--primary-gold); border-radius: 10px; }
 
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: var(--primary-blue-dark);
-        }
-        ::-webkit-scrollbar-thumb {
-            background: var(--primary-red);
-            border-radius: 10px;
-        }
-
-        .container {
-            max-width: 1300px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
+        .container { max-width: 1300px; margin: 0 auto; padding: 0 20px; }
 
         /* ===== BUTTONS ===== */
         .btn-primary {
-            background: linear-gradient(135deg, var(--primary-red), var(--secondary-red));
+            background: linear-gradient(135deg, var(--primary-gold), var(--secondary-gold));
             border: none;
             padding: 14px 36px;
             border-radius: 60px;
@@ -83,17 +63,15 @@
             opacity: 0;
             transition: 0.4s;
         }
-        .btn-primary:hover::after {
-            opacity: 1;
-        }
+        .btn-primary:hover::after { opacity: 1; }
         .btn-primary:hover {
             transform: translateY(-3px);
-            box-shadow: 0 12px 30px rgba(215, 4, 4, 0.3);
+            box-shadow: 0 12px 30px rgba(212, 160, 23, 0.3);
         }
 
         .btn-outline {
             background: transparent;
-            border: 2px solid var(--primary-red);
+            border: 2px solid var(--primary-gold);
             padding: 12px 32px;
             border-radius: 60px;
             font-weight: 600;
@@ -104,7 +82,7 @@
             text-decoration: none;
         }
         .btn-outline:hover {
-            background: var(--primary-red);
+            background: var(--primary-gold);
             transform: translateY(-3px);
         }
 
@@ -116,15 +94,13 @@
             margin-bottom: 50px;
             color: #FFFFFF;
         }
-        .section-title span {
-            color: var(--primary-red);
-        }
+        .section-title span { color: var(--primary-gold); }
         .section-title::after {
             content: '';
             display: block;
             width: 80px;
             height: 4px;
-            background: linear-gradient(90deg, var(--primary-red), var(--primary-blue));
+            background: linear-gradient(90deg, var(--primary-gold), var(--primary-blue));
             margin: 15px auto 0;
             border-radius: 5px;
         }
@@ -138,7 +114,7 @@
             opacity: 0.8;
         }
 
-        /* ===== HEADER / NAVBAR ===== */
+        /* ===== HEADER ===== */
         .navbar {
             position: fixed;
             top: 0;
@@ -155,7 +131,7 @@
         .navbar.scrolled {
             background: rgba(9, 10, 40, 0.95);
             backdrop-filter: blur(18px);
-            border-bottom: 1px solid rgba(215, 4, 4, 0.3);
+            border-bottom: 1px solid rgba(212, 160, 23, 0.3);
             padding: 10px 40px;
         }
         .logo {
@@ -174,9 +150,7 @@
             color: #FFFFFF;
             letter-spacing: -0.5px;
         }
-        .logo span .accent {
-            color: var(--primary-red);
-        }
+        .logo span .accent { color: var(--primary-gold); }
 
         .nav-links {
             display: flex;
@@ -195,7 +169,7 @@
         }
         .nav-links a:hover {
             color: #FFFFFF;
-            border-bottom-color: var(--primary-red);
+            border-bottom-color: var(--primary-gold);
         }
         .lang-switch {
             display: flex;
@@ -216,12 +190,10 @@
             transition: 0.2s;
         }
         .lang-switch button.active {
-            background: var(--primary-red);
+            background: var(--primary-gold);
             color: #FFFFFF;
         }
-        .lang-switch button:hover {
-            color: #FFFFFF;
-        }
+        .lang-switch button:hover { color: #FFFFFF; }
 
         .menu-btn {
             display: none;
@@ -230,7 +202,7 @@
             cursor: pointer;
         }
 
-        /* ===== HERO (Parallax Background) ===== */
+        /* ===== HERO ===== */
         .hero {
             min-height: 100vh;
             position: relative;
@@ -287,9 +259,7 @@
             color: #FFFFFF;
             text-shadow: 0 4px 30px rgba(0,0,0,0.5);
         }
-        .hero h1 .highlight {
-            color: var(--primary-red);
-        }
+        .hero h1 .highlight { color: var(--primary-gold); }
         .hero p {
             font-size: 1.3rem;
             color: rgba(255, 255, 255, 0.9);
@@ -305,11 +275,11 @@
             flex-wrap: wrap;
         }
 
-        /* ===== SECTION DIVIDER ===== */
+        /* ===== DIVIDER ===== */
         .section-divider {
             width: 100%;
             height: 6px;
-            background: linear-gradient(90deg, var(--primary-blue), var(--primary-red), var(--primary-blue));
+            background: linear-gradient(90deg, var(--primary-blue), var(--primary-gold), var(--primary-blue));
             position: relative;
         }
         .section-divider::after {
@@ -318,24 +288,18 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            color: var(--primary-red);
+            color: var(--primary-gold);
             font-size: 1.2rem;
             background: #0A0A0F;
             padding: 0 20px;
         }
 
         /* ===== SECTIONS ===== */
-        section {
-            padding: 80px 0;
-        }
-        .section-dark {
-            background: var(--primary-blue-dark);
-        }
-        .section-light {
-            background: var(--primary-blue);
-        }
-        .section-red {
-            background: linear-gradient(135deg, var(--primary-red), var(--secondary-red));
+        section { padding: 80px 0; }
+        .section-dark { background: var(--primary-blue-dark); }
+        .section-light { background: var(--primary-blue); }
+        .section-gold {
+            background: linear-gradient(135deg, var(--primary-gold), var(--secondary-gold));
         }
 
         /* ===== CARDS ===== */
@@ -355,12 +319,12 @@
         }
         .card:hover {
             transform: translateY(-8px);
-            border-color: var(--primary-red);
+            border-color: var(--primary-gold);
             box-shadow: var(--shadow);
         }
         .card i {
             font-size: 2.8rem;
-            color: var(--primary-red);
+            color: var(--primary-gold);
             margin-bottom: 16px;
         }
         .card h3 {
@@ -368,10 +332,7 @@
             margin-bottom: 10px;
             color: #FFFFFF;
         }
-        .card p {
-            color: var(--light-gray);
-            opacity: 0.8;
-        }
+        .card p { color: var(--light-gray); opacity: 0.8; }
 
         /* ===== GALLERY ===== */
         .gallery-grid {
@@ -405,12 +366,25 @@
             opacity: 0;
             transition: opacity 0.4s ease;
         }
-        .gallery-item:hover .overlay {
-            opacity: 1;
-        }
+        .gallery-item:hover .overlay { opacity: 1; }
         .gallery-item .overlay span {
             color: #FFFFFF;
             font-weight: 600;
+        }
+
+        /* ===== VIDEO SECTION ===== */
+        .video-wrapper {
+            max-width: 900px;
+            margin: 0 auto;
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            border: 2px solid var(--primary-gold);
+        }
+        .video-wrapper video {
+            width: 100%;
+            display: block;
+            background: #000;
         }
 
         /* ===== COACH ===== */
@@ -426,7 +400,7 @@
         }
         .coach-single:hover {
             transform: translateY(-8px);
-            border-color: var(--primary-red);
+            border-color: var(--primary-gold);
             box-shadow: var(--shadow);
         }
         .coach-single .coach-images {
@@ -444,19 +418,15 @@
             opacity: 0;
             transition: opacity 1s ease;
         }
-        .coach-single .coach-images img.active {
-            opacity: 1;
-        }
-        .coach-single .info {
-            padding: 24px;
-        }
+        .coach-single .coach-images img.active { opacity: 1; }
+        .coach-single .info { padding: 24px; }
         .coach-single .info h4 {
             font-size: 1.4rem;
             color: #FFFFFF;
             margin-bottom: 4px;
         }
         .coach-single .info .role {
-            color: var(--primary-red);
+            color: var(--primary-gold);
             font-weight: 600;
             font-size: 1rem;
         }
@@ -476,9 +446,7 @@
             padding: 40px;
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
-        .registration-wrapper .form-group {
-            margin-bottom: 20px;
-        }
+        .registration-wrapper .form-group { margin-bottom: 20px; }
         .registration-wrapper label {
             display: block;
             font-weight: 600;
@@ -500,12 +468,12 @@
         .registration-wrapper input:focus,
         .registration-wrapper select:focus,
         .registration-wrapper textarea:focus {
-            border-color: var(--primary-red);
+            border-color: var(--primary-gold);
             outline: none;
-            box-shadow: 0 0 0 3px rgba(215, 4, 4, 0.2);
+            box-shadow: 0 0 0 3px rgba(212, 160, 23, 0.2);
         }
 
-        /* ===== SCHEDULE TABLE ===== */
+        /* ===== SCHEDULE ===== */
         .schedule-wrapper {
             background: rgba(255, 255, 255, 0.05);
             border-radius: var(--radius);
@@ -519,7 +487,7 @@
             min-width: 700px;
         }
         .schedule-table th {
-            background: var(--primary-red);
+            background: var(--primary-gold);
             color: #FFFFFF;
             padding: 14px;
             text-align: center;
@@ -530,16 +498,14 @@
             text-align: center;
             border-bottom: 1px solid rgba(255,255,255,0.05);
         }
-        .schedule-table tr:nth-child(even) td {
-            background: rgba(255,255,255,0.02);
-        }
+        .schedule-table tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
         .schedule-table .empty {
             color: var(--light-gray);
             opacity: 0.6;
             font-style: italic;
         }
 
-        /* ===== PLAYERS LIST ===== */
+        /* ===== PLAYERS ===== */
         .players-list {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -575,7 +541,7 @@
             color: var(--light-gray);
         }
         .contact-info i {
-            color: var(--primary-red);
+            color: var(--primary-gold);
             width: 24px;
         }
         .contact-form input,
@@ -592,18 +558,16 @@
         }
         .contact-form input:focus,
         .contact-form textarea:focus {
-            border-color: var(--primary-red);
+            border-color: var(--primary-gold);
             outline: none;
         }
-        .contact-form textarea {
-            min-height: 120px;
-        }
+        .contact-form textarea { min-height: 120px; }
 
         /* ===== FOOTER ===== */
         .footer {
             background: var(--primary-blue-dark);
             padding: 60px 20px 30px;
-            border-top: 1px solid rgba(215, 4, 4, 0.2);
+            border-top: 1px solid rgba(212, 160, 23, 0.2);
         }
         .footer-grid {
             display: grid;
@@ -628,7 +592,7 @@
             transition: 0.2s;
         }
         .footer-col a:hover {
-            color: var(--primary-red);
+            color: var(--primary-gold);
             opacity: 1;
         }
         .footer-social {
@@ -641,9 +605,7 @@
             font-size: 1.4rem;
             transition: 0.2s;
         }
-        .footer-social a:hover {
-            color: var(--primary-red);
-        }
+        .footer-social a:hover { color: var(--primary-gold); }
         .footer-bottom {
             text-align: center;
             padding-top: 30px;
@@ -660,7 +622,7 @@
             bottom: 20px;
             left: 20px;
             z-index: 9999;
-            background: rgba(215, 4, 4, 0.8);
+            background: rgba(212, 160, 23, 0.8);
             border: none;
             color: #FFFFFF;
             padding: 8px 16px;
@@ -670,9 +632,7 @@
             backdrop-filter: blur(4px);
             transition: 0.3s;
         }
-        .admin-toggle:hover {
-            background: var(--primary-red);
-        }
+        .admin-toggle:hover { background: var(--primary-gold); }
 
         /* ===== ADMIN PANEL ===== */
         .admin-panel-overlay {
@@ -689,9 +649,7 @@
             align-items: center;
             padding: 20px;
         }
-        .admin-panel-overlay.active {
-            display: flex;
-        }
+        .admin-panel-overlay.active { display: flex; }
         .admin-panel {
             background: #0A0A0F;
             border-radius: 40px;
@@ -700,14 +658,14 @@
             max-height: 90vh;
             overflow-y: auto;
             padding: 30px;
-            border: 1px solid var(--primary-red);
+            border: 1px solid var(--primary-gold);
             position: relative;
         }
         .admin-panel .close-admin {
             position: sticky;
             top: 0;
             float: left;
-            background: var(--primary-red);
+            background: var(--primary-gold);
             border: none;
             color: #FFFFFF;
             padding: 8px 18px;
@@ -735,7 +693,7 @@
         .admin-panel .admin-stat .num {
             font-size: 2rem;
             font-weight: 800;
-            color: var(--primary-red);
+            color: var(--primary-gold);
         }
         .admin-panel .admin-stat .label {
             color: var(--light-gray);
@@ -767,7 +725,7 @@
             border-bottom: 1px solid rgba(255,255,255,0.05);
         }
         .admin-panel table .del-btn {
-            background: var(--primary-red);
+            background: var(--primary-gold);
             border: none;
             color: #FFFFFF;
             padding: 4px 12px;
@@ -785,7 +743,7 @@
             margin-bottom: 10px;
         }
         .admin-panel .admin-form button {
-            background: var(--primary-red);
+            background: var(--primary-gold);
             border: none;
             padding: 8px 20px;
             border-radius: 30px;
@@ -795,14 +753,9 @@
 
         /* ===== RESPONSIVE ===== */
         @media (max-width: 1024px) {
-            .hero h1 {
-                font-size: 3.2rem;
-            }
-            .section-title {
-                font-size: 2.2rem;
-            }
+            .hero h1 { font-size: 3.2rem; }
+            .section-title { font-size: 2.2rem; }
         }
-
         @media (max-width: 850px) {
             .navbar {
                 padding: 12px 20px;
@@ -820,49 +773,25 @@
                 position: absolute;
                 top: 100%;
                 left: 0;
-                border-bottom: 1px solid rgba(215, 4, 4, 0.2);
+                border-bottom: 1px solid rgba(212, 160, 23, 0.2);
             }
-            .nav-links.show {
-                display: flex;
-            }
-            .menu-btn {
-                display: block;
-            }
-            .hero h1 {
-                font-size: 2.4rem;
-            }
-            .hero p {
-                font-size: 1rem;
-            }
-            .contact-grid {
-                grid-template-columns: 1fr;
-            }
-            .registration-wrapper {
-                padding: 24px;
-            }
-            section {
-                padding: 50px 0;
-            }
-            .section-title {
-                font-size: 1.8rem;
-            }
-            .admin-panel {
-                padding: 20px;
-            }
+            .nav-links.show { display: flex; }
+            .menu-btn { display: block; }
+            .hero h1 { font-size: 2.4rem; }
+            .hero p { font-size: 1rem; }
+            .contact-grid { grid-template-columns: 1fr; }
+            .registration-wrapper { padding: 24px; }
+            section { padding: 50px 0; }
+            .section-title { font-size: 1.8rem; }
+            .admin-panel { padding: 20px; }
         }
-
         @media (max-width: 480px) {
-            .hero h1 {
-                font-size: 1.8rem;
-            }
-            .btn-primary,
-            .btn-outline {
+            .hero h1 { font-size: 1.8rem; }
+            .btn-primary, .btn-outline {
                 padding: 10px 24px;
                 font-size: 0.85rem;
             }
-            .hero-buttons {
-                gap: 10px;
-            }
+            .hero-buttons { gap: 10px; }
         }
     </style>
 </head>
@@ -880,6 +809,7 @@
         <li><a href="#about">عن الأكاديمية</a></li>
         <li><a href="#coach">المدير الفني</a></li>
         <li><a href="#gallery">المعرض</a></li>
+        <li><a href="#videos">الفيديوهات</a></li>
         <li><a href="#kits">الأطقم</a></li>
         <li><a href="#registration">التسجيل</a></li>
         <li><a href="#schedule">جدول التدريبات</a></li>
@@ -976,8 +906,26 @@
 <!-- ===== DIVIDER ===== -->
 <div class="section-divider"></div>
 
+<!-- ===== VIDEOS SECTION (جديد) ===== -->
+<section id="videos" class="section-light">
+    <div class="container">
+        <h2 class="section-title">🎥 فيديوهات <span>الأكاديمية</span></h2>
+        <p class="section-subtitle">شاهد نبذة عن مقر تدريباتنا في برج الكيفان – تجربة حية لأجواء التدريب.</p>
+        <div class="video-wrapper">
+            <video controls preload="metadata" poster="https://github.com/darkonovic51-hash/Academy-Tecnho-football-/raw/bc8f5fa98c6a5536771f5d6df88692cb9d18dd6b/file_0000000072e871f4ac3fd1c6f3928600.png">
+                <source src="https://raw.githubusercontent.com/darkonovic51-hash/Academy-Tecnho-football-/42aaf4132007f328e33d2aeaa0b05670a9e3f332/%E2%96%AA%EF%B8%8F%D9%86%D8%A8%D8%B0%D8%A9%20%D8%B9%D9%86%20%D9%85%D9%82%D8%B1%20%D8%AA%D8%AF%D8%B1%D9%8A%D8%A8%D8%A7%D8%AA%20%D8%A3%D9%83%D8%A7%D8%AF%D9%8A%D9%85%D9%8A%D8%AA%D9%86%D8%A7%20%D9%81%D8%B1%D8%B9%20_%20%D8%A8%D8%B1%D8%AC%20%D8%A7%D9%84%D9%83%D9%8A%D9%81%D8%A7%D9%86%20_%20%D9%81%D9%8A%20%D9%85%D9%84%D8%A7%D8%B9%D8%A8%20%D9%85%D8%BA%D8%B7%D8%A7%D8%A9%20%D8%8C%20%D8%A3%D9%85%D8%A7%D9%83%D9%86%20%D8%A7%D9%84%D8%AA%D8%B3%D8%AC%D9%8A%D9%84%20%D8%AC%D8%AF%20.mp4" type="video/mp4">
+                متصفحك لا يدعم تشغيل الفيديو.
+            </video>
+        </div>
+        <p style="text-align:center; color:var(--light-gray); margin-top:12px; font-size:0.9rem;">📍 فيديو تعريفي لمقر تدريبات فرع برج الكيفان – ملاعب مغطاة</p>
+    </div>
+</section>
+
+<!-- ===== DIVIDER ===== -->
+<div class="section-divider"></div>
+
 <!-- ===== KITS ===== -->
-<section id="kits" class="section-light">
+<section id="kits" class="section-dark">
     <div class="container">
         <h2 class="section-title">الأطقم <span>الرسمية</span></h2>
         <p class="section-subtitle">طقم أكاديمية تيكنو الرسمي – هوية الفريق.</p>
@@ -991,16 +939,16 @@
 <div class="section-divider"></div>
 
 <!-- ===== REGISTRATION ===== -->
-<section id="registration" class="section-dark">
+<section id="registration" class="section-light">
     <div class="container">
         <h2 class="section-title">سجل <span>الآن</span></h2>
         <p class="section-subtitle">انضم إلى أكاديمية تيكنو وكن جزءاً من مستقبل كرة القدم.</p>
         <div style="text-align:center; margin-bottom:30px; background:rgba(255,255,255,0.05); border-radius:20px; padding:20px;">
             <h3 style="color:#FFFFFF; margin-bottom:15px;">📍 أكاديميتنا موجودة في:</h3>
             <div style="display:flex; justify-content:center; gap:30px; flex-wrap:wrap; color:var(--light-gray);">
-                <div><strong style="color:var(--primary-red);">باب الزوار:</strong> 05.52.47.41.40</div>
-                <div><strong style="color:var(--primary-red);">برج الكيفان:</strong> 05.57.76.86.08</div>
-                <div><strong style="color:var(--primary-red);">الخروبة:</strong> 07.91.96.16.63</div>
+                <div><strong style="color:var(--primary-gold);">باب الزوار:</strong> 05.52.47.41.40</div>
+                <div><strong style="color:var(--primary-gold);">برج الكيفان:</strong> 05.57.76.86.08</div>
+                <div><strong style="color:var(--primary-gold);">الخروبة:</strong> 07.91.96.16.63</div>
             </div>
         </div>
         <div class="registration-wrapper">
@@ -1025,7 +973,7 @@
 <div class="section-divider"></div>
 
 <!-- ===== SCHEDULE ===== -->
-<section id="schedule" class="section-light">
+<section id="schedule" class="section-dark">
     <div class="container">
         <h2 class="section-title">جدول <span>التدريبات</span></h2>
         <p class="section-subtitle">جدول أسبوعي منظم لجميع الفئات العمرية.</p>
@@ -1039,12 +987,12 @@
 <div class="section-divider"></div>
 
 <!-- ===== MATCHES ===== -->
-<section id="matches" class="section-dark">
+<section id="matches" class="section-light">
     <div class="container">
         <h2 class="section-title">المباريات <span>الودية</span></h2>
         <p class="section-subtitle">جميع المباريات الودية للفرق – سيتم الإعلان عنها قريباً.</p>
-        <div id="matchesContainer" style="text-align:center; padding:40px; background:rgba(255,255,255,0.05); border-radius:var(--radius); border:2px dashed rgba(215,4,4,0.3);">
-            <i class="fas fa-calendar-alt" style="font-size:3rem; color:var(--primary-red); opacity:0.5;"></i>
+        <div id="matchesContainer" style="text-align:center; padding:40px; background:rgba(255,255,255,0.05); border-radius:var(--radius); border:2px dashed rgba(212,160,23,0.3);">
+            <i class="fas fa-calendar-alt" style="font-size:3rem; color:var(--primary-gold); opacity:0.5;"></i>
             <h3 style="color:#FFFFFF; margin-top:15px;">لا توجد مباريات ودية حالياً</h3>
             <p style="color:var(--light-gray);">سيتم الإعلان عن المباريات القادمة فور اعتماد الجدول الزمني.</p>
         </div>
@@ -1055,13 +1003,13 @@
 <div class="section-divider"></div>
 
 <!-- ===== PLAYERS ===== -->
-<section id="players" class="section-light">
+<section id="players" class="section-dark">
     <div class="container">
         <h2 class="section-title">قوائم <span>اللاعبين</span></h2>
         <p class="section-subtitle">جميع لاعبي أكاديمية تيكنو حسب الفئات العمرية.</p>
         <div id="playersContainer">
-            <div style="text-align:center; padding:40px; background:rgba(255,255,255,0.05); border-radius:var(--radius); border:2px dashed rgba(215,4,4,0.3);">
-                <i class="fas fa-users" style="font-size:3rem; color:var(--primary-red); opacity:0.5;"></i>
+            <div style="text-align:center; padding:40px; background:rgba(255,255,255,0.05); border-radius:var(--radius); border:2px dashed rgba(212,160,23,0.3);">
+                <i class="fas fa-users" style="font-size:3rem; color:var(--primary-gold); opacity:0.5;"></i>
                 <h3 style="color:#FFFFFF; margin-top:15px;">سيتم إضافة قوائم اللاعبين قريباً</h3>
                 <p style="color:var(--light-gray);">يمكن للمسؤول إضافة اللاعبين من لوحة التحكم.</p>
             </div>
@@ -1073,7 +1021,7 @@
 <div class="section-divider"></div>
 
 <!-- ===== CONTACT ===== -->
-<section id="contact" class="section-dark">
+<section id="contact" class="section-light">
     <div class="container">
         <h2 class="section-title">تواصل <span>معنا</span></h2>
         <p class="section-subtitle">نحن هنا للإجابة على استفساراتكم. تواصلوا معنا عبر أي من القنوات التالية.</p>
@@ -1083,7 +1031,7 @@
                 <p><i class="fas fa-map-marker-alt"></i> المركب الرياضي، برج الكيفان، الجزائر</p>
                 <p><i class="fas fa-phone-alt"></i> 05.52.47.41.40</p>
                 <p><i class="fas fa-envelope"></i> info@technoacademy.dz</p>
-                <p><i class="fab fa-facebook"></i> <a href="https://www.facebook.com/profile.php?id=100063920144998" target="_blank" style="color:var(--primary-red); text-decoration:none;">تابعنا على فيسبوك</a></p>
+                <p><i class="fab fa-facebook"></i> <a href="https://www.facebook.com/profile.php?id=100063920144998" target="_blank" style="color:var(--primary-gold); text-decoration:none;">تابعنا على فيسبوك</a></p>
                 <div style="display:flex; gap:16px; margin-top:20px;">
                     <a href="https://www.facebook.com/profile.php?id=100063920144998" target="_blank" style="color:var(--light-gray); font-size:1.8rem; transition:0.2s;"><i class="fab fa-facebook"></i></a>
                     <a href="#" style="color:var(--light-gray); font-size:1.8rem; transition:0.2s;"><i class="fab fa-instagram"></i></a>
@@ -1107,7 +1055,7 @@
         <div class="footer-col">
             <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px;">
                 <img src="https://github.com/darkonovic51-hash/Academy-Tecnho-football-/raw/42aaf4132007f328e33d2aeaa0b05670a9e3f332/1000015229-removebg-preview.png" alt="شعار" style="height:45px; width:auto;">
-                <span style="font-size:1.4rem; font-weight:800; color:#FFFFFF;">تيكنو <span style="color:var(--primary-red);">Academy</span></span>
+                <span style="font-size:1.4rem; font-weight:800; color:#FFFFFF;">تيكنو <span style="color:var(--primary-gold);">Academy</span></span>
             </div>
             <p style="opacity:0.6;">أكاديمية كرة القدم الرائدة في الجزائر، نصنع النجوم ونبني المستقبل.</p>
         </div>
@@ -1146,8 +1094,8 @@
 
         <!-- كلمة السر -->
         <div id="adminLogin" style="text-align:center; margin-bottom:20px;">
-            <input type="password" id="adminPassInput" placeholder="أدخل كلمة السر" style="padding:12px 20px; border-radius:60px; border:1px solid var(--primary-red); background:rgba(0,0,0,0.3); color:#fff; width:250px;">
-            <button onclick="adminLogin()" style="background:var(--primary-red); border:none; padding:12px 24px; border-radius:60px; color:#fff; cursor:pointer;">دخول</button>
+            <input type="password" id="adminPassInput" placeholder="أدخل كلمة السر" style="padding:12px 20px; border-radius:60px; border:1px solid var(--primary-gold); background:rgba(0,0,0,0.3); color:#fff; width:250px;">
+            <button onclick="adminLogin()" style="background:var(--primary-gold); border:none; padding:12px 24px; border-radius:60px; color:#fff; cursor:pointer;">دخول</button>
             <div id="adminLoginError" style="color:red; margin-top:10px; display:none;">❌ كلمة سر غير صحيحة</div>
         </div>
 
@@ -1192,7 +1140,7 @@
             <div class="admin-section">
                 <h3>📅 إدارة جدول التدريبات</h3>
                 <div id="adminScheduleContainer"></div>
-                <button onclick="addScheduleRow()" style="background:var(--primary-red); border:none; padding:8px 20px; border-radius:30px; color:#fff; cursor:pointer; margin-top:10px;">+ إضافة صف</button>
+                <button onclick="addScheduleRow()" style="background:var(--primary-gold); border:none; padding:8px 20px; border-radius:30px; color:#fff; cursor:pointer; margin-top:10px;">+ إضافة صف</button>
                 <button onclick="saveScheduleAdmin()" style="background:var(--primary-blue); border:none; padding:8px 20px; border-radius:30px; color:#fff; cursor:pointer; margin-top:10px; margin-right:10px;">💾 حفظ الجدول</button>
             </div>
 
@@ -1200,7 +1148,7 @@
             <div class="admin-section">
                 <h3>⚽ إدارة المباريات الودية</h3>
                 <div id="adminMatchesContainer"></div>
-                <button onclick="addMatch()" style="background:var(--primary-red); border:none; padding:8px 20px; border-radius:30px; color:#fff; cursor:pointer; margin-top:10px;">+ إضافة مباراة</button>
+                <button onclick="addMatch()" style="background:var(--primary-gold); border:none; padding:8px 20px; border-radius:30px; color:#fff; cursor:pointer; margin-top:10px;">+ إضافة مباراة</button>
                 <button onclick="saveMatchesAdmin()" style="background:var(--primary-blue); border:none; padding:8px 20px; border-radius:30px; color:#fff; cursor:pointer; margin-top:10px; margin-right:10px;">💾 حفظ المباريات</button>
             </div>
 
@@ -1208,7 +1156,7 @@
             <div class="admin-section">
                 <h3>👕 إدارة قوائم اللاعبين</h3>
                 <div id="adminPlayersContainer"></div>
-                <button onclick="addPlayer()" style="background:var(--primary-red); border:none; padding:8px 20px; border-radius:30px; color:#fff; cursor:pointer; margin-top:10px;">+ إضافة لاعب</button>
+                <button onclick="addPlayer()" style="background:var(--primary-gold); border:none; padding:8px 20px; border-radius:30px; color:#fff; cursor:pointer; margin-top:10px;">+ إضافة لاعب</button>
                 <button onclick="savePlayersAdmin()" style="background:var(--primary-blue); border:none; padding:8px 20px; border-radius:30px; color:#fff; cursor:pointer; margin-top:10px; margin-right:10px;">💾 حفظ اللاعبين</button>
             </div>
 
@@ -1216,7 +1164,7 @@
             <div class="admin-section">
                 <h3>🔑 تغيير كلمة السر</h3>
                 <input type="password" id="newAdminPass" placeholder="كلمة سر جديدة" style="padding:10px; border-radius:12px; border:1px solid rgba(255,255,255,0.1); background:rgba(0,0,0,0.3); color:#fff; width:200px;">
-                <button onclick="changeAdminPassword()" style="background:var(--primary-red); border:none; padding:8px 20px; border-radius:30px; color:#fff; cursor:pointer;">تغيير</button>
+                <button onclick="changeAdminPassword()" style="background:var(--primary-gold); border:none; padding:8px 20px; border-radius:30px; color:#fff; cursor:pointer;">تغيير</button>
             </div>
         </div>
     </div>
@@ -1224,13 +1172,12 @@
 
 <script>
     // ============================================================
-    // ===== البيانات والـ LocalStorage =====
+    // ===== البيانات والـ LocalStorage (نفسها مع تعديل اللون) =====
     // ============================================================
 
     const ADMIN_PASSWORD_KEY = 'techno_admin_pass';
     const STORAGE_KEY = 'techno_academy_data';
 
-    // البيانات الافتراضية
     const defaultData = {
         gallery: [
             { id: 1, title: 'لاعبو الأكاديمية', url: 'https://github.com/darkonovic51-hash/Academy-Tecnho-football-/raw/bc8f5fa98c6a5536771f5d6df88692cb9d18dd6b/file_0000000080887246a3ae03f9d509af06.png' },
@@ -1262,18 +1209,10 @@
 
     let registrations = JSON.parse(localStorage.getItem('techno_registrations')) || [];
 
-    function saveAppData() {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
-    }
+    function saveAppData() { localStorage.setItem(STORAGE_KEY, JSON.stringify(appData)); }
+    function saveRegistrations() { localStorage.setItem('techno_registrations', JSON.stringify(registrations)); }
 
-    function saveRegistrations() {
-        localStorage.setItem('techno_registrations', JSON.stringify(registrations));
-    }
-
-    // ============================================================
     // ===== عرض الصور والمعرض =====
-    // ============================================================
-
     function renderGallery() {
         const container = document.getElementById('galleryGrid');
         if (!container) return;
@@ -1289,17 +1228,14 @@
         });
     }
 
-    // ============================================================
     // ===== عرض جدول التدريبات =====
-    // ============================================================
-
     function renderSchedule() {
         const container = document.getElementById('scheduleWrapper');
         if (!container) return;
         if (appData.schedule.length === 0) {
             container.innerHTML = `
                 <div style="text-align:center; padding:30px;">
-                    <i class="fas fa-calendar-alt" style="font-size:2rem; color:var(--primary-red); opacity:0.5;"></i>
+                    <i class="fas fa-calendar-alt" style="font-size:2rem; color:var(--primary-gold); opacity:0.5;"></i>
                     <p style="color:var(--light-gray); margin-top:10px;">لا توجد بيانات تدريب حالياً. يمكن للمسؤول إضافتها من لوحة التحكم.</p>
                 </div>
             `;
@@ -1317,16 +1253,13 @@
         container.innerHTML = html;
     }
 
-    // ============================================================
     // ===== عرض المباريات =====
-    // ============================================================
-
     function renderMatches() {
         const container = document.getElementById('matchesContainer');
         if (!container) return;
         if (appData.matches.length === 0) {
             container.innerHTML = `
-                <i class="fas fa-calendar-alt" style="font-size:3rem; color:var(--primary-red); opacity:0.5;"></i>
+                <i class="fas fa-calendar-alt" style="font-size:3rem; color:var(--primary-gold); opacity:0.5;"></i>
                 <h3 style="color:#FFFFFF; margin-top:15px;">لا توجد مباريات ودية حالياً</h3>
                 <p style="color:var(--light-gray);">سيتم الإعلان عن المباريات القادمة فور اعتماد الجدول الزمني.</p>
             `;
@@ -1336,7 +1269,7 @@
         appData.matches.forEach(m => {
             html += `
                 <div style="background:rgba(255,255,255,0.05); border-radius:16px; padding:20px; text-align:center;">
-                    <div style="color:var(--primary-red); font-weight:700;">${m.opponent || 'خصم'}</div>
+                    <div style="color:var(--primary-gold); font-weight:700;">${m.opponent || 'خصم'}</div>
                     <div style="color:var(--light-gray);">${m.date || 'تاريخ'}</div>
                     <div style="color:var(--light-gray);">${m.location || 'مكان'}</div>
                 </div>
@@ -1346,17 +1279,14 @@
         container.innerHTML = html;
     }
 
-    // ============================================================
     // ===== عرض اللاعبين =====
-    // ============================================================
-
     function renderPlayers() {
         const container = document.getElementById('playersContainer');
         if (!container) return;
         if (appData.players.length === 0) {
             container.innerHTML = `
-                <div style="text-align:center; padding:40px; background:rgba(255,255,255,0.05); border-radius:var(--radius); border:2px dashed rgba(215,4,4,0.3);">
-                    <i class="fas fa-users" style="font-size:3rem; color:var(--primary-red); opacity:0.5;"></i>
+                <div style="text-align:center; padding:40px; background:rgba(255,255,255,0.05); border-radius:var(--radius); border:2px dashed rgba(212,160,23,0.3);">
+                    <i class="fas fa-users" style="font-size:3rem; color:var(--primary-gold); opacity:0.5;"></i>
                     <h3 style="color:#FFFFFF; margin-top:15px;">سيتم إضافة قوائم اللاعبين قريباً</h3>
                     <p style="color:var(--light-gray);">يمكن للمسؤول إضافة اللاعبين من لوحة التحكم.</p>
                 </div>
@@ -1376,10 +1306,7 @@
         container.innerHTML = html;
     }
 
-    // ============================================================
-    // ===== صورة المدير الفني (تأثير انتقالي) =====
-    // ============================================================
-
+    // ===== صورة المدير الفني =====
     let coachIndex = 0;
     const coachImages = document.querySelectorAll('#coachImages img');
     if (coachImages.length > 1) {
@@ -1390,10 +1317,7 @@
         }, 3000);
     }
 
-    // ============================================================
-    // ===== نموذج التسجيل (FormSubmit) =====
-    // ============================================================
-
+    // ===== نموذج التسجيل =====
     document.getElementById('registrationForm').addEventListener('submit', async function(e) {
         e.preventDefault();
         const firstName = document.getElementById('regFirstName').value.trim();
@@ -1406,18 +1330,10 @@
             return;
         }
 
-        // حفظ في localStorage
-        const newReg = {
-            firstName,
-            lastName,
-            phone,
-            location,
-            date: new Date().toLocaleString('ar-EG')
-        };
+        const newReg = { firstName, lastName, phone, location, date: new Date().toLocaleString('ar-EG') };
         registrations.push(newReg);
         saveRegistrations();
 
-        // إرسال إلى البريد الإلكتروني عبر FormSubmit
         try {
             const formData = new FormData();
             formData.append('الاسم الشخصي', firstName);
@@ -1440,10 +1356,7 @@
         }
     });
 
-    // ============================================================
-    // ===== لوحة التحكم (Admin Panel) =====
-    // ============================================================
-
+    // ===== لوحة التحكم =====
     let adminPassword = localStorage.getItem(ADMIN_PASSWORD_KEY) || 'admin2025';
     let adminLoggedIn = false;
 
@@ -1461,7 +1374,6 @@
     }
 
     function renderAdminDashboard() {
-        // إحصائيات
         document.getElementById('adminStats').innerHTML = `
             <div class="admin-stat"><div class="num">${registrations.length}</div><div class="label">طلبات التسجيل</div></div>
             <div class="admin-stat"><div class="num">${appData.gallery.length}</div><div class="label">الصور</div></div>
@@ -1486,19 +1398,13 @@
             delCell.innerHTML = `<button class="del-btn" onclick="deleteRegistration(${idx})">✕</button>`;
         });
 
-        // إدارة المعرض
         renderAdminGallery();
-        // إدارة الفيديو
         renderAdminVideos();
-        // إدارة الجدول
         renderAdminSchedule();
-        // إدارة المباريات
         renderAdminMatches();
-        // إدارة اللاعبين
         renderAdminPlayers();
     }
 
-    // حذف طلب تسجيل
     function deleteRegistration(idx) {
         registrations.splice(idx, 1);
         saveRegistrations();
@@ -1514,7 +1420,7 @@
             div.style.cssText = 'display:flex; align-items:center; gap:10px; background:rgba(255,255,255,0.05); border-radius:12px; padding:8px 16px;';
             div.innerHTML = `
                 <span style="flex:1; color:#fff;">${item.title}</span>
-                <button onclick="deleteGalleryItem(${idx})" style="background:var(--primary-red); border:none; color:#fff; padding:4px 12px; border-radius:20px; cursor:pointer;">✕</button>
+                <button onclick="deleteGalleryItem(${idx})" style="background:var(--primary-gold); border:none; color:#fff; padding:4px 12px; border-radius:20px; cursor:pointer;">✕</button>
             `;
             container.appendChild(div);
         });
@@ -1548,7 +1454,7 @@
             div.style.cssText = 'display:flex; align-items:center; gap:10px; background:rgba(255,255,255,0.05); border-radius:12px; padding:8px 16px; margin-bottom:5px;';
             div.innerHTML = `
                 <span style="flex:1; color:#fff;">${item.title}</span>
-                <button onclick="deleteVideoItem(${idx})" style="background:var(--primary-red); border:none; color:#fff; padding:4px 12px; border-radius:20px; cursor:pointer;">✕</button>
+                <button onclick="deleteVideoItem(${idx})" style="background:var(--primary-gold); border:none; color:#fff; padding:4px 12px; border-radius:20px; cursor:pointer;">✕</button>
             `;
             container.appendChild(div);
         });
@@ -1595,7 +1501,7 @@
                     <td><input value="${row.time}" data-idx="${idx}" data-field="time" class="schedule-admin-input" style="width:100%; padding:6px 10px; border-radius:12px; border:1px solid rgba(255,255,255,0.1); background:rgba(0,0,0,0.3); color:#fff;"></td>
                     <td><input value="${row.time}" data-idx="${idx}" data-field="time" class="schedule-admin-input" style="width:100%; padding:6px 10px; border-radius:12px; border:1px solid rgba(255,255,255,0.1); background:rgba(0,0,0,0.3); color:#fff;"></td>
                     <td><input value="${row.field}" data-idx="${idx}" data-field="field" class="schedule-admin-input" style="width:100%; padding:6px 10px; border-radius:12px; border:1px solid rgba(255,255,255,0.1); background:rgba(0,0,0,0.3); color:#fff;"></td>
-                    <td><button onclick="deleteScheduleRow(${idx})" style="background:var(--primary-red); border:none; color:#fff; padding:4px 12px; border-radius:20px; cursor:pointer;">✕</button></td>
+                    <td><button onclick="deleteScheduleRow(${idx})" style="background:var(--primary-gold); border:none; color:#fff; padding:4px 12px; border-radius:20px; cursor:pointer;">✕</button></td>
                 </tr>
             `;
         });
@@ -1641,7 +1547,7 @@
                     <input value="${m.opponent || ''}" data-idx="${idx}" data-field="opponent" class="match-admin-input" placeholder="الخصم" style="flex:1; padding:6px 10px; border-radius:12px; border:1px solid rgba(255,255,255,0.1); background:rgba(0,0,0,0.3); color:#fff;">
                     <input value="${m.date || ''}" data-idx="${idx}" data-field="date" class="match-admin-input" placeholder="التاريخ" style="flex:1; padding:6px 10px; border-radius:12px; border:1px solid rgba(255,255,255,0.1); background:rgba(0,0,0,0.3); color:#fff;">
                     <input value="${m.location || ''}" data-idx="${idx}" data-field="location" class="match-admin-input" placeholder="المكان" style="flex:1; padding:6px 10px; border-radius:12px; border:1px solid rgba(255,255,255,0.1); background:rgba(0,0,0,0.3); color:#fff;">
-                    <button onclick="deleteMatch(${idx})" style="background:var(--primary-red); border:none; color:#fff; padding:4px 12px; border-radius:20px; cursor:pointer;">✕</button>
+                    <button onclick="deleteMatch(${idx})" style="background:var(--primary-gold); border:none; color:#fff; padding:4px 12px; border-radius:20px; cursor:pointer;">✕</button>
                 </div>
             `;
         });
@@ -1685,7 +1591,7 @@
                 <div style="display:flex; gap:10px; align-items:center; background:rgba(255,255,255,0.05); border-radius:12px; padding:8px 16px; margin-bottom:5px; flex-wrap:wrap;">
                     <input value="${p.name || ''}" data-idx="${idx}" data-field="name" class="player-admin-input" placeholder="الاسم" style="flex:1; padding:6px 10px; border-radius:12px; border:1px solid rgba(255,255,255,0.1); background:rgba(0,0,0,0.3); color:#fff;">
                     <input value="${p.category || ''}" data-idx="${idx}" data-field="category" class="player-admin-input" placeholder="الفئة" style="flex:1; padding:6px 10px; border-radius:12px; border:1px solid rgba(255,255,255,0.1); background:rgba(0,0,0,0.3); color:#fff;">
-                    <button onclick="deletePlayer(${idx})" style="background:var(--primary-red); border:none; color:#fff; padding:4px 12px; border-radius:20px; cursor:pointer;">✕</button>
+                    <button onclick="deletePlayer(${idx})" style="background:var(--primary-gold); border:none; color:#fff; padding:4px 12px; border-radius:20px; cursor:pointer;">✕</button>
                 </div>
             `;
         });
@@ -1720,7 +1626,6 @@
         alert('✅ تم حفظ اللاعبين');
     }
 
-    // ===== تغيير كلمة السر =====
     function changeAdminPassword() {
         const newPass = document.getElementById('newAdminPass').value.trim();
         if (newPass.length < 4) { alert('كلمة السر يجب أن تكون 4 أحرف على الأقل'); return; }
@@ -1733,38 +1638,30 @@
     // ===== فتح وإغلاق لوحة التحكم =====
     document.getElementById('adminToggle').addEventListener('click', function() {
         document.getElementById('adminPanel').classList.toggle('active');
-        if (adminLoggedIn) {
-            renderAdminDashboard();
-        }
+        if (adminLoggedIn) renderAdminDashboard();
     });
 
     document.getElementById('closeAdmin').addEventListener('click', function() {
         document.getElementById('adminPanel').classList.remove('active');
     });
 
-    // ============================================================
     // ===== تهيئة الموقع =====
-    // ============================================================
-
     function init() {
         renderGallery();
         renderSchedule();
         renderMatches();
         renderPlayers();
 
-        // Navbar
         const navbar = document.getElementById('navbar');
         window.addEventListener('scroll', () => {
             if (window.scrollY > 60) navbar.classList.add('scrolled');
             else navbar.classList.remove('scrolled');
         });
 
-        // Mobile menu
         const menuBtn = document.getElementById('menuBtn');
         const navLinks = document.getElementById('navLinks');
         menuBtn.addEventListener('click', () => navLinks.classList.toggle('show'));
 
-        // Smooth scroll
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function(e) {
                 e.preventDefault();
