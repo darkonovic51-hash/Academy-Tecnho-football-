@@ -15,25 +15,31 @@
         /* ===== الألوان ===== */
         :root {
             /* الهوية الأساسية */
-            --primary-blue: #04185C;
-            --primary-blue-light: #0C2A7A;
+            --primary-blue: #0A1F5C;
+            --primary-blue-light: #1E3A8A;
             --primary-blue-dark: #06070F;
+            --primary-blue-soft: #EAF0FB;
             --primary-gold: #D4A017;
             --gold-light: #F0C750;
             --secondary-gold: #B8860B;
 
-            /* محايدات */
+            /* محايدات فاتحة (للأقسام الفاتحة) */
             --white: #FFFFFF;
+            --cream: #FAF8F2;
             --off-white: #F1EFE9;
+            --text-dark: #14192E;
+            --text-muted: #5C6178;
+
+            /* محايدات داكنة (للفوتر ولوحة التحكم فقط) */
             --light-gray: #A09DA3;
             --dark-gray: #5A5B66;
 
             /* سطوح وظلال */
-            --bg-card: rgba(255, 255, 255, 0.045);
-            --bg-card-hover: rgba(212, 160, 23, 0.06);
-            --border-card: rgba(255, 255, 255, 0.09);
-            --shadow: 0 20px 45px rgba(0, 0, 0, 0.35);
-            --shadow-gold: 0 15px 40px rgba(212, 160, 23, 0.18);
+            --bg-card: #FFFFFF;
+            --bg-card-hover: #FFF9EC;
+            --border-card: rgba(10, 31, 92, 0.10);
+            --shadow: 0 20px 45px rgba(10, 31, 92, 0.10);
+            --shadow-gold: 0 15px 35px rgba(212, 160, 23, 0.22);
 
             /* قياسات */
             --radius: 24px;
@@ -79,10 +85,10 @@
         body {
             font-family: 'Inter', 'Cairo', sans-serif;
             background:
-                radial-gradient(circle at 15% 0%, rgba(4, 24, 92, 0.35), transparent 45%),
-                radial-gradient(circle at 85% 100%, rgba(212, 160, 23, 0.08), transparent 40%),
-                #08080D;
-            color: var(--off-white);
+                radial-gradient(circle at 15% 0%, rgba(10, 31, 92, 0.05), transparent 45%),
+                radial-gradient(circle at 85% 100%, rgba(212, 160, 23, 0.06), transparent 40%),
+                var(--cream);
+            color: var(--text-dark);
             overflow-x: hidden;
             line-height: 1.7;
             letter-spacing: 0.1px;
@@ -117,13 +123,13 @@
             padding: 10px 28px;
             border-radius: 60px;
             font-weight: 600;
-            color: #FFFFFF;
+            color: var(--text-dark);
             cursor: pointer;
             transition: var(--transition);
             display: inline-block;
             text-decoration: none;
         }
-        .btn-outline:hover { background: var(--primary-gold); transform: translateY(-2px); }
+        .btn-outline:hover { background: var(--primary-gold); transform: translateY(-2px); color: #FFFFFF; }
 
         .btn-success { background: #2ecc71; border: none; color: #fff; padding: 6px 14px; border-radius: 30px; cursor: pointer; font-weight: 600; transition: 0.2s; }
         .btn-success:hover { background: #27ae60; transform: scale(1.05); }
@@ -138,7 +144,7 @@
             font-weight: 800;
             text-align: center;
             margin-bottom: 40px;
-            color: #FFFFFF;
+            color: var(--text-dark);
         }
         .section-title span { color: var(--primary-gold); }
         .section-title::after {
@@ -153,11 +159,11 @@
 
         .section-subtitle {
             text-align: center;
-            color: var(--light-gray);
+            color: var(--text-muted);
             max-width: 700px;
             margin: -25px auto 40px;
             font-size: 1.05rem;
-            opacity: 0.8;
+            opacity: 0.9;
         }
 
         /* ===== HEADER ===== */
@@ -175,11 +181,19 @@
             align-items: center;
         }
         .navbar.scrolled {
-            background: rgba(9, 10, 40, 0.95);
+            background: rgba(255, 255, 255, 0.92);
             backdrop-filter: blur(14px);
-            border-bottom: 1px solid rgba(212, 160, 23, 0.2);
+            border-bottom: 1px solid rgba(212, 160, 23, 0.25);
             padding: 8px 30px;
+            box-shadow: 0 4px 20px rgba(10, 31, 92, 0.08);
         }
+        .navbar.scrolled .logo span { color: var(--text-dark); }
+        .navbar.scrolled .nav-links a { color: var(--text-dark); }
+        .navbar.scrolled .nav-links a:hover { color: var(--primary-blue); }
+        .navbar.scrolled .lang-switch { background: rgba(10, 31, 92, 0.08); }
+        .navbar.scrolled .lang-switch button { color: var(--text-muted); }
+        .navbar.scrolled .menu-btn { color: var(--text-dark); }
+
         .logo {
             display: flex;
             align-items: center;
@@ -308,14 +322,14 @@
             transform: translate(-50%, -50%);
             color: var(--primary-gold);
             font-size: 1rem;
-            background: #0A0A0F;
+            background: var(--cream);
             padding: 0 16px;
         }
 
         /* ===== SECTIONS ===== */
         section { padding: 60px 0; }
-        .section-dark { background: var(--primary-blue-dark); }
-        .section-light { background: var(--primary-blue); }
+        .section-dark { background: var(--cream); }
+        .section-light { background: var(--primary-blue-soft); }
 
         /* ===== CARDS ===== */
         .card-grid {
@@ -365,8 +379,8 @@
             z-index: 1;
         }
         .card:hover i { transform: scale(1.08) rotate(-4deg); background: rgba(212, 160, 23, 0.18); }
-        .card h3 { font-size: 1.2rem; margin-bottom: 8px; color: #FFFFFF; font-weight: 700; position: relative; z-index: 1; }
-        .card p { color: var(--light-gray); opacity: 0.85; font-size: 0.95rem; line-height: 1.7; position: relative; z-index: 1; }
+        .card h3 { font-size: 1.2rem; margin-bottom: 8px; color: var(--text-dark); font-weight: 700; position: relative; z-index: 1; }
+        .card p { color: var(--text-muted); opacity: 1; font-size: 0.95rem; line-height: 1.7; position: relative; z-index: 1; }
 
         /* ===== GALLERY ===== */
         .gallery-grid {
@@ -381,29 +395,42 @@
             cursor: pointer;
             aspect-ratio: 4 / 3;
             border: 1px solid var(--border-card);
-            transition: var(--transition);
+            transition: transform 0.45s cubic-bezier(0.22, 0.9, 0.35, 1), box-shadow 0.45s ease, border-color 0.45s ease;
         }
+        .gallery-item::after {
+            content: '';
+            position: absolute;
+            top: 0; left: -150%;
+            width: 60%; height: 100%;
+            background: linear-gradient(120deg, transparent, rgba(255,255,255,0.4), transparent);
+            transform: skewX(-20deg);
+            transition: left 0.7s ease;
+            z-index: 2;
+            pointer-events: none;
+        }
+        .gallery-item:hover::after { left: 150%; }
         .gallery-item:hover {
-            border-color: rgba(212, 160, 23, 0.4);
+            border-color: rgba(212, 160, 23, 0.55);
             box-shadow: var(--shadow-gold);
-            transform: translateY(-4px);
+            transform: translateY(-8px) scale(1.03) rotate(-0.5deg);
         }
         .gallery-item img {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            transition: transform 0.5s ease;
+            transition: transform 0.6s cubic-bezier(0.22, 0.9, 0.35, 1);
         }
-        .gallery-item:hover img { transform: scale(1.05); }
+        .gallery-item:hover img { transform: scale(1.12) rotate(1deg); }
         .gallery-item .overlay {
             position: absolute;
             bottom: 0; left: 0; width: 100%;
             padding: 16px;
-            background: linear-gradient(0deg, rgba(0,0,0,0.8), transparent);
+            background: linear-gradient(0deg, rgba(10, 31, 92, 0.9), transparent);
+            transform: translateY(60%);
             opacity: 0;
-            transition: opacity 0.3s ease;
+            transition: transform 0.4s ease, opacity 0.4s ease;
         }
-        .gallery-item:hover .overlay { opacity: 1; }
+        .gallery-item:hover .overlay { transform: translateY(0); opacity: 1; }
         .gallery-item .overlay span { color: #FFFFFF; font-weight: 600; font-size: 0.95rem; }
 
         /* ===== VIDEO ===== */
@@ -445,19 +472,18 @@
         }
         .coach-single .coach-images img.active { opacity: 1; }
         .coach-single .info { padding: 20px; }
-        .coach-single .info h4 { font-size: 1.3rem; color: #FFFFFF; margin-bottom: 4px; }
-        .coach-single .info .role { color: var(--primary-gold); font-weight: 600; font-size: 0.95rem; }
-        .coach-single .info .details { color: var(--light-gray); opacity: 0.7; font-size: 0.85rem; margin-top: 6px; }
+        .coach-single .info h4 { font-size: 1.3rem; color: var(--text-dark); margin-bottom: 4px; }
+        .coach-single .info .role { color: var(--secondary-gold); font-weight: 600; font-size: 0.95rem; }
+        .coach-single .info .details { color: var(--text-muted); opacity: 1; font-size: 0.85rem; margin-top: 6px; }
 
         /* ===== REGISTRATION ===== */
         .registration-wrapper {
             max-width: 780px;
             margin: 0 auto;
-            background: linear-gradient(160deg, rgba(212, 160, 23, 0.07), rgba(4, 24, 92, 0.15));
-            backdrop-filter: blur(14px);
+            background: #FFFFFF;
             border-radius: var(--radius);
             padding: 45px 38px 38px;
-            border: 1px solid rgba(212, 160, 23, 0.3);
+            border: 1px solid rgba(212, 160, 23, 0.25);
             box-shadow: var(--shadow-gold);
             position: relative;
         }
@@ -483,7 +509,7 @@
             gap: 8px;
             font-weight: 600;
             margin-bottom: 8px;
-            color: #FFFFFF;
+            color: var(--text-dark);
             font-size: 0.9rem;
         }
         .registration-wrapper label i {
@@ -498,7 +524,7 @@
             top: 50%;
             right: 16px;
             transform: translateY(-50%);
-            color: var(--light-gray);
+            color: var(--text-muted);
             font-size: 0.95rem;
             pointer-events: none;
             transition: var(--transition);
@@ -508,9 +534,9 @@
             width: 100%;
             padding: 14px 44px 14px 16px;
             border-radius: var(--radius-sm);
-            border: 1.5px solid rgba(212, 160, 23, 0.2);
-            background: rgba(0,0,0,0.35);
-            color: #FFFFFF;
+            border: 1.5px solid rgba(10, 31, 92, 0.12);
+            background: #FFFFFF;
+            color: var(--text-dark);
             font-size: 0.98rem;
             font-family: inherit;
             transition: var(--transition);
@@ -525,8 +551,8 @@
         .registration-wrapper select:focus {
             border-color: var(--primary-gold);
             outline: none;
-            box-shadow: 0 0 0 4px rgba(212, 160, 23, 0.12);
-            background: rgba(0,0,0,0.5);
+            box-shadow: 0 0 0 4px rgba(212, 160, 23, 0.15);
+            background: #FFFDF6;
         }
         .registration-wrapper input:focus ~ i.field-icon { color: var(--primary-gold); }
         .registration-wrapper .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
@@ -553,9 +579,10 @@
             border: 1px solid var(--border-card);
             border-radius: 18px;
             padding: 18px;
+            box-shadow: var(--shadow);
         }
         .reg-locations-info h3 {
-            color: #FFFFFF;
+            color: var(--text-dark);
             margin-bottom: 12px;
             font-size: 1.05rem;
             display: flex;
@@ -567,7 +594,7 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            color: var(--light-gray);
+            color: var(--text-muted);
             font-size: 0.9rem;
         }
 
@@ -614,8 +641,8 @@
             text-align: center;
             border: 1px solid var(--border-card);
         }
-        .player-item .name { font-weight: 600; color: #FFFFFF; font-size: 1rem; }
-        .player-item .position { color: var(--light-gray); font-size: 0.8rem; }
+        .player-item .name { font-weight: 600; color: var(--text-dark); font-size: 1rem; }
+        .player-item .position { color: var(--text-muted); font-size: 0.8rem; }
         .player-item .category-badge {
             display: inline-block;
             background: var(--primary-gold);
@@ -638,7 +665,7 @@
             display: flex;
             align-items: center;
             gap: 14px;
-            color: var(--light-gray);
+            color: var(--text-muted);
         }
         .contact-info i { color: var(--primary-gold); width: 22px; }
         .contact-form input,
@@ -647,8 +674,8 @@
             padding: 12px 16px;
             border-radius: 14px;
             border: 1px solid var(--border-card);
-            background: rgba(0,0,0,0.3);
-            color: #FFFFFF;
+            background: #FFFFFF;
+            color: var(--text-dark);
             font-size: 1rem;
             margin-bottom: 14px;
             transition: 0.2s;
@@ -963,20 +990,21 @@
             font-size: 1.1rem;
         }
 
-        /* ===== نافذة نجاح ===== */
+        /* ===== نافذة نجاح احترافية ===== */
         .payment-modal {
             display: none;
             position: fixed;
             top: 0; left: 0;
             width: 100%; height: 100%;
-            background: rgba(0,0,0,0.7);
-            backdrop-filter: blur(8px);
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(6px);
             z-index: 999999;
             justify-content: center;
             align-items: center;
             padding: 20px;
         }
         .payment-modal.active { display: flex; }
+
         .payment-modal-content {
             background: linear-gradient(145deg, #1a1a2e, #0A0A0F);
             border: 2px solid var(--primary-gold);
@@ -988,25 +1016,55 @@
             box-shadow: 0 0 50px rgba(212, 160, 23, 0.2);
             animation: modalPop 0.3s ease;
         }
+
+        /* نافذة النجاح الجديدة */
+        .success-modal-content {
+            background: #FFFFFF;
+            border-radius: 28px;
+            max-width: 420px;
+            width: 100%;
+            overflow: hidden;
+            box-shadow: 0 25px 60px rgba(10, 31, 92, 0.35);
+            animation: modalPop 0.35s ease;
+            text-align: center;
+        }
+        .success-modal-header {
+            background: linear-gradient(135deg, var(--primary-blue), var(--primary-blue-light));
+            padding: 22px 20px;
+            position: relative;
+        }
+        .success-modal-header::after {
+            content: '';
+            position: absolute;
+            bottom: -1px; left: 0; width: 100%; height: 5px;
+            background: linear-gradient(90deg, var(--primary-gold), var(--gold-light), var(--primary-gold));
+        }
+        .success-modal-logo { height: 54px; width: auto; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.3)); }
+        .success-modal-body { padding: 30px 26px 28px; }
+        .success-icon {
+            width: 68px; height: 68px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+            display: flex; align-items: center; justify-content: center;
+            margin: -56px auto 16px;
+            border: 5px solid #FFFFFF;
+            box-shadow: 0 8px 20px rgba(46, 204, 113, 0.35);
+        }
+        .success-icon i { color: #FFFFFF; font-size: 1.6rem; }
+        .success-modal-body h3 { color: var(--text-dark); font-size: 1.4rem; margin-bottom: 10px; font-weight: 800; }
+        .success-modal-body p { color: var(--text-muted); font-size: 0.95rem; line-height: 1.7; margin-bottom: 22px; }
+        .success-modal-body .close-modal {
+            background: linear-gradient(135deg, var(--gold-light), var(--primary-gold));
+            border: none; color: #1a1a1a; padding: 12px 32px; border-radius: 60px;
+            font-weight: 700; font-size: 0.95rem; cursor: pointer; transition: var(--transition);
+            display: inline-flex; align-items: center; gap: 8px;
+        }
+        .success-modal-body .close-modal:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(212, 160, 23, 0.35); }
+
         @keyframes modalPop {
             0% { transform: scale(0.6); opacity: 0; }
             100% { transform: scale(1); opacity: 1; }
         }
-        .payment-modal-content .icon { font-size: 3.5rem; color: var(--primary-gold); margin-bottom: 12px; }
-        .payment-modal-content h3 { color: #FFFFFF; font-size: 1.6rem; margin-bottom: 8px; }
-        .payment-modal-content p { color: var(--light-gray); font-size: 1rem; line-height: 1.7; margin-bottom: 20px; }
-        .payment-modal-content .close-modal {
-            background: var(--primary-gold);
-            border: none;
-            color: #000;
-            padding: 10px 28px;
-            border-radius: 60px;
-            font-weight: 700;
-            font-size: 0.95rem;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-        .payment-modal-content .close-modal:hover { transform: scale(1.04); box-shadow: 0 0 20px rgba(212, 160, 23, 0.4); }
 
         /* ===== ANIMATIONS خفيفة ===== */
         @keyframes wiggle {
@@ -1020,7 +1078,12 @@
             .section-title { font-size: 2rem; }
         }
         @media (max-width: 850px) {
-            .navbar { padding: 10px 16px; background: rgba(9, 10, 40, 0.95); }
+            .navbar { padding: 10px 16px; background: rgba(255, 255, 255, 0.92); }
+            .navbar .logo span { color: var(--text-dark); }
+            .navbar .nav-links a { color: var(--text-dark); }
+            .navbar .lang-switch { background: rgba(10, 31, 92, 0.08); }
+            .navbar .lang-switch button { color: var(--text-muted); }
+            .navbar .menu-btn { color: var(--text-dark); }
             .nav-links {
                 display: none;
                 flex-direction: column;
@@ -1028,10 +1091,11 @@
                 text-align: center;
                 padding: 16px 0;
                 gap: 12px;
-                background: rgba(9, 10, 40, 0.98);
+                background: #FFFFFF;
                 position: absolute;
                 top: 100%; left: 0;
                 border-bottom: 1px solid rgba(212, 160, 23, 0.15);
+                box-shadow: 0 10px 30px rgba(0,0,0,0.1);
             }
             .nav-links.show { display: flex; }
             .menu-btn { display: block; }
@@ -1163,7 +1227,7 @@
         <h2 class="section-title">🎥 فيديوهات <span>الأكاديمية</span></h2>
         <p class="section-subtitle">شاهد نبذة عن مقر تدريباتنا في برج الكيفان – تجربة حية لأجواء التدريب.</p>
         <div class="video-wrapper" id="videoWrapper"></div>
-        <p style="text-align:center; color:var(--light-gray); margin-top:10px; font-size:0.85rem;">📍 فيديو تعريفي لمقر تدريبات فرع برج الكيفان – ملاعب مغطاة</p>
+        <p style="text-align:center; color:var(--text-muted); margin-top:10px; font-size:0.85rem;">📍 فيديو تعريفي لمقر تدريبات فرع برج الكيفان – ملاعب مغطاة</p>
     </div>
 </section>
 
@@ -1263,15 +1327,15 @@
         <p class="section-subtitle">نحن هنا للإجابة على استفساراتكم. تواصلوا معنا عبر أي من القنوات التالية.</p>
         <div class="contact-grid">
             <div class="contact-info">
-                <h3 style="color:#FFFFFF; margin-bottom:16px; font-size:1.2rem;">معلومات الاتصال</h3>
+                <h3 style="color:var(--text-dark); margin-bottom:16px; font-size:1.2rem;">معلومات الاتصال</h3>
                 <p><i class="fas fa-map-marker-alt"></i> المركب الرياضي، برج الكيفان، الجزائر</p>
                 <p><i class="fas fa-phone-alt"></i> 05.52.47.41.40</p>
                 <p><i class="fas fa-envelope"></i> info@technoacademy.dz</p>
                 <p><i class="fab fa-facebook"></i> <a href="https://www.facebook.com/profile.php?id=100063920144998" target="_blank" style="color:var(--primary-gold); text-decoration:none;">تابعنا على فيسبوك</a></p>
                 <div style="display:flex; gap:14px; margin-top:16px;">
-                    <a href="https://www.facebook.com/profile.php?id=100063920144998" target="_blank" style="color:var(--light-gray); font-size:1.6rem; transition:0.2s;"><i class="fab fa-facebook"></i></a>
-                    <a href="#" style="color:var(--light-gray); font-size:1.6rem; transition:0.2s;"><i class="fab fa-instagram"></i></a>
-                    <a href="#" style="color:var(--light-gray); font-size:1.6rem; transition:0.2s;"><i class="fab fa-youtube"></i></a>
+                    <a href="https://www.facebook.com/profile.php?id=100063920144998" target="_blank" style="color:var(--text-muted); font-size:1.6rem; transition:0.2s;"><i class="fab fa-facebook"></i></a>
+                    <a href="#" style="color:var(--text-muted); font-size:1.6rem; transition:0.2s;"><i class="fab fa-instagram"></i></a>
+                    <a href="#" style="color:var(--text-muted); font-size:1.6rem; transition:0.2s;"><i class="fab fa-youtube"></i></a>
                 </div>
             </div>
             <div class="contact-form">
@@ -1321,11 +1385,16 @@
 
 <!-- ===== نافذة نجاح التسجيل ===== -->
 <div class="payment-modal" id="successModal">
-    <div class="payment-modal-content">
-        <div class="icon" style="color:#2ecc71;">✅</div>
-        <h3>تم التسجيل بنجاح</h3>
-        <p>تم تسجيل طلبك بنجاح، سنتواصل معك في أقرب وقت.</p>
-        <button class="close-modal" id="closeSuccessModal">تمام</button>
+    <div class="success-modal-content">
+        <div class="success-modal-header">
+            <img src="https://github.com/darkonovic51-hash/Academy-Tecnho-football-/raw/42aaf4132007f328e33d2aeaa0b05670a9e3f332/1000015229-removebg-preview.png" alt="شعار الأكاديمية" class="success-modal-logo">
+        </div>
+        <div class="success-modal-body">
+            <div class="success-icon"><i class="fas fa-check"></i></div>
+            <h3>تم التسجيل بنجاح</h3>
+            <p>تم استلام طلبك بنجاح، سيتواصل معك فريق أكاديمية تيكنو في أقرب وقت.</p>
+            <button class="close-modal" id="closeSuccessModal"><i class="fas fa-check-circle"></i> تمام</button>
+        </div>
     </div>
 </div>
 
@@ -1567,7 +1636,7 @@
         if (!container) return;
         container.innerHTML = '';
         if (!appData.gallery || appData.gallery.length === 0) {
-            container.innerHTML = '<p style="color:var(--light-gray);">لا توجد صور في المعرض.</p>';
+            container.innerHTML = '<p style="color:var(--text-muted);">لا توجد صور في المعرض.</p>';
             return;
         }
         appData.gallery.forEach(item => {
@@ -1586,7 +1655,7 @@
         if (!container) return;
         container.innerHTML = '';
         if (!appData.videos || appData.videos.length === 0) {
-            container.innerHTML = '<p style="color:var(--light-gray);">لا توجد فيديوهات.</p>';
+            container.innerHTML = '<p style="color:var(--text-muted);">لا توجد فيديوهات.</p>';
             return;
         }
         const video = appData.videos[0];
@@ -1602,7 +1671,7 @@
         const container = document.getElementById('scheduleWrapper');
         if (!container) return;
         if (!appData.schedule || appData.schedule.length === 0) {
-            container.innerHTML = `<div style="text-align:center; padding:25px;"><i class="fas fa-calendar-alt" style="font-size:2rem; color:var(--primary-gold); opacity:0.5;"></i><p style="color:var(--light-gray); margin-top:8px;">لا توجد بيانات تدريب.</p></div>`;
+            container.innerHTML = `<div style="text-align:center; padding:25px;"><i class="fas fa-calendar-alt" style="font-size:2rem; color:var(--primary-gold); opacity:0.5;"></i><p style="color:var(--text-muted); margin-top:8px;">لا توجد بيانات تدريب.</p></div>`;
             return;
         }
         let html = `<table class="schedule-table"><thead><tr><th>الفئة</th><th>الأيام</th><th>الوقت</th><th>الملعب</th></tr></thead><tbody>`;
@@ -1618,10 +1687,10 @@
         if (!container) return;
         if (!appData.matches || appData.matches.length === 0) {
             container.innerHTML = `
-                <div style="text-align:center; padding:30px; background:rgba(255,255,255,0.03); border-radius:var(--radius); border:1px dashed rgba(212,160,23,0.2);">
+                <div style="text-align:center; padding:30px; background:var(--bg-card); border-radius:var(--radius); border:1px dashed rgba(212,160,23,0.2);">
                     <i class="fas fa-calendar-alt" style="font-size:2.5rem; color:var(--primary-gold); opacity:0.4;"></i>
-                    <h3 style="color:#FFFFFF; margin-top:10px; font-size:1.2rem;">لا توجد مباريات ودية حالياً</h3>
-                    <p style="color:var(--light-gray); font-size:0.9rem;">سيتم الإعلان عن المباريات القادمة فور اعتماد الجدول الزمني.</p>
+                    <h3 style="color:var(--text-dark); margin-top:10px; font-size:1.2rem;">لا توجد مباريات ودية حالياً</h3>
+                    <p style="color:var(--text-muted); font-size:0.9rem;">سيتم الإعلان عن المباريات القادمة فور اعتماد الجدول الزمني.</p>
                 </div>
             `;
             return;
@@ -1648,10 +1717,10 @@
         if (!container) return;
         if (!appData.players || appData.players.length === 0) {
             container.innerHTML = `
-                <div style="text-align:center; padding:30px; background:rgba(255,255,255,0.03); border-radius:var(--radius); border:1px dashed rgba(212,160,23,0.2);">
+                <div style="text-align:center; padding:30px; background:var(--bg-card); border-radius:var(--radius); border:1px dashed rgba(212,160,23,0.2);">
                     <i class="fas fa-users" style="font-size:2.5rem; color:var(--primary-gold); opacity:0.4;"></i>
-                    <h3 style="color:#FFFFFF; margin-top:10px; font-size:1.2rem;">لا يوجد لاعبون مسجلون</h3>
-                    <p style="color:var(--light-gray); font-size:0.9rem;">يمكن للمسؤول إضافة اللاعبين من لوحة التحكم.</p>
+                    <h3 style="color:var(--text-dark); margin-top:10px; font-size:1.2rem;">لا يوجد لاعبون مسجلون</h3>
+                    <p style="color:var(--text-muted); font-size:0.9rem;">يمكن للمسؤول إضافة اللاعبين من لوحة التحكم.</p>
                 </div>
             `;
             return;
@@ -1916,28 +1985,13 @@
     }
 
     // ================================================================
-    // 9. نموذج التسجيل (يمنع إعادة التسجيل من نفس الجهاز)
+    // 9. نموذج التسجيل
     // ================================================================
-    // التحقق مما إذا كان الجهاز قد سجل مسبقاً
-    function hasDeviceRegistered() {
-        const deviceId = localStorage.getItem('deviceId');
-        if (!deviceId) return false;
-        // نتحقق من Firebase إذا كان هذا الجهاز قد سجل
-        // طريقة مبسطة: نتحقق من وجود سجل بنفس deviceId في localStorage
-        const registered = localStorage.getItem('registered_device');
-        return registered === 'true';
-    }
-
     document.getElementById('registrationForm').addEventListener('submit', async function(e) {
         e.preventDefault();
 
         const submitBtn = this.querySelector('button[type="submit"]');
-        if (submitBtn.disabled) return; // منع أي إرسال إضافي
-
-        if (hasDeviceRegistered()) {
-            alert('❌ تم تسجيل هذا الجهاز مسبقاً. لا يمكنك إعادة التسجيل.');
-            return;
-        }
+        if (submitBtn.disabled) return;
 
         const firstName = document.getElementById('regFirstName').value.trim();
         const lastName = document.getElementById('regLastName').value.trim();
@@ -1950,10 +2004,9 @@
             return;
         }
 
-        // تعطيل الزر فوراً لمنع الضغط المتكرر
         submitBtn.disabled = true;
-        const originalBtnText = submitBtn.innerText;
-        submitBtn.innerText = 'جارٍ الإرسال...';
+        const originalBtnHTML = submitBtn.innerHTML;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جارٍ الإرسال...';
 
         const regData = {
             firstName,
@@ -1966,8 +2019,6 @@
 
         try {
             await saveRegistration(regData);
-            localStorage.setItem('deviceId', Date.now().toString());
-            localStorage.setItem('registered_device', 'true');
 
             const formData = new FormData();
             formData.append('الاسم الشخصي', firstName);
@@ -1989,8 +2040,8 @@
             console.error(error);
             alert('❌ حدث خطأ، لكن بياناتك محفوظة.');
         } finally {
-            // نبقيه معطلاً لأن الجهاز سجل بالفعل (حسب منطق منع إعادة التسجيل)
-            submitBtn.innerText = originalBtnText;
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalBtnHTML;
         }
     });
 
