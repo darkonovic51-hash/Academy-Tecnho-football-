@@ -14,28 +14,78 @@
     <style>
         /* ===== الألوان ===== */
         :root {
+            /* الهوية الأساسية */
             --primary-blue: #04185C;
-            --primary-blue-dark: #090A28;
+            --primary-blue-light: #0C2A7A;
+            --primary-blue-dark: #06070F;
             --primary-gold: #D4A017;
+            --gold-light: #F0C750;
             --secondary-gold: #B8860B;
+
+            /* محايدات */
             --white: #FFFFFF;
+            --off-white: #F1EFE9;
             --light-gray: #A09DA3;
             --dark-gray: #5A5B66;
-            --shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+
+            /* سطوح وظلال */
+            --bg-card: rgba(255, 255, 255, 0.045);
+            --bg-card-hover: rgba(212, 160, 23, 0.06);
+            --border-card: rgba(255, 255, 255, 0.09);
+            --shadow: 0 20px 45px rgba(0, 0, 0, 0.35);
+            --shadow-gold: 0 15px 40px rgba(212, 160, 23, 0.18);
+
+            /* قياسات */
             --radius: 24px;
-            --transition: 0.3s cubic-bezier(0.2, 0.9, 0.4, 1);
-            --bg-card: rgba(255, 255, 255, 0.05);
-            --border-card: rgba(255, 255, 255, 0.1);
+            --radius-sm: 14px;
+            --transition: 0.35s cubic-bezier(0.22, 0.9, 0.35, 1);
+        }
+
+        /* ===== SCROLL REVEAL ===== */
+        .reveal {
+            opacity: 0;
+            transform: translateY(28px);
+            transition: opacity 0.7s ease, transform 0.7s cubic-bezier(0.22, 0.9, 0.35, 1);
+        }
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .reveal-stagger > * {
+            opacity: 0;
+            transform: translateY(24px);
+            transition: opacity 0.6s ease, transform 0.6s cubic-bezier(0.22, 0.9, 0.35, 1);
+        }
+        .reveal-stagger.visible > * {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .reveal-stagger.visible > *:nth-child(1) { transition-delay: 0.05s; }
+        .reveal-stagger.visible > *:nth-child(2) { transition-delay: 0.15s; }
+        .reveal-stagger.visible > *:nth-child(3) { transition-delay: 0.25s; }
+        .reveal-stagger.visible > *:nth-child(4) { transition-delay: 0.35s; }
+        .reveal-stagger.visible > *:nth-child(5) { transition-delay: 0.45s; }
+
+        @media (prefers-reduced-motion: reduce) {
+            .reveal, .reveal-stagger > * {
+                opacity: 1 !important;
+                transform: none !important;
+                transition: none !important;
+            }
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html { scroll-behavior: smooth; }
         body {
             font-family: 'Inter', 'Cairo', sans-serif;
-            background: #0A0A0F;
-            color: #E8F0E8;
+            background:
+                radial-gradient(circle at 15% 0%, rgba(4, 24, 92, 0.35), transparent 45%),
+                radial-gradient(circle at 85% 100%, rgba(212, 160, 23, 0.08), transparent 40%),
+                #08080D;
+            color: var(--off-white);
             overflow-x: hidden;
-            line-height: 1.6;
+            line-height: 1.7;
+            letter-spacing: 0.1px;
         }
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: var(--primary-blue-dark); }
@@ -275,17 +325,48 @@
         }
         .card {
             background: var(--bg-card);
-            backdrop-filter: blur(6px);
+            backdrop-filter: blur(10px);
             border-radius: var(--radius);
-            padding: 28px 20px;
+            padding: 34px 24px;
             text-align: center;
             border: 1px solid var(--border-card);
             transition: var(--transition);
+            position: relative;
+            overflow: hidden;
         }
-        .card:hover { transform: translateY(-5px); border-color: var(--primary-gold); box-shadow: var(--shadow); }
-        .card i { font-size: 2.4rem; color: var(--primary-gold); margin-bottom: 12px; }
-        .card h3 { font-size: 1.2rem; margin-bottom: 8px; color: #FFFFFF; }
-        .card p { color: var(--light-gray); opacity: 0.8; font-size: 0.95rem; }
+        .card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(160deg, rgba(212,160,23,0.08), transparent 60%);
+            opacity: 0;
+            transition: var(--transition);
+        }
+        .card:hover {
+            transform: translateY(-8px);
+            border-color: rgba(212, 160, 23, 0.45);
+            box-shadow: var(--shadow-gold);
+            background: var(--bg-card-hover);
+        }
+        .card:hover::before { opacity: 1; }
+        .card i {
+            font-size: 2.2rem;
+            color: var(--primary-gold);
+            margin-bottom: 14px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: rgba(212, 160, 23, 0.1);
+            transition: var(--transition);
+            position: relative;
+            z-index: 1;
+        }
+        .card:hover i { transform: scale(1.08) rotate(-4deg); background: rgba(212, 160, 23, 0.18); }
+        .card h3 { font-size: 1.2rem; margin-bottom: 8px; color: #FFFFFF; font-weight: 700; position: relative; z-index: 1; }
+        .card p { color: var(--light-gray); opacity: 0.85; font-size: 0.95rem; line-height: 1.7; position: relative; z-index: 1; }
 
         /* ===== GALLERY ===== */
         .gallery-grid {
@@ -294,10 +375,18 @@
             gap: 14px;
         }
         .gallery-item {
-            border-radius: 14px;
+            border-radius: 18px;
             overflow: hidden;
             position: relative;
             cursor: pointer;
+            aspect-ratio: 4 / 3;
+            border: 1px solid var(--border-card);
+            transition: var(--transition);
+        }
+        .gallery-item:hover {
+            border-color: rgba(212, 160, 23, 0.4);
+            box-shadow: var(--shadow-gold);
+            transform: translateY(-4px);
         }
         .gallery-item img {
             width: 100%;
@@ -362,59 +451,127 @@
 
         /* ===== REGISTRATION ===== */
         .registration-wrapper {
-            max-width: 750px;
+            max-width: 780px;
             margin: 0 auto;
-            background: rgba(212, 160, 23, 0.08);
-            backdrop-filter: blur(10px);
+            background: linear-gradient(160deg, rgba(212, 160, 23, 0.07), rgba(4, 24, 92, 0.15));
+            backdrop-filter: blur(14px);
             border-radius: var(--radius);
-            padding: 35px;
-            border: 2px solid var(--primary-gold);
-            box-shadow: 0 0 30px rgba(212, 160, 23, 0.2);
+            padding: 45px 38px 38px;
+            border: 1px solid rgba(212, 160, 23, 0.3);
+            box-shadow: var(--shadow-gold);
             position: relative;
         }
         .registration-wrapper::before {
-            content: '⭐ التسجيل';
+            content: '⭐ سجّل الآن';
             position: absolute;
-            top: -14px;
+            top: -16px;
             left: 50%;
             transform: translateX(-50%);
-            background: var(--primary-gold);
-            color: #000;
+            background: linear-gradient(135deg, var(--gold-light), var(--primary-gold));
+            color: #1a1a1a;
             font-weight: 800;
-            padding: 4px 28px;
+            padding: 6px 30px;
             border-radius: 60px;
             font-size: 0.85rem;
             letter-spacing: 0.5px;
-            box-shadow: 0 4px 12px rgba(212, 160, 23, 0.3);
+            box-shadow: 0 6px 18px rgba(212, 160, 23, 0.35);
         }
-        .registration-wrapper .form-group { margin-bottom: 16px; }
+        .registration-wrapper .form-group { margin-bottom: 20px; position: relative; }
         .registration-wrapper label {
-            display: block;
-            font-weight: 700;
-            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            margin-bottom: 8px;
             color: #FFFFFF;
+            font-size: 0.9rem;
+        }
+        .registration-wrapper label i {
+            color: var(--primary-gold);
+            font-size: 0.9rem;
+            width: 16px;
+            text-align: center;
+        }
+        .input-wrap { position: relative; }
+        .input-wrap i.field-icon {
+            position: absolute;
+            top: 50%;
+            right: 16px;
+            transform: translateY(-50%);
+            color: var(--light-gray);
             font-size: 0.95rem;
+            pointer-events: none;
+            transition: var(--transition);
         }
         .registration-wrapper input,
         .registration-wrapper select {
             width: 100%;
-            padding: 12px 16px;
-            border-radius: 14px;
-            border: 2px solid rgba(212, 160, 23, 0.25);
-            background: rgba(0,0,0,0.5);
+            padding: 14px 44px 14px 16px;
+            border-radius: var(--radius-sm);
+            border: 1.5px solid rgba(212, 160, 23, 0.2);
+            background: rgba(0,0,0,0.35);
             color: #FFFFFF;
-            font-size: 1rem;
-            transition: 0.3s;
+            font-size: 0.98rem;
+            font-family: inherit;
+            transition: var(--transition);
+            appearance: none;
+        }
+        .registration-wrapper select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='9'%3E%3Cpath fill='%23D4A017' d='M7 9 0 0h14z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: left 16px center;
         }
         .registration-wrapper input:focus,
         .registration-wrapper select:focus {
             border-color: var(--primary-gold);
             outline: none;
-            box-shadow: 0 0 0 3px rgba(212, 160, 23, 0.15);
+            box-shadow: 0 0 0 4px rgba(212, 160, 23, 0.12);
+            background: rgba(0,0,0,0.5);
         }
-        .registration-wrapper .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .registration-wrapper input:focus ~ i.field-icon { color: var(--primary-gold); }
+        .registration-wrapper .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
 
-        /* ===== SCHEDULE ===== */
+        .reg-submit-btn {
+            width: 100%;
+            padding: 16px;
+            font-size: 1.05rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 8px;
+        }
+        .reg-submit-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+        .reg-locations-info {
+            text-align: center;
+            margin-bottom: 28px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-card);
+            border-radius: 18px;
+            padding: 18px;
+        }
+        .reg-locations-info h3 {
+            color: #FFFFFF;
+            margin-bottom: 12px;
+            font-size: 1.05rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .reg-location-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--light-gray);
+            font-size: 0.9rem;
+        }
+
+        /* ===== SCHEDULE (مخفي لكن الكود موجود) ===== */
         .schedule-wrapper {
             background: var(--bg-card);
             border-radius: var(--radius);
@@ -444,7 +601,7 @@
         .schedule-table tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
         .schedule-table .category-cell { font-weight: 600; color: var(--primary-gold); }
 
-        /* ===== PLAYERS ===== */
+        /* ===== PLAYERS (مخفي لكن الكود موجود) ===== */
         .players-list {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -806,7 +963,7 @@
             font-size: 1.1rem;
         }
 
-        /* ===== PAYMENT MODAL ===== */
+        /* ===== نافذة نجاح ===== */
         .payment-modal {
             display: none;
             position: fixed;
@@ -829,18 +986,11 @@
             width: 100%;
             text-align: center;
             box-shadow: 0 0 50px rgba(212, 160, 23, 0.2);
-            animation: modalPop 0.3s ease, shake 0.4s 0.3s ease;
+            animation: modalPop 0.3s ease;
         }
         @keyframes modalPop {
             0% { transform: scale(0.6); opacity: 0; }
             100% { transform: scale(1); opacity: 1; }
-        }
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            20% { transform: translateX(-15px); }
-            40% { transform: translateX(15px); }
-            60% { transform: translateX(-10px); }
-            80% { transform: translateX(10px); }
         }
         .payment-modal-content .icon { font-size: 3.5rem; color: var(--primary-gold); margin-bottom: 12px; }
         .payment-modal-content h3 { color: #FFFFFF; font-size: 1.6rem; margin-bottom: 8px; }
@@ -918,9 +1068,6 @@
         <li><a href="#videos">الفيديوهات</a></li>
         <li><a href="#kits">الأطقم</a></li>
         <li><a href="#registration">التسجيل</a></li>
-        <li><a href="#schedule">جدول التدريبات</a></li>
-        <li><a href="#matches">المباريات</a></li>
-        <li><a href="#players">اللاعبون</a></li>
         <li><a href="#contact">اتصل بنا</a></li>
         <li>
             <div class="lang-switch">
@@ -932,7 +1079,7 @@
 </header>
 
 <!-- ===== HERO ===== -->
-<section id="home" class="hero">
+<section id="home" class="hero reveal">
     <div class="hero-bg"></div>
     <div class="hero-overlay"></div>
     <div class="hero-content">
@@ -949,11 +1096,11 @@
 <div class="section-divider"></div>
 
 <!-- ===== ABOUT ===== -->
-<section id="about" class="section-dark">
+<section id="about" class="section-dark reveal">
     <div class="container">
         <h2 class="section-title">عن <span>الأكاديمية</span></h2>
         <p class="section-subtitle">أكاديمية تيكنو – رؤية رياضية متكاملة لبناء جيل من الأبطال.</p>
-        <div class="card-grid">
+        <div class="card-grid reveal-stagger">
             <div class="card">
                 <i class="fas fa-eye"></i>
                 <h3>رؤيتنا</h3>
@@ -977,7 +1124,7 @@
 <div class="section-divider"></div>
 
 <!-- ===== COACH ===== -->
-<section id="coach" class="section-light">
+<section id="coach" class="section-light reveal">
     <div class="container">
         <h2 class="section-title">المدير <span>الفني</span></h2>
         <p class="section-subtitle">قيادة فنية وخبرة عالية لبناء جيل من الأبطال.</p>
@@ -999,11 +1146,11 @@
 <div class="section-divider"></div>
 
 <!-- ===== GALLERY ===== -->
-<section id="gallery" class="section-dark">
+<section id="gallery" class="section-dark reveal">
     <div class="container">
         <h2 class="section-title">معرض <span>الصور</span></h2>
         <p class="section-subtitle">لقطات من التدريبات، المباريات، والمناسبات التي تعكس روح الأكاديمية.</p>
-        <div class="gallery-grid" id="galleryGrid"></div>
+        <div class="gallery-grid reveal-stagger" id="galleryGrid"></div>
     </div>
 </section>
 
@@ -1011,7 +1158,7 @@
 <div class="section-divider"></div>
 
 <!-- ===== VIDEOS ===== -->
-<section id="videos" class="section-light">
+<section id="videos" class="section-light reveal">
     <div class="container">
         <h2 class="section-title">🎥 فيديوهات <span>الأكاديمية</span></h2>
         <p class="section-subtitle">شاهد نبذة عن مقر تدريباتنا في برج الكيفان – تجربة حية لأجواء التدريب.</p>
@@ -1024,7 +1171,7 @@
 <div class="section-divider"></div>
 
 <!-- ===== KITS ===== -->
-<section id="kits" class="section-dark">
+<section id="kits" class="section-dark reveal">
     <div class="container">
         <h2 class="section-title">الأطقم <span>الرسمية</span></h2>
         <p class="section-subtitle">طقم أكاديمية تيكنو الرسمي – هوية الفريق.</p>
@@ -1038,27 +1185,47 @@
 <div class="section-divider"></div>
 
 <!-- ===== REGISTRATION ===== -->
-<section id="registration" class="section-light">
+<section id="registration" class="section-light reveal">
     <div class="container">
         <h2 class="section-title">سجل <span>الآن</span></h2>
         <p class="section-subtitle">انضم إلى أكاديمية تيكنو وكن جزءاً من مستقبل كرة القدم.</p>
-        <div style="text-align:center; margin-bottom:25px; background:rgba(255,255,255,0.04); border-radius:18px; padding:16px;">
-            <h3 style="color:#FFFFFF; margin-bottom:10px; font-size:1.1rem;">📍 أكاديميتنا موجودة في:</h3>
-            <div style="display:flex; justify-content:center; gap:25px; flex-wrap:wrap; color:var(--light-gray); font-size:0.95rem;">
-                <div><strong style="color:var(--primary-gold);">باب الزوار:</strong> 05.52.47.41.40</div>
-                <div><strong style="color:var(--primary-gold);">برج الكيفان:</strong> 05.57.76.86.08</div>
-                <div><strong style="color:var(--primary-gold);">الخروبة:</strong> 07.91.96.16.63</div>
+        
+        <div class="reg-locations-info">
+            <h3><i class="fas fa-map-marker-alt"></i> أكاديميتنا موجودة في</h3>
+            <div style="display:flex; justify-content:center; gap:25px; flex-wrap:wrap;">
+                <div class="reg-location-item"><i class="fas fa-phone-alt" style="color:var(--primary-gold);"></i><strong style="color:var(--primary-gold);">باب الزوار:</strong> 05.52.47.41.40</div>
+                <div class="reg-location-item"><i class="fas fa-phone-alt" style="color:var(--primary-gold);"></i><strong style="color:var(--primary-gold);">برج الكيفان:</strong> 05.57.76.86.08</div>
+                <div class="reg-location-item"><i class="fas fa-phone-alt" style="color:var(--primary-gold);"></i><strong style="color:var(--primary-gold);">الخروبة:</strong> 07.91.96.16.63</div>
             </div>
         </div>
         <div class="registration-wrapper">
             <form id="registrationForm">
                 <div class="form-row">
-                    <div class="form-group"><label>الاسم الشخصي</label><input type="text" id="regFirstName" placeholder="مثال: أحمد" required></div>
-                    <div class="form-group"><label>اللقب العائلي</label><input type="text" id="regLastName" placeholder="مثال: بن سليمان" required></div>
+                    <div class="form-group">
+                        <label><i class="fas fa-user"></i> الاسم الشخصي</label>
+                        <div class="input-wrap">
+                            <input type="text" id="regFirstName" placeholder="مثال: أحمد" required>
+                            <i class="fas fa-id-card field-icon"></i>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-user"></i> اللقب العائلي</label>
+                        <div class="input-wrap">
+                            <input type="text" id="regLastName" placeholder="مثال: بن سليمان" required>
+                            <i class="fas fa-id-card field-icon"></i>
+                        </div>
+                    </div>
                 </div>
                 <div class="form-row">
-                    <div class="form-group"><label>رقم الهاتف</label><input type="tel" id="regPhone" placeholder="05XXXXXXXX" required></div>
-                    <div class="form-group"><label>الفئة العمرية</label>
+                    <div class="form-group">
+                        <label><i class="fas fa-phone"></i> رقم الهاتف</label>
+                        <div class="input-wrap">
+                            <input type="tel" id="regPhone" placeholder="05XXXXXXXX" required>
+                            <i class="fas fa-mobile-alt field-icon"></i>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-birthday-cake"></i> الفئة العمرية</label>
                         <select id="regCategory">
                             <option value="U11">تحت 11 سنة (U11)</option>
                             <option value="U12">تحت 12 سنة (U12)</option>
@@ -1070,14 +1237,17 @@
                         </select>
                     </div>
                 </div>
-                <div class="form-group"><label>المكان</label>
+                <div class="form-group">
+                    <label><i class="fas fa-map-marker-alt"></i> المكان</label>
                     <select id="regLocation">
                         <option value="باب الزوار">باب الزوار</option>
                         <option value="برج الكيفان">برج الكيفان</option>
                         <option value="الخروبة">الخروبة</option>
                     </select>
                 </div>
-                <button type="submit" class="btn-primary" style="width:100%; padding:14px; font-size:1.05rem;">إرسال طلب التسجيل</button>
+                <button type="submit" class="btn-primary reg-submit-btn">
+                    <i class="fas fa-paper-plane"></i> إرسال طلب التسجيل
+                </button>
             </form>
         </div>
     </div>
@@ -1086,44 +1256,8 @@
 <!-- ===== DIVIDER ===== -->
 <div class="section-divider"></div>
 
-<!-- ===== SCHEDULE ===== -->
-<section id="schedule" class="section-dark">
-    <div class="container">
-        <h2 class="section-title">جدول <span>التدريبات</span></h2>
-        <p class="section-subtitle">جدول أسبوعي منظم لجميع الفئات العمرية.</p>
-        <div class="schedule-wrapper" id="scheduleWrapper"></div>
-    </div>
-</section>
-
-<!-- ===== DIVIDER ===== -->
-<div class="section-divider"></div>
-
-<!-- ===== MATCHES ===== -->
-<section id="matches" class="section-light">
-    <div class="container">
-        <h2 class="section-title">المباريات <span>الودية</span></h2>
-        <p class="section-subtitle">جميع المباريات الودية للفرق.</p>
-        <div id="matchesContainer" style="min-height:100px;"></div>
-    </div>
-</section>
-
-<!-- ===== DIVIDER ===== -->
-<div class="section-divider"></div>
-
-<!-- ===== PLAYERS ===== -->
-<section id="players" class="section-dark">
-    <div class="container">
-        <h2 class="section-title">قوائم <span>اللاعبين</span></h2>
-        <p class="section-subtitle">جميع لاعبي أكاديمية تيكنو حسب الفئات العمرية.</p>
-        <div id="playersContainer"></div>
-    </div>
-</section>
-
-<!-- ===== DIVIDER ===== -->
-<div class="section-divider"></div>
-
 <!-- ===== CONTACT ===== -->
-<section id="contact" class="section-light">
+<section id="contact" class="section-light reveal">
     <div class="container">
         <h2 class="section-title">تواصل <span>معنا</span></h2>
         <p class="section-subtitle">نحن هنا للإجابة على استفساراتكم. تواصلوا معنا عبر أي من القنوات التالية.</p>
@@ -1185,13 +1319,13 @@
     </div>
 </footer>
 
-<!-- ===== نافذة التنبيه ===== -->
-<div class="payment-modal" id="paymentModal">
+<!-- ===== نافذة نجاح التسجيل ===== -->
+<div class="payment-modal" id="successModal">
     <div class="payment-modal-content">
-        <div class="icon">⚠️</div>
-        <h3>تنبيه هام</h3>
-        <p>يجب عليك دفع مستحقات الموقع حتى تستلمه بالكامل.</p>
-        <button class="close-modal" id="closePaymentModal">✔️ تم الفهم</button>
+        <div class="icon" style="color:#2ecc71;">✅</div>
+        <h3>تم التسجيل بنجاح</h3>
+        <p>تم تسجيل طلبك بنجاح، سنتواصل معك في أقرب وقت.</p>
+        <button class="close-modal" id="closeSuccessModal">تمام</button>
     </div>
 </div>
 
@@ -1797,7 +1931,9 @@
     document.getElementById('registrationForm').addEventListener('submit', async function(e) {
         e.preventDefault();
 
-        // منع إعادة التسجيل من نفس الجهاز
+        const submitBtn = this.querySelector('button[type="submit"]');
+        if (submitBtn.disabled) return; // منع أي إرسال إضافي
+
         if (hasDeviceRegistered()) {
             alert('❌ تم تسجيل هذا الجهاز مسبقاً. لا يمكنك إعادة التسجيل.');
             return;
@@ -1814,6 +1950,11 @@
             return;
         }
 
+        // تعطيل الزر فوراً لمنع الضغط المتكرر
+        submitBtn.disabled = true;
+        const originalBtnText = submitBtn.innerText;
+        submitBtn.innerText = 'جارٍ الإرسال...';
+
         const regData = {
             firstName,
             lastName,
@@ -1825,11 +1966,9 @@
 
         try {
             await saveRegistration(regData);
-            // تسجيل الجهاز لمنع إعادة التسجيل
             localStorage.setItem('deviceId', Date.now().toString());
             localStorage.setItem('registered_device', 'true');
 
-            // إرسال البريد الإلكتروني
             const formData = new FormData();
             formData.append('الاسم الشخصي', firstName);
             formData.append('اللقب العائلي', lastName);
@@ -1844,11 +1983,14 @@
                 body: formData
             });
 
-            alert('✅ تم تسجيل طلبك بنجاح! سيتم التواصل معكم قريباً.');
+            document.getElementById('successModal').classList.add('active');
             this.reset();
         } catch (error) {
             console.error(error);
             alert('❌ حدث خطأ، لكن بياناتك محفوظة.');
+        } finally {
+            // نبقيه معطلاً لأن الجهاز سجل بالفعل (حسب منطق منع إعادة التسجيل)
+            submitBtn.innerText = originalBtnText;
         }
     });
 
@@ -1970,29 +2112,20 @@
     };
 
     // ================================================================
-    // 11. نافذة التنبيه
+    // 11. دالة Scroll Reveal باستخدام IntersectionObserver
     // ================================================================
-    const modal = document.getElementById('paymentModal');
-    const closeModalBtn = document.getElementById('closePaymentModal');
-    setInterval(() => {
-        if (modal) {
-            modal.classList.add('active');
-            const content = modal.querySelector('.payment-modal-content');
-            if (content) {
-                content.style.animation = 'none';
-                setTimeout(() => {
-                    content.style.animation = 'modalPop 0.3s ease, shake 0.4s 0.3s ease';
-                }, 10);
-            }
-        }
-    }, 10000);
-    if (closeModalBtn) {
-        closeModalBtn.addEventListener('click', () => modal.classList.remove('active'));
-    }
-    if (modal) {
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) modal.classList.remove('active');
-        });
+    function initScrollReveal() {
+        const targets = document.querySelectorAll('.reveal, .reveal-stagger');
+        if (!targets.length) return;
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.15, rootMargin: '0px 0px -50px 0px' });
+        targets.forEach(el => observer.observe(el));
     }
 
     // ================================================================
@@ -2003,9 +2136,6 @@
             await loadAllData();
             renderGallery();
             renderVideos();
-            renderSchedule();
-            renderMatches();
-            renderPlayers();
             console.log('✅ Website initialized successfully');
         } catch (error) {
             console.error('❌ Initialization error:', error);
@@ -2063,6 +2193,21 @@
                 coachImages[coachIndex].classList.add('active');
             }, 3000);
         }
+
+        // نافذة نجاح التسجيل
+        const successModal = document.getElementById('successModal');
+        const closeSuccessBtn = document.getElementById('closeSuccessModal');
+        if (closeSuccessBtn) {
+            closeSuccessBtn.addEventListener('click', () => successModal.classList.remove('active'));
+        }
+        if (successModal) {
+            successModal.addEventListener('click', (e) => {
+                if (e.target === successModal) successModal.classList.remove('active');
+            });
+        }
+
+        // تفعيل Scroll Reveal
+        initScrollReveal();
     }
 
     document.addEventListener('DOMContentLoaded', init);
