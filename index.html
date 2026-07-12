@@ -1288,7 +1288,12 @@
     <div class="container">
         <h2 class="section-title">🎥 فيديوهات <span>الأكاديمية</span></h2>
         <p class="section-subtitle">شاهد نبذة عن مقر تدريباتنا في برج الكيفان – تجربة حية لأجواء التدريب.</p>
-        <div class="video-wrapper" id="videoWrapper"></div>
+        <div class="video-wrapper" id="videoWrapper">
+            <video controls preload="metadata" poster="https://github.com/darkonovic51-hash/Academy-Tecnho-football-/raw/bc8f5fa98c6a5536771f5d6df88692cb9d18dd6b/file_0000000072e871f4ac3fd1c6f3928600.png">
+                <source src="https://raw.githubusercontent.com/darkonovic51-hash/Academy-Tecnho-football-/42aaf4132007f328e33d2aeaa0b05670a9e3f332/%E2%96%AA%EF%B8%8F%D9%86%D8%A8%D8%B0%D8%A9%20%D8%B9%D9%86%20%D9%85%D9%82%D8%B1%20%D8%AA%D8%AF%D8%B1%D9%8A%D8%A8%D8%A7%D8%AA%20%D8%A3%D9%83%D8%A7%D8%AF%D9%8A%D9%85%D9%8A%D8%AA%D9%86%D8%A7%20%D9%81%D8%B1%D8%B9%20_%20%D8%A8%D8%B1%D8%AC%20%D8%A7%D9%84%D9%83%D9%8A%D9%81%D8%A7%D9%86%20_%20%D9%81%D9%8A%20%D9%85%D9%84%D8%A7%D8%B9%D8%A8%20%D9%85%D8%BA%D8%B7%D8%A7%D8%A9%20%D8%8C%20%D8%A3%D9%85%D8%A7%D9%83%D9%86%20%D8%A7%D9%84%D8%AA%D8%B3%D8%AC%D9%8A%D9%84%20%D8%AC%D8%AF%20.mp4" type="video/mp4">
+                متصفحك لا يدعم تشغيل الفيديو.
+            </video>
+        </div>
         <p style="text-align:center; color:var(--text-muted); margin-top:10px; font-size:0.85rem;">📍 فيديو تعريفي لمقر تدريبات فرع برج الكيفان – ملاعب مغطاة</p>
     </div>
 </section>
@@ -1401,11 +1406,13 @@
                 </div>
             </div>
             <div class="contact-form">
-                <input type="text" placeholder="الاسم الكامل">
-                <input type="email" placeholder="البريد الإلكتروني">
-                <input type="tel" placeholder="رقم الهاتف">
-                <textarea placeholder="رسالتك..."></textarea>
-                <button class="btn-primary">إرسال الرسالة</button>
+                <form id="contactForm" style="width:100%;">
+                    <input type="text" id="contactName" placeholder="الاسم الكامل" required>
+                    <input type="email" id="contactEmail" placeholder="البريد الإلكتروني" required>
+                    <input type="tel" id="contactPhone" placeholder="رقم الهاتف" required>
+                    <textarea id="contactMessage" placeholder="رسالتك..." required></textarea>
+                    <button type="submit" class="btn-primary" style="width:100%;">إرسال الرسالة</button>
+                </form>
             </div>
         </div>
     </div>
@@ -1461,7 +1468,7 @@
 </div>
 
 <!-- ===== ADMIN TOGGLE ===== -->
-<button class="admin-toggle" id="adminToggle"><i class="fas fa-cog"></i> إدارة</button>
+<button class="admin-toggle" id="adminToggle" data-action="openDashboard"><i class="fas fa-cog"></i> إدارة</button>
 
 <!-- ===== DASHBOARD (الهيكل الجديد من ASSARU مع تنسيق تيكنو) ===== -->
 <div class="dashboard-wrapper" id="dashboardWrapper">
@@ -1488,7 +1495,7 @@
 
 <script>
     // ================================================================
-    // 0. نظام Debug والتحميل المتقدم (تم دمجه من ASSARU)
+    // 0. نظام Debug والتحميل المتقدم
     // ================================================================
     (function() {
         window.DEBUG_MODE = false;
@@ -1628,7 +1635,7 @@
     })();
 
     // ================================================================
-    // 1. Event Manager (من ASSARU)
+    // 1. Event Manager
     // ================================================================
     const EventManager = {
         initialized: false,
@@ -1752,12 +1759,11 @@
     };
 
     // ================================================================
-    // 2. دوال مساعدة عامة (من ASSARU)
+    // 2. دوال مساعدة عامة
     // ================================================================
     function showToast(message, type = 'info') {
         const container = document.getElementById('toastContainer');
         if (!container) {
-            // إنشاء حاوية مؤقتة إذا لم تكن موجودة
             const newContainer = document.createElement('div');
             newContainer.id = 'toastContainer';
             newContainer.style.cssText = 'position:fixed; bottom:20px; right:20px; z-index:999999; display:flex; flex-direction:column; gap:8px; direction:rtl;';
@@ -2489,7 +2495,7 @@
     }
 
     // ================================================================
-    // 9. دوال تسجيل الدخول (من ASSARU)
+    // 9. دوال تسجيل الدخول
     // ================================================================
     async function loginAs(role) {
         const codeInput = document.getElementById('loginCode');
@@ -2620,7 +2626,7 @@
                     <div class="menu-item" data-action="showCategoryFiles"><i class="fas fa-folder-tree"></i> <span>ملفات الفئات</span></div>
                     <div class="menu-item" data-action="showAdminPlayers"><i class="fas fa-users"></i> <span>اللاعبون</span></div>
                     <div class="menu-item" data-action="showAdminTrainingSessions"><i class="fas fa-futbol"></i> <span>الحصص التدريبية</span></div>
-                    <div class="menu-item" data-action="showAdminMatches"><i class="fas fa-handshake"></i> <span>المباريات</span></div>
+                    <div class="menu-item" data-action="showAdminMatches"><i class="fas fa-handshake"></i] <span>المباريات</span></div>
                     <div class="menu-item" data-action="showAdminTournaments"><i class="fas fa-trophy"></i> <span>الدورات</span></div>
                     <div class="menu-item" data-action="showHRHub"><i class="fas fa-building-user"></i> <span>الموارد البشرية</span></div>
                     <div class="menu-item" data-action="showAdminLogs"><i class="fas fa-history"></i> <span>سجل التعديلات</span></div>
@@ -2658,11 +2664,11 @@
                 sidebar.innerHTML = `
                         <div class="menu-item" style="opacity:0.6; cursor:default; font-size:0.8rem; border-right:none;"><i class="fas fa-id-badge"></i> <span>🧭 المدير التقني (DTS)</span></div>
                         <div class="menu-item active" data-action="showAdminHome"><i class="fas fa-tachometer-alt"></i> <span>الرئيسية</span></div>
-                        <div class="menu-item" data-action="showAdminPlayers"><i class="fas fa-users"></i> <span>اللاعبون</span></div>
-                        <div class="menu-item" data-action="showAdminTrainingSessions"><i class="fas fa-futbol"></i> <span>الحصص التدريبية</span></div>
-                        <div class="menu-item" data-action="showAdminMatches"><i class="fas fa-handshake"></i> <span>المباريات</span></div>
-                        <div class="menu-item" data-action="showAdminTournaments"><i class="fas fa-trophy"></i> <span>الدورات</span></div>
-                        <div class="menu-item" data-action="showHRHub"><i class="fas fa-building-user"></i> <span>المدربون والطاقم</span></div>
+                        <div class="menu-item" data-action="showAdminPlayers"><i class="fas fa-users"></i] <span>اللاعبون</span></div>
+                        <div class="menu-item" data-action="showAdminTrainingSessions"><i class="fas fa-futbol"></i] <span>الحصص التدريبية</span></div>
+                        <div class="menu-item" data-action="showAdminMatches"><i class="fas fa-handshake"></i] <span>المباريات</span></div>
+                        <div class="menu-item" data-action="showAdminTournaments"><i class="fas fa-trophy"></i] <span>الدورات</span></div>
+                        <div class="menu-item" data-action="showHRHub"><i class="fas fa-building-user"></i] <span>المدربون والطاقم</span></div>
                         <div class="menu-item" data-action="showPeriodicReportsTechnical" style="border-right-color:var(--gold);"><i class="fas fa-microscope"></i> <span>🧪 التقارير الفنية</span></div>
                         <div class="menu-item" data-action="refreshDashboardData"><i class="fas fa-sync-alt"></i> <span>🔄 تحديث البيانات</span></div>
                     `;
@@ -2725,7 +2731,7 @@
     }
 
     // ================================================================
-    // 10. دوال اللاعبين الأساسية (خاص بأكاديمية تيكنو)
+    // 10. دوال اللاعبين الأساسية
     // ================================================================
     function showAdminPlayers() {
         currentViewFunction = showAdminPlayers;
@@ -3289,7 +3295,7 @@
     }
 
     // ================================================================
-    // 11. دوال إدارة اللاعبين (خاص بأكاديمية تيكنو)
+    // 11. دوال إدارة اللاعبين
     // ================================================================
     function approvePlayer(id) {
         if (!requireRole('admin')) return;
@@ -4516,7 +4522,6 @@
         EventManager.bindButtons(content);
     }
 
-    // --- استبدال openSessionDetail بالكامل ---
     function openSessionDetail(sessionId) {
         const s = allTrainingSessions.find(x => x.id === sessionId);
         if (!s) { showToast('الحصة غير موجودة', 'error'); return; }
@@ -4974,7 +4979,6 @@
             .catch(err => showToast('❌ خطأ: ' + err.message, 'error'));
     }
 
-    // ---------- إنشاء مباراة جديدة ----------
     function openCreateMatchModal() {
         if (!requireOpsRole()) return;
         const coachCategory = currentUser.role === 'coach' ? currentUser.data.categoryId : '';
@@ -5174,7 +5178,6 @@
         db.ref('academyData/tournaments/' + t.id + '/timeline').set(timeline).then(() => { t.timeline = timeline; });
     }
 
-    // ---------- صفحة تفاصيل المباراة ----------
     function showMatchDetailPage(matchId) {
         previousViewFunction = currentViewFunction;
         previousViewArgs = currentViewArgs;
@@ -5260,7 +5263,6 @@
         if (currentMatchTab === 'lineup') initLineupDragDrop();
     }
 
-    // ===== بطاقة 1: المعلومات =====
     function renderMatchInfoCard(m) {
         const statusColors = { 'مجدولة': '#dc3545', 'جارية': '#dc3545', 'منتهية': '#28a745', 'ملغاة': '#6c757d',
             'مؤجلة': '#ffc107' };
@@ -5317,7 +5319,6 @@
         });
     }
 
-    // ===== بطاقة 2: الاستدعاء =====
     function renderMatchCallupsCard(m) {
         const players = allPlayers.filter(p => p.categoryId === m.categoryId && p.status === 'approved');
         const callups = m.callups || {};
@@ -5442,7 +5443,6 @@
         updateMatchInFirebase({ callups }, '✅ تم الحفظ');
     }
 
-    // ===== بطاقة 3: التشكيلة =====
     function renderMatchLineupCard(m) {
         const calledPlayers = allPlayers.filter(p => p.categoryId === m.categoryId && (m.callups?.[p.id]?.called !==
             false));
@@ -5569,7 +5569,6 @@
         });
     }
 
-    // ===== بطاقة 4: البدلاء =====
     function renderMatchSubsCard(m) {
         const lineup = m.lineup || { starters: [] };
         const calledPlayers = allPlayers.filter(p => p.categoryId === m.categoryId && (m.callups?.[p.id]?.called !==
@@ -5612,7 +5611,6 @@
         });
     }
 
-    // ===== بطاقة 5: القيادة =====
     function renderMatchCaptainCard(m) {
         const lineup = m.lineup || { starters: [] };
         const starters = (lineup.starters || []).map(pid => allPlayers.find(p => p.id === pid)).filter(Boolean);
@@ -5638,7 +5636,6 @@
     function setViceCaptain(context) { if (!requireOpsRole()) return;
         updateMatchInFirebase({ viceCaptain: context.value }, '✅ تم التحديد'); }
 
-    // ===== بطاقة 6: الأحداث =====
     function renderMatchEventsCard(m) {
         const events = m.events || [];
         const players = allPlayers.filter(p => p.categoryId === m.categoryId);
@@ -5688,7 +5685,6 @@
         updateMatchInFirebase({ events }, '✅ تم الحذف').then(() => renderMatchCard());
     }
 
-    // ===== بطاقة 7: الإحصائيات =====
     function renderMatchStatsCard(m) {
         const s = m.stats || {};
         const fields = [
@@ -5719,7 +5715,6 @@
             'تم تحديث إحصائيات المباراة'));
     }
 
-    // ===== بطاقة 8: تقييم اللاعبين =====
     function renderMatchRatingsCard(m) {
         const ids = (m.lineup?.starters || []).concat(m.substitutes || []);
         const uniqueIds = [...new Set(ids.length ? ids : allPlayers.filter(p => p.categoryId === m.categoryId).map(p =>
@@ -5764,7 +5759,6 @@
         updateMatchInFirebase({ ratings }, '✅ تم حفظ التقييم');
     }
 
-    // ===== بطاقة 9: تقرير المدرب =====
     function renderMatchReportCard(m) {
         const r = m.report || {};
         const players = allPlayers.filter(p => p.categoryId === m.categoryId);
@@ -5798,7 +5792,6 @@
         updateMatchInFirebase({ report }, '✅ تم حفظ التقرير').then(() => pushMatchTimeline('تم اعتماد تقرير المدرب'));
     }
 
-    // ===== بطاقة 10: النتيجة =====
     function renderMatchResultCard(m) {
         const r = m.result || {};
         const players = allPlayers.filter(p => p.categoryId === m.categoryId);
@@ -5835,7 +5828,6 @@
         });
     }
 
-    // ===== بطاقة 11: السجل الزمني =====
     function renderMatchTimelineCard(m) {
         const timeline = [...(m.timeline || [])].reverse();
         const html = timeline.map(t => `
@@ -5846,7 +5838,6 @@
         return `<div class="form-card"><h3>🕒 السجل الزمني للمباراة</h3>${html}</div>`;
     }
 
-    // ===== أرشيف المباريات =====
     function showMatchesArchive() {
         currentViewFunction = showMatchesArchive;
         currentViewArgs = [];
@@ -6323,7 +6314,6 @@
             `;
     }
 
-    // دوال باقي تبويبات الدورات (مختصرة للاختصار)
     function renderTourPlayersCard(t) {
         const canEdit = currentUser?.role === 'admin' || currentUser?.role === 'coach';
         const activeCats = [t.categoryId, ...(t.extraCategories || [])].filter((v, i, a) => v && a.indexOf(v) === i);
@@ -6529,7 +6519,6 @@
         updateTourInFirebase({ companions }, '✅ تم الحذف').then(() => renderTourCard());
     }
 
-    // دوال باقي التبويبات (مختصرة جداً للاختصار)
     function renderTourCoachesCard(t) {
         const coaches = t.coaches || {};
         return `
@@ -6601,7 +6590,6 @@
         updateTourInFirebase({ parentsConsent: consent });
     }
 
-    // تبويب المعنيون (participants) مختصر جداً
     let tourParticipantsFilter = { search: '', category: '', fawj: '' };
     let tourParticipantsSelected = new Set();
 
@@ -7862,7 +7850,6 @@
                 </div>`).join('');
     }
 
-    // ===== المرحلة 5: الرسائل الرسمية =====
     function getOfficialMessagesArray(coachId) {
         const msgs = allOfficialMessages[coachId] || {};
         return Object.keys(msgs).map(k => ({ id: k, ...msgs[k] })).sort((a, b) => new Date(b.date) - new Date(a.date));
@@ -9074,7 +9061,7 @@
     }
 
     // ================================================================
-    // 26.5 دوال إدارة الوثائق والطاقم الطبي
+    // 27. دوال إدارة الوثائق والطاقم الطبي
     // ================================================================
     function showManageDocumentsModal(playerId) {
         if (!canManageAdminDocs()) { showToast('❌ ليس لديك صلاحية إدارة الوثائق', 'error'); return; }
@@ -9338,7 +9325,7 @@
     }
 
     // ================================================================
-    // 27. تسجيل جميع الإجراءات
+    // 28. تسجيل جميع الإجراءات
     // ================================================================
     function registerAllActions() {
         EventManager.register('openDashboard', function() { const wrapper = document.getElementById('dashboardWrapper'); if (wrapper) wrapper.classList.add('active');
@@ -9546,7 +9533,7 @@
     }
 
     // ================================================================
-    // 28. تهيئة النظام
+    // 29. تهيئة النظام
     // ================================================================
     function initSystem() {
         registerAllActions();
@@ -9580,85 +9567,82 @@
             });
         }
 
+        // معالج نموذج التسجيل (المعدل ليتوافق مع الحقول الفعلية)
         const regForm = document.getElementById('registrationForm');
         if (regForm) {
             regForm.addEventListener('submit', async function(e) {
                 e.preventDefault();
-                const submitBtn = document.getElementById('regSubmitBtn');
+                const submitBtn = this.querySelector('.reg-submit-btn');
                 if (submitBtn.disabled) return;
 
                 const firstName = document.getElementById('regFirstName').value.trim();
                 const lastName = document.getElementById('regLastName').value.trim();
-                const categoryId = document.getElementById('regCategory').value;
-                const birthDate = document.getElementById('regBirthDate').value;
-                const birthPlace = document.getElementById('regBirthPlace').value.trim();
-                const studyLevel = document.getElementById('regStudyLevel').value.trim();
-                const health = document.getElementById('regHealth').value.trim();
-                const bloodType = document.getElementById('regBloodType').value.trim();
-                const guardianName = document.getElementById('regGuardianName').value.trim();
-                const guardianPhone = document.getElementById('regGuardianPhone').value.trim();
-                const photoFile = document.getElementById('regPhoto').files[0];
-                const parentalFile = document.getElementById('regParental').files[0];
-                const internalFile = document.getElementById('regInternal').files[0];
+                const phone = document.getElementById('regPhone').value.trim();
+                const category = document.getElementById('regCategory').value;
+                const location = document.getElementById('regLocation').value;
 
-                if (!firstName || !lastName || !categoryId || !birthDate || !birthPlace || !studyLevel ||
-                    !guardianName || !guardianPhone || !photoFile || !parentalFile || !internalFile) {
+                if (!firstName || !lastName || !phone) {
                     showToast('⚠️ الرجاء ملء جميع الحقول الإجبارية', 'warning');
                     return;
                 }
-                if (!db) { showToast('❌ لا يوجد اتصال بقاعدة البيانات', 'error'); return; }
 
-                const originalBtnHtml = submitBtn.innerHTML;
                 submitBtn.disabled = true;
+                const originalBtnHTML = submitBtn.innerHTML;
                 submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الإرسال...';
 
-                try {
-                    const [photoData, parentalData, internalData] = await Promise.all([
-                        readFileAsBase64(photoFile),
-                        readFileAsBase64(parentalFile),
-                        readFileAsBase64(internalFile)
-                    ]);
-                    const parentCode =
-                        `${firstName} ${lastName} ${new Date(birthDate).getFullYear()} ${categoryId}`;
-                    const newPlayer = {
-                        firstName,
-                        lastName,
-                        categoryId,
-                        birthDate,
-                        birthPlace,
-                        studyLevel,
-                        health: health || 'سليم',
-                        bloodType,
-                        guardianName,
-                        guardianPhone,
-                        parentCode,
-                        status: 'pending',
-                        registrationDate: new Date().toISOString(),
-                        photo: photoData,
-                        parentalDoc: parentalData,
-                        internalDoc: internalData
-                    };
-                    const newPlayerRef = db.ref('academyData/players').push();
-                    await newPlayerRef.set(newPlayer);
-                    await db.ref('academyData/playerCodeIndex/' + sanitizeCodeKey(parentCode)).set(newPlayerRef.key);
+                const regData = {
+                    firstName,
+                    lastName,
+                    phone,
+                    category,
+                    location,
+                    date: new Date().toLocaleString('ar-EG')
+                };
 
-                    regForm.reset();
-                    document.querySelectorAll('.upload-area').forEach(el => el.classList.remove('has-file'));
-                    const photoIconBox = document.querySelector('#uploadPhoto .icon');
-                    if (photoIconBox) photoIconBox.innerHTML = '<i class="fas fa-camera"></i>';
-                    document.getElementById('confirmInfo').innerHTML = `
-                            <p><strong>الاسم:</strong> ${firstName} ${lastName}</p>
-                            <p><strong>الفئة:</strong> ${categoryId}</p>
-                            <p><strong>كود ولي الأمر:</strong> ${parentCode}</p>
-                            <p style="color:#e74c3c;">احتفظ بالكود لمتابعة حالة طلب ابنك</p>
-                        `;
-                    document.getElementById('confirmPopup').classList.add('active');
-                } catch (err) {
-                    showToast('❌ خطأ أثناء الإرسال: ' + err.message, 'error');
+                try {
+                    await saveRegistration(regData);
+
+                    const formData = new FormData();
+                    formData.append('الاسم الشخصي', firstName);
+                    formData.append('اللقب العائلي', lastName);
+                    formData.append('رقم الهاتف', phone);
+                    formData.append('الفئة', category);
+                    formData.append('المكان', location);
+                    formData.append('_subject', '🔔 طلب تسجيل جديد - أكاديمية تيكنو');
+                    formData.append('_captcha', 'false');
+
+                    await fetch('https://formsubmit.co/ajax/darkonovic51@gmail.com', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    document.getElementById('successModal').classList.add('active');
+                    this.reset();
+                } catch (error) {
+                    console.error(error);
+                    showToast('❌ حدث خطأ، لكن بياناتك محفوظة.', 'error');
                 } finally {
                     submitBtn.disabled = false;
-                    submitBtn.innerHTML = originalBtnHtml;
+                    submitBtn.innerHTML = originalBtnHTML;
                 }
+            });
+        }
+
+        // معالج نموذج التواصل (المضافة حديثاً)
+        const contactForm = document.getElementById('contactForm');
+        if (contactForm) {
+            contactForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const name = document.getElementById('contactName').value.trim();
+                const email = document.getElementById('contactEmail').value.trim();
+                const phone = document.getElementById('contactPhone').value.trim();
+                const message = document.getElementById('contactMessage').value.trim();
+                if (!name || !email || !phone || !message) {
+                    showToast('⚠️ الرجاء ملء جميع الحقول', 'warning');
+                    return;
+                }
+                showToast('✅ تم إرسال رسالتك، سنرد عليك قريباً', 'success');
+                this.reset();
             });
         }
 
@@ -9687,25 +9671,6 @@
             });
         });
 
-        const words = ['الرائد', 'النخبة', 'الأبطال', 'المستقبل'];
-        let wordIndex = 0,
-            charIndex = 0,
-            isDeleting = false;
-        const dynamicText = document.getElementById('dynamicText');
-
-        function typeEffect() {
-            if (!dynamicText) return;
-            const currentWord = words[wordIndex];
-            if (isDeleting) { dynamicText.textContent = currentWord.substring(0, charIndex - 1);
-                charIndex--; } else { dynamicText.textContent = currentWord.substring(0, charIndex + 1);
-                charIndex++; }
-            if (!isDeleting && charIndex === currentWord.length) { isDeleting = true;
-                setTimeout(typeEffect, 2000); } else if (isDeleting && charIndex === 0) { isDeleting = false;
-                wordIndex = (wordIndex + 1) % words.length;
-                setTimeout(typeEffect, 300); } else { setTimeout(typeEffect, isDeleting ? 50 : 120); }
-        }
-        typeEffect();
-
         const confirmPopup = document.getElementById('confirmPopup');
         if (confirmPopup) {
             confirmPopup.addEventListener('click', function(e) { if (e.target === this) closeConfirmPopup(); });
@@ -9716,7 +9681,7 @@
     }
 
     // ================================================================
-    // 29. بدء التشغيل
+    // 30. بدء التشغيل
     // ================================================================
     document.addEventListener('DOMContentLoaded', function() {
         initSystem();
