@@ -1088,6 +1088,51 @@
             opacity: 0.65;
         }
 
+        /* ===== ATTENDANCE ===== */
+        .attendance-toolbar { display:flex; gap:12px; align-items:center; flex-wrap:wrap; margin-bottom:18px; }
+        .attendance-toolbar input[type="date"], .attendance-toolbar select { padding:10px 16px; border-radius:12px; border:1.5px solid var(--border-card); font-family:inherit; font-size:0.95rem; }
+        .attendance-list { display:flex; flex-direction:column; gap:8px; }
+        .attendance-row { display:flex; align-items:center; justify-content:space-between; background:var(--bg-card); border:1px solid var(--border-card); border-radius:12px; padding:10px 16px; flex-wrap:wrap; gap:10px; }
+        .attendance-row .p-name { font-weight:600; color:var(--text-dark); }
+        .attendance-row .p-cat { color:var(--text-muted); font-size:0.8rem; margin-right:8px; }
+        .att-toggle { display:flex; gap:6px; }
+        .att-toggle button { border:none; padding:6px 16px; border-radius:20px; font-weight:700; font-size:0.8rem; cursor:pointer; opacity:0.4; transition:var(--transition); }
+        .att-toggle button.present-btn { background:var(--color-success); color:#fff; }
+        .att-toggle button.absent-btn { background:var(--color-danger); color:#fff; }
+        .att-toggle button.selected { opacity:1; transform:scale(1.05); }
+
+        /* ===== PAYMENTS ===== */
+        .payments-toolbar { display:flex; gap:12px; align-items:center; flex-wrap:wrap; margin-bottom:18px; }
+        .payments-toolbar select, .payments-toolbar input { padding:10px 16px; border-radius:12px; border:1.5px solid var(--border-card); font-family:inherit; font-size:0.95rem; }
+        .payment-row { display:grid; grid-template-columns:1.3fr 1fr 0.9fr 0.9fr; gap:10px; align-items:center; background:var(--bg-card); border:1px solid var(--border-card); border-radius:12px; padding:10px 16px; margin-bottom:8px; }
+        .payment-row .p-name { font-weight:600; color:var(--text-dark); }
+        .payment-row input[type="number"], .payment-row select { padding:8px 10px; border-radius:10px; border:1.5px solid var(--border-card); width:100%; }
+        .pay-status-badge { padding:4px 12px; border-radius:20px; font-size:0.75rem; font-weight:700; text-align:center; }
+        .pay-status-badge.paid { background:rgba(34,197,94,0.15); color:#15803D; }
+        .pay-status-badge.unpaid { background:rgba(220,38,38,0.15); color:#B91C1C; }
+        @media (max-width:700px){ .payment-row{ grid-template-columns:1fr 1fr; } }
+
+        /* ===== PLAYER PROFILE MODAL ===== */
+        .profile-modal-overlay { display:none; position:fixed; inset:0; background:rgba(8,31,77,0.6); backdrop-filter:blur(6px); z-index:100000; justify-content:center; align-items:flex-start; padding:30px 15px; overflow-y:auto; }
+        .profile-modal-overlay.active { display:flex; }
+        .profile-modal-box { background:#fff; border-radius:24px; max-width:700px; width:100%; overflow:hidden; box-shadow:0 25px 60px rgba(10,31,92,0.35); margin-top:20px; }
+        .profile-modal-header { background:linear-gradient(135deg, var(--primary-blue-dark), var(--primary-blue)); padding:24px; display:flex; justify-content:space-between; align-items:center; }
+        .profile-modal-header h3 { color:#fff; font-size:1.3rem; }
+        .profile-modal-header button { background:rgba(255,255,255,0.15); border:none; color:#fff; padding:8px 16px; border-radius:30px; cursor:pointer; font-weight:600; }
+        .profile-modal-body { padding:24px; max-height:70vh; overflow-y:auto; }
+        .profile-tabs { display:flex; gap:8px; margin-bottom:18px; flex-wrap:wrap; }
+        .profile-tab-btn { background:var(--off-white); border:none; padding:8px 18px; border-radius:20px; cursor:pointer; font-weight:600; color:var(--text-muted); font-size:0.85rem; }
+        .profile-tab-btn.active { background:var(--accent-red); color:#fff; }
+        .profile-tab-content { display:none; }
+        .profile-tab-content.active { display:block; }
+        .profile-info-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+        .profile-info-item { background:var(--off-white); border-radius:12px; padding:12px 14px; }
+        .profile-info-item .lbl { color:var(--text-muted); font-size:0.75rem; margin-bottom:4px; }
+        .profile-info-item .val { color:var(--text-dark); font-weight:700; }
+        .profile-history-table { width:100%; border-collapse:collapse; font-size:0.85rem; }
+        .profile-history-table th { background:var(--primary-blue-dark); color:#fff; padding:8px; }
+        .profile-history-table td { padding:8px; text-align:center; border-bottom:1px solid var(--border-card); }
+
         /* ===== MATCHES DESIGN ===== */
         .matches-showcase {
             display: grid;
@@ -1574,6 +1619,26 @@
     </div>
 </div>
 
+<!-- ===== نافذة الملف الشخصي للاعب ===== -->
+<div class="profile-modal-overlay" id="profileModalOverlay">
+    <div class="profile-modal-box">
+        <div class="profile-modal-header">
+            <h3 id="profileModalName">اسم اللاعب</h3>
+            <button onclick="closePlayerProfile()">✕ إغلاق</button>
+        </div>
+        <div class="profile-modal-body">
+            <div class="profile-tabs">
+                <button class="profile-tab-btn active" onclick="switchProfileTab('info')">البيانات</button>
+                <button class="profile-tab-btn" onclick="switchProfileTab('attendance')">سجل الحضور</button>
+                <button class="profile-tab-btn" onclick="switchProfileTab('payments')">سجل الدفعات</button>
+            </div>
+            <div class="profile-tab-content active" id="profileTab-info"></div>
+            <div class="profile-tab-content" id="profileTab-attendance"></div>
+            <div class="profile-tab-content" id="profileTab-payments"></div>
+        </div>
+    </div>
+</div>
+
 <!-- ===== ADMIN TOGGLE ===== -->
 <button class="admin-toggle" id="adminToggle"><i class="fas fa-cog"></i> إدارة</button>
 
@@ -1597,6 +1662,8 @@
                     <a href="#adm-stats" class="admin-nav-link active"><i class="fas fa-chart-pie"></i><span>نظرة عامة</span></a>
                     <a href="#adm-registrations" class="admin-nav-link"><i class="fas fa-clipboard-list"></i><span>طلبات التسجيل</span></a>
                     <a href="#adm-players" class="admin-nav-link"><i class="fas fa-users"></i><span>اللاعبون المعتمدون</span></a>
+                    <a href="#adm-attendance" class="admin-nav-link"><i class="fas fa-calendar-check"></i><span>الحضور والغياب</span></a>
+                    <a href="#adm-payments" class="admin-nav-link"><i class="fas fa-money-bill-wave"></i><span>الدفعات الشهرية</span></a>
                     <a href="#adm-gallery" class="admin-nav-link"><i class="fas fa-images"></i><span>المعرض</span></a>
                     <a href="#adm-videos" class="admin-nav-link"><i class="fas fa-video"></i><span>الفيديوهات</span></a>
                     <a href="#adm-schedule" class="admin-nav-link"><i class="fas fa-calendar-alt"></i><span>جدول التدريبات</span></a>
@@ -1623,10 +1690,36 @@
                 <h3>👕 قائمة اللاعبين المعتمدين</h3>
                 <div class="admin-table-wrap">
                     <table class="table-players">
-                        <thead><tr><th>#</th><th>الاسم</th><th>اللقب</th><th>الفئة</th><th>الهاتف</th><th>حذف</th></tr></thead>
+                        <thead><tr><th>#</th><th>الاسم</th><th>اللقب</th><th>الفئة</th><th>الهاتف</th><th>الملف</th><th>حذف</th></tr></thead>
                         <tbody id="adminPlayersList"></tbody>
                     </table>
                 </div>
+            </div>
+
+            <!-- ===== الحضور والغياب ===== -->
+            <div class="admin-section" id="adm-attendance">
+                <h3>✅ الحضور والغياب</h3>
+                <div class="attendance-toolbar">
+                    <label style="font-weight:600;">التاريخ:</label>
+                    <input type="date" id="attendanceDate">
+                    <label style="font-weight:600;">الفئة:</label>
+                    <select id="attendanceCategoryFilter"><option value="">كل الفئات</option></select>
+                </div>
+                <div class="attendance-list" id="attendanceList"></div>
+                <button onclick="saveAttendanceForDate()" style="background:var(--primary-blue); border:none; padding:10px 22px; border-radius:30px; color:#fff; font-weight:700; cursor:pointer; margin-top:14px;">💾 حفظ الحضور</button>
+            </div>
+
+            <!-- ===== الدفعات الشهرية ===== -->
+            <div class="admin-section" id="adm-payments">
+                <h3>💵 الدفعات الشهرية</h3>
+                <div class="payments-toolbar">
+                    <label style="font-weight:600;">الشهر:</label>
+                    <select id="paymentMonthSelect"></select>
+                    <label style="font-weight:600;">السنة:</label>
+                    <input type="number" id="paymentYearSelect" style="width:100px;">
+                </div>
+                <div id="paymentsList"></div>
+                <button onclick="savePaymentsForMonth()" style="background:var(--primary-blue); border:none; padding:10px 22px; border-radius:30px; color:#fff; font-weight:700; cursor:pointer; margin-top:10px;">💾 حفظ الدفعات</button>
             </div>
 
             <!-- ===== إدارة المعرض ===== -->
@@ -1743,6 +1836,9 @@
     ];
     const defaultMatches = [];
     const defaultPlayers = [];
+    const defaultAttendance = [];
+    const defaultPayments = [];
+    const arabicMonths = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
 
     // ================================================================
     // 3. الحالة العامة
@@ -1753,7 +1849,9 @@
         schedule: [],
         matches: [],
         players: [],
-        registrations: [] // سيتم جلبها بشكل منفصل
+        attendance: [],
+        payments: [],
+        registrations: []
     };
 
     // ================================================================
@@ -1783,12 +1881,14 @@
     // ================================================================
     async function loadAllData() {
         try {
-            const [gallery, videos, schedule, matches, players] = await Promise.all([
+            const [gallery, videos, schedule, matches, players, attendance, payments] = await Promise.all([
                 getFromFirebase('academyData/gallery'),
                 getFromFirebase('academyData/videos'),
                 getFromFirebase('academyData/schedule'),
                 getFromFirebase('academyData/matches'),
-                getFromFirebase('academyData/players')
+                getFromFirebase('academyData/players'),
+                getFromFirebase('academyData/attendance'),
+                getFromFirebase('academyData/payments')
             ]);
 
             appData.gallery = gallery || defaultGallery;
@@ -1796,30 +1896,27 @@
             appData.schedule = schedule || defaultSchedule;
             appData.matches = matches || defaultMatches;
             appData.players = players || defaultPlayers;
+            appData.attendance = attendance || defaultAttendance;
+            appData.payments = payments || defaultPayments;
 
             if (!gallery) await saveToFirebase('academyData/gallery', appData.gallery);
             if (!videos) await saveToFirebase('academyData/videos', appData.videos);
             if (!schedule) await saveToFirebase('academyData/schedule', appData.schedule);
             if (!matches) await saveToFirebase('academyData/matches', appData.matches);
             if (!players) await saveToFirebase('academyData/players', appData.players);
+            if (!attendance) await saveToFirebase('academyData/attendance', appData.attendance);
+            if (!payments) await saveToFirebase('academyData/payments', appData.payments);
 
             console.log('✅ All data loaded from Firebase');
         } catch (error) {
             console.error('❌ Error loading data:', error);
-            // استخدام البيانات المحلية إذا وجدت
-            const local = localStorage.getItem('fb_academyData');
-            if (local) {
-                try {
-                    const parsed = JSON.parse(local);
-                    appData = parsed;
-                } catch (e) {}
-            } else {
-                appData.gallery = defaultGallery;
-                appData.videos = defaultVideos;
-                appData.schedule = defaultSchedule;
-                appData.matches = defaultMatches;
-                appData.players = defaultPlayers;
-            }
+            appData.gallery = defaultGallery;
+            appData.videos = defaultVideos;
+            appData.schedule = defaultSchedule;
+            appData.matches = defaultMatches;
+            appData.players = defaultPlayers;
+            appData.attendance = defaultAttendance;
+            appData.payments = defaultPayments;
         }
     }
 
@@ -2307,6 +2404,9 @@
         renderAdminVideos();
         renderAdminSchedule();
         renderAdminMatches();
+        initAttendancePaymentsUI();
+        renderAdminAttendance();
+        renderAdminPayments();
     }
 
     function renderAdminPlayersList() {
@@ -2319,7 +2419,8 @@
             row.insertCell(2).innerText = p.lastName || '';
             row.insertCell(3).innerText = p.category || '';
             row.insertCell(4).innerText = p.phone || '';
-            row.insertCell(5).innerHTML = `<button class="del-btn" onclick="deletePlayerHandler(${idx})">✕</button>`;
+            row.insertCell(5).innerHTML = `<button class="btn-warning" onclick="openPlayerProfile(${idx})"><i class="fas fa-id-card"></i> عرض</button>`;
+            row.insertCell(6).innerHTML = `<button class="del-btn" onclick="deletePlayerHandler(${idx})">✕</button>`;
         });
     }
 
@@ -2356,6 +2457,177 @@
         alert('✅ تم تغيير كلمة السر بنجاح');
         document.getElementById('newAdminPass').value = '';
     };
+
+    // ================================================================
+    // الحضور والغياب
+    // ================================================================
+    function populateAttendanceUI() {
+        const dateInput = document.getElementById('attendanceDate');
+        if (!dateInput.value) dateInput.value = new Date().toISOString().split('T')[0];
+        dateInput.onchange = renderAdminAttendance;
+
+        const catFilter = document.getElementById('attendanceCategoryFilter');
+        const cats = [...new Set(appData.players.map(p => p.category).filter(Boolean))];
+        catFilter.innerHTML = '<option value="">كل الفئات</option>' + cats.map(c => `<option value="${c}">${c}</option>`).join('');
+        catFilter.onchange = renderAdminAttendance;
+    }
+
+    function renderAdminAttendance() {
+        const list = document.getElementById('attendanceList');
+        const date = document.getElementById('attendanceDate').value;
+        const catFilter = document.getElementById('attendanceCategoryFilter').value;
+        list.innerHTML = '';
+        if (!appData.players.length) {
+            list.innerHTML = '<p style="color:var(--text-muted); text-align:center;">لا يوجد لاعبون معتمدون بعد.</p>';
+            return;
+        }
+        const filtered = appData.players.filter(p => !catFilter || p.category === catFilter);
+        filtered.forEach(p => {
+            const record = appData.attendance.find(a => a.playerId === p.id && a.date === date);
+            const status = record ? record.status : null;
+            const row = document.createElement('div');
+            row.className = 'attendance-row';
+            row.innerHTML = `
+                <div><span class="p-name">${p.firstName} ${p.lastName}</span> <span class="p-cat">${p.category || ''}</span></div>
+                <div class="att-toggle">
+                    <button class="present-btn ${status === 'present' ? 'selected' : ''}" onclick="setAttendance(${p.id}, '${date}', 'present')">حاضر</button>
+                    <button class="absent-btn ${status === 'absent' ? 'selected' : ''}" onclick="setAttendance(${p.id}, '${date}', 'absent')">غائب</button>
+                </div>
+            `;
+            list.appendChild(row);
+        });
+    }
+
+    function setAttendance(playerId, date, status) {
+        let record = appData.attendance.find(a => a.playerId === playerId && a.date === date);
+        if (record) record.status = status;
+        else appData.attendance.push({ playerId, date, status });
+        renderAdminAttendance();
+    }
+
+    async function saveAttendanceForDate() {
+        await saveToFirebase('academyData/attendance', appData.attendance);
+        alert('✅ تم حفظ سجل الحضور');
+    }
+
+    // ================================================================
+    // الدفعات الشهرية
+    // ================================================================
+    function populatePaymentsUI() {
+        const monthSelect = document.getElementById('paymentMonthSelect');
+        const yearInput = document.getElementById('paymentYearSelect');
+        if (!monthSelect.options.length) {
+            monthSelect.innerHTML = arabicMonths.map((m, i) => `<option value="${i + 1}">${m}</option>`).join('');
+            const now = new Date();
+            monthSelect.value = now.getMonth() + 1;
+            yearInput.value = now.getFullYear();
+        }
+        monthSelect.onchange = renderAdminPayments;
+        yearInput.onchange = renderAdminPayments;
+    }
+
+    function renderAdminPayments() {
+        const list = document.getElementById('paymentsList');
+        const month = document.getElementById('paymentMonthSelect').value;
+        const year = document.getElementById('paymentYearSelect').value;
+        const key = `${year}-${String(month).padStart(2, '0')}`;
+        list.innerHTML = '';
+        if (!appData.players.length) {
+            list.innerHTML = '<p style="color:var(--text-muted); text-align:center;">لا يوجد لاعبون معتمدون بعد.</p>';
+            return;
+        }
+        appData.players.forEach(p => {
+            let record = appData.payments.find(pay => pay.playerId === p.id && pay.month === key);
+            if (!record) {
+                record = { playerId: p.id, month: key, amount: '', status: 'unpaid' };
+                appData.payments.push(record);
+            }
+            const row = document.createElement('div');
+            row.className = 'payment-row';
+            row.innerHTML = `
+                <span class="p-name">${p.firstName} ${p.lastName}</span>
+                <input type="number" placeholder="المبلغ (دج)" value="${record.amount}" onchange="updatePaymentAmount(${p.id}, '${key}', this.value)">
+                <select onchange="updatePaymentStatus(${p.id}, '${key}', this.value)">
+                    <option value="unpaid" ${record.status === 'unpaid' ? 'selected' : ''}>غير مدفوع</option>
+                    <option value="paid" ${record.status === 'paid' ? 'selected' : ''}>مدفوع</option>
+                </select>
+                <span class="pay-status-badge ${record.status}">${record.status === 'paid' ? '✔ مدفوع' : '⏳ غير مدفوع'}</span>
+            `;
+            list.appendChild(row);
+        });
+    }
+
+    function updatePaymentAmount(playerId, month, value) {
+        const record = appData.payments.find(p => p.playerId === playerId && p.month === month);
+        if (record) record.amount = value;
+    }
+
+    function updatePaymentStatus(playerId, month, value) {
+        const record = appData.payments.find(p => p.playerId === playerId && p.month === month);
+        if (record) { record.status = value; record.date = new Date().toLocaleDateString('ar-EG'); }
+        renderAdminPayments();
+    }
+
+    async function savePaymentsForMonth() {
+        await saveToFirebase('academyData/payments', appData.payments);
+        alert('✅ تم حفظ الدفعات');
+    }
+
+    // ================================================================
+    // الملف الشخصي للاعب
+    // ================================================================
+    window.openPlayerProfile = function(idx) {
+        const p = appData.players[idx];
+        if (!p) return;
+        document.getElementById('profileModalName').innerText = `${p.firstName} ${p.lastName}`;
+
+        document.getElementById('profileTab-info').innerHTML = `
+            <div class="profile-info-grid">
+                <div class="profile-info-item"><div class="lbl">الاسم الكامل</div><div class="val">${p.firstName} ${p.lastName}</div></div>
+                <div class="profile-info-item"><div class="lbl">الفئة العمرية</div><div class="val">${p.category || '—'}</div></div>
+                <div class="profile-info-item"><div class="lbl">رقم الهاتف</div><div class="val">${p.phone || '—'}</div></div>
+                <div class="profile-info-item"><div class="lbl">المكان</div><div class="val">${p.location || '—'}</div></div>
+            </div>
+        `;
+
+        const attRecords = appData.attendance.filter(a => a.playerId === p.id).sort((a, b) => new Date(b.date) - new Date(a.date));
+        const presentCount = attRecords.filter(a => a.status === 'present').length;
+        const absentCount = attRecords.filter(a => a.status === 'absent').length;
+        let attHtml = `<p style="margin-bottom:12px; color:var(--text-muted);">حاضر: <strong style="color:var(--color-success);">${presentCount}</strong> | غائب: <strong style="color:var(--color-danger);">${absentCount}</strong></p>`;
+        attHtml += `<table class="profile-history-table"><thead><tr><th>التاريخ</th><th>الحالة</th></tr></thead><tbody>`;
+        if (attRecords.length === 0) attHtml += `<tr><td colspan="2">لا يوجد سجل حضور بعد</td></tr>`;
+        attRecords.forEach(a => { attHtml += `<tr><td>${a.date}</td><td>${a.status === 'present' ? '✔ حاضر' : '✕ غائب'}</td></tr>`; });
+        attHtml += `</tbody></table>`;
+        document.getElementById('profileTab-attendance').innerHTML = attHtml;
+
+        const payRecords = appData.payments.filter(pay => pay.playerId === p.id).sort((a, b) => b.month.localeCompare(a.month));
+        let payHtml = `<table class="profile-history-table"><thead><tr><th>الشهر</th><th>المبلغ</th><th>الحالة</th></tr></thead><tbody>`;
+        if (payRecords.length === 0) payHtml += `<tr><td colspan="3">لا يوجد سجل دفعات بعد</td></tr>`;
+        payRecords.forEach(pay => { payHtml += `<tr><td>${pay.month}</td><td>${pay.amount || '—'} دج</td><td>${pay.status === 'paid' ? '✔ مدفوع' : '⏳ غير مدفوع'}</td></tr>`; });
+        payHtml += `</tbody></table>`;
+        document.getElementById('profileTab-payments').innerHTML = payHtml;
+
+        switchProfileTab('info');
+        document.getElementById('profileModalOverlay').classList.add('active');
+    };
+
+    window.closePlayerProfile = function() {
+        document.getElementById('profileModalOverlay').classList.remove('active');
+    };
+
+    window.switchProfileTab = function(tab) {
+        document.querySelectorAll('.profile-tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.profile-tab-content').forEach(c => c.classList.remove('active'));
+        if (typeof event !== 'undefined' && event.target) event.target.classList.add('active');
+        document.getElementById('profileTab-' + tab).classList.add('active');
+    };
+
+    let attendancePaymentsInitialized = false;
+    function initAttendancePaymentsUI() {
+        populateAttendanceUI();
+        populatePaymentsUI();
+        attendancePaymentsInitialized = true;
+    }
 
     // ================================================================
     // 11. دالة Scroll Reveal باستخدام IntersectionObserver
