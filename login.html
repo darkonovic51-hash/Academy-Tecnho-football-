@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>تسجيل الدخول | أكاديمية تيكنو</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;600;700&family=Cairo:wght@700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<style>
+    :root {
+        --primary-blue: #0B2A6F; --primary-blue-dark: #081F4D; --primary-blue-light: #1E3F8F;
+        --accent-red: #D91E2E; --accent-red-hover: #B51725; --color-success: #22C55E;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+        font-family:'IBM Plex Sans Arabic','Cairo',sans-serif;
+        min-height:100vh; display:flex; align-items:center; justify-content:center;
+        background:linear-gradient(135deg, var(--primary-blue-dark), var(--primary-blue));
+        padding:20px;
+    }
+    .login-box {
+        background:rgba(255,255,255,0.08); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
+        border:1px solid rgba(255,255,255,0.18); border-radius:24px; padding:40px 36px;
+        text-align:center; max-width:380px; width:100%;
+    }
+    .login-box .logo-img { height:60px; margin-bottom:14px; }
+    .login-box h2 { color:#fff; font-size:1.4rem; margin-bottom:6px; font-family:'Cairo',sans-serif; }
+    .login-box p.sub { color:rgba(255,255,255,0.65); font-size:0.85rem; margin-bottom:22px; }
+    .role-btns { display:flex; flex-direction:column; gap:10px; }
+    .role-btns button {
+        border:none; padding:13px; border-radius:60px; font-weight:700; cursor:pointer; font-size:0.95rem;
+        color:#fff; transition:0.25s; display:flex; align-items:center; justify-content:center; gap:8px;
+    }
+    .role-btns button:hover { transform:translateY(-2px); }
+    .btn-admin { background:var(--accent-red); }
+    .btn-coach { background:var(--primary-blue-light); }
+    .btn-parent { background:#F59E0B; color:#212529 !important; }
+    .code-form input {
+        padding:12px 20px; border-radius:60px; border:1.5px solid rgba(255,255,255,0.3);
+        background:rgba(255,255,255,0.1); color:#fff; width:100%; font-size:1rem; margin-bottom:12px; outline:none;
+    }
+    .code-form input:focus { border-color:var(--accent-red); box-shadow:0 0 0 4px rgba(217,30,46,0.2); }
+    .code-form input::placeholder { color:rgba(255,255,255,0.6); }
+    .code-form .actions { display:flex; gap:8px; justify-content:center; }
+    .code-form button {
+        border:none; padding:11px 22px; border-radius:60px; font-weight:700; cursor:pointer; color:#fff;
+    }
+    .code-form .btn-submit { background:var(--accent-red); }
+    .code-form .btn-back { background:rgba(255,255,255,0.15); }
+    .error-msg { color:#FCA5A5; margin-top:10px; font-size:0.85rem; display:none; }
+    .back-home { display:inline-block; margin-top:20px; color:rgba(255,255,255,0.6); text-decoration:none; font-size:0.85rem; }
+    .back-home:hover { color:#fff; }
+    .create-note { color:#FDE68A; font-size:0.8rem; margin-top:10px; display:none; }
+</style>
+</head>
+<body>
+
+<div class="login-box" id="roleSelectBox">
+    <img class="logo-img" src="https://github.com/darkonovic51-hash/Academy-Tecnho-football-/raw/42aaf4132007f328e33d2aeaa0b05670a9e3f332/1000015229-removebg-preview.png" alt="شعار">
+    <h2>🔐 لوحة تحكم أكاديمية تيكنو</h2>
+    <p class="sub">اختر نوع الحساب لتسجيل الدخول</p>
+    <div class="role-btns">
+        <button class="btn-admin" onclick="showCodeForm('admin')"><i class="fas fa-user-cog"></i> المدير</button>
+        <button class="btn-coach" onclick="showCodeForm('coach')"><i class="fas fa-chalkboard-teacher"></i> المدرب</button>
+        <button class="btn-parent" onclick="showCodeForm('parent')"><i class="fas fa-user-friends"></i> ولي الأمر</button>
+    </div>
+    <a class="back-home" href="index.html"><i class="fas fa-arrow-right"></i> رجوع للصفحة الرئيسية</a>
+</div>
+
+<div class="login-box" id="codeFormBox" style="display:none;">
+    <h2 id="codeFormTitle">🔐 تسجيل الدخول</h2>
+    <p class="sub" id="codeFormSub"></p>
+    <div class="code-form">
+        <input type="text" id="codeInput" placeholder="أدخل الكود">
+        <div class="actions">
+            <button class="btn-submit" onclick="submitLogin()"><i class="fas fa-sign-in-alt"></i> دخول</button>
+            <button class="btn-back" onclick="backToRoleSelect()">رجوع</button>
+        </div>
+        <div class="error-msg" id="loginError">❌ الكود غير صحيح</div>
+        <div class="create-note" id="createNote">ℹ️ هذا أول استخدام — أدخل الكود الذي تريده وسيُحفظ تلقائياً كود دخول جديد.</div>
+    </div>
+    <a class="back-home" href="index.html"><i class="fas fa-arrow-right"></i> رجوع للصفحة الرئيسية</a>
+</div>
+
+<script>
+    const DB_URL = "https://tecnho-new-default-rtdb.firebaseio.com";
+
+    async function fbGet(path) {
+        try { const res = await fetch(`${DB_URL}/${path}.json`); if (!res.ok) throw 0; return await res.json(); }
+        catch (e) { return null; }
+    }
+    async function fbSet(path, data) {
+        try { await fetch(`${DB_URL}/${path}.json`, { method:'PUT', body: JSON.stringify(data) }); } catch(e) {}
+    }
+
+    async function sha256(text) {
+        const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
+        return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+    }
+
+    let selectedRole = null;
+    let adminCodeExists = false;
+
+    // ترحيل/تهيئة كود المدير عند فتح الصفحة
+    async function ensureAdminCode() {
+        let codeHash = await fbGet('adminAccess/codeHash');
+        if (codeHash) { adminCodeExists = true; return; }
+        // لا يوجد كود بعد -> نحاول ترحيل كلمة السر القديمة من localStorage (من index.html القديم على نفس النطاق)
+        const legacyPass = localStorage.getItem('techno_admin_pass');
+        if (legacyPass) {
+            const hash = await sha256(legacyPass);
+            await fbSet('adminAccess/codeHash', hash);
+            adminCodeExists = true;
+        } else {
+            adminCodeExists = false; // أول استخدام حقيقي بدون أي كود سابق
+        }
+    }
+
+    window.showCodeForm = function(role) {
+        selectedRole = role;
+        document.getElementById('roleSelectBox').style.display = 'none';
+        document.getElementById('codeFormBox').style.display = 'block';
+        document.getElementById('codeInput').value = '';
+        document.getElementById('loginError').style.display = 'none';
+        document.getElementById('createNote').style.display = 'none';
+        const titles = { admin: '🔐 دخول المدير', coach: '🔐 دخول المدرب', parent: '🔐 دخول ولي الأمر' };
+        const subs = { admin: 'أدخل كود/كلمة سر المدير', coach: 'أدخل الكود الخاص بك كمدرب', parent: 'أدخل كود اللاعب الخاص بابنك' };
+        document.getElementById('codeFormTitle').textContent = titles[role];
+        document.getElementById('codeFormSub').textContent = subs[role];
+        if (role === 'admin' && !adminCodeExists) {
+            document.getElementById('createNote').style.display = 'block';
+        }
+        document.getElementById('codeInput').focus();
+    };
+
+    window.backToRoleSelect = function() {
+        document.getElementById('roleSelectBox').style.display = 'block';
+        document.getElementById('codeFormBox').style.display = 'none';
+        selectedRole = null;
+    };
+
+    function showError() {
+        const err = document.getElementById('loginError');
+        err.style.display = 'block';
+        setTimeout(() => err.style.display = 'none', 3000);
+    }
+
+    window.submitLogin = async function() {
+        const input = document.getElementById('codeInput').value.trim();
+        if (!input) return;
+
+        if (selectedRole === 'admin') {
+            if (!adminCodeExists) {
+                // أول استخدام حقيقي: نحفظ هذا الكود كأول كود دخول
+                const hash = await sha256(input);
+                await fbSet('adminAccess/codeHash', hash);
+                sessionStorage.setItem('techno_session', JSON.stringify({ role:'admin' }));
+                window.location.href = 'dashboard.html';
+                return;
+            }
+            const storedHash = await fbGet('adminAccess/codeHash');
+            const inputHash = await sha256(input);
+            if (inputHash === storedHash) {
+                sessionStorage.setItem('techno_session', JSON.stringify({ role:'admin' }));
+                window.location.href = 'dashboard.html';
+            } else showError();
+
+        } else if (selectedRole === 'coach') {
+            let coaches = await fbGet('academyData/coaches');
+            if (!coaches) coaches = {};
+            const list = Array.isArray(coaches) ? coaches.map((c,i)=>({_key:String(i), ...c})) : Object.entries(coaches).map(([k,v])=>({_key:k, ...v}));
+            const match = list.find(c => c.code === input);
+            if (match) {
+                sessionStorage.setItem('techno_session', JSON.stringify({ role:'coach', key: match._key, data: match }));
+                window.location.href = 'dashboard.html';
+            } else showError();
+
+        } else if (selectedRole === 'parent') {
+            let players = await fbGet('academyData/players');
+            if (!players) players = {};
+            const list = Array.isArray(players) ? players.map((p,i)=>({_key:String(i), ...p})) : Object.entries(players).map(([k,v])=>({_key:k, ...v}));
+            const match = list.find(p => p.parentCode === input);
+            if (match) {
+                sessionStorage.setItem('techno_session', JSON.stringify({ role:'parent', key: match._key, data: match }));
+                window.location.href = 'dashboard.html';
+            } else showError();
+        }
+    };
+
+    document.getElementById('codeInput').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') submitLogin();
+    });
+
+    ensureAdminCode();
+</script>
+</body>
+</html>
