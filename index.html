@@ -132,7 +132,6 @@
         .video-wrapper { max-width:850px; margin:0 auto; border-radius:var(--radius); overflow:hidden; box-shadow:var(--shadow); border:2px solid var(--accent-red); }
         .video-wrapper video { width:100%; display:block; background:#000; }
 
-        /* ===== الطاقم الفني (عدد غير محدود) ===== */
         .team-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(240px,1fr)); gap:25px; max-width:1100px; margin:0 auto; }
         .team-card { background:var(--bg-card); border-radius:var(--radius); overflow:hidden; border:1px solid var(--border-card); transition:var(--transition); text-align:center; }
         .team-card:hover { transform:translateY(-5px); border-color:var(--accent-red); box-shadow:var(--shadow); }
@@ -197,6 +196,30 @@
         @keyframes modalPop { 0%{ transform:scale(0.6); opacity:0; } 100%{ transform:scale(1); opacity:1; } }
         @keyframes wiggle { 0%,100%{ transform:rotate(-1.5deg) scale(1); } 50%{ transform:rotate(1.5deg) scale(1.02); } }
 
+        /* Admin toggle button responsive */
+        .admin-toggle {
+            position:fixed;
+            bottom:20px;
+            left:20px;
+            z-index:9999;
+            background:var(--primary-blue-dark);
+            color:#fff;
+            padding:10px 20px;
+            border-radius:30px;
+            font-size:0.85rem;
+            font-weight:600;
+            box-shadow:0 8px 20px rgba(8,31,77,0.35);
+            text-decoration:none;
+            display:inline-flex;
+            align-items:center;
+            gap:6px;
+            transition:0.3s;
+        }
+        .admin-toggle:hover {
+            background:var(--accent-red);
+            transform:translateY(-2px);
+        }
+
         @media (max-width:1024px) { .hero h1 { font-size:3rem; } .section-title { font-size:2rem; } }
         @media (max-width:850px) {
             .navbar { padding:10px 16px; background:rgba(248,250,252,0.92); }
@@ -216,11 +239,14 @@
             .registration-wrapper .form-row { grid-template-columns:1fr; }
             section { padding:40px 0; }
             .section-title { font-size:1.6rem; }
+            .admin-toggle { bottom:15px; left:15px; padding:8px 16px; font-size:0.75rem; }
         }
         @media (max-width:480px) {
             .hero h1 { font-size:1.7rem; }
             .btn-primary, .btn-outline { padding:8px 20px; font-size:0.85rem; }
             .hero-buttons { gap:8px; }
+            .admin-toggle { bottom:10px; left:10px; padding:6px 14px; font-size:0.7rem; }
+            .admin-toggle i { font-size:0.8rem; }
         }
     </style>
 </head>
@@ -395,12 +421,18 @@
     <div class="footer-bottom">&copy; 2026 أكاديمية تيكنو – جميع الحقوق محفوظة</div>
 </footer>
 
+<!-- Success Modal -->
 <div class="payment-modal" id="successModal">
     <div class="success-modal-content">
         <div class="success-modal-header"><img src="https://github.com/darkonovic51-hash/Academy-Tecnho-football-/raw/42aaf4132007f328e33d2aeaa0b05670a9e3f332/1000015229-removebg-preview.png" alt="شعار الأكاديمية" class="success-modal-logo"></div>
         <div class="success-modal-body"><div class="success-icon"><i class="fas fa-check"></i></div><h3>تم التسجيل بنجاح</h3><p>تم استلام طلبك بنجاح، سيتواصل معك فريق أكاديمية تيكنو في أقرب وقت.</p><button class="close-modal" id="closeSuccessModal"><i class="fas fa-check-circle"></i> تمام</button></div>
     </div>
 </div>
+
+<!-- Admin Button -->
+<a href="login.html" class="admin-toggle">
+    <i class="fas fa-cog"></i> إدارة
+</a>
 
 <script>
     // ================================================================
