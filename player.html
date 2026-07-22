@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ملف اللاعب | أكاديمية تيكنو</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Cairo:wght@700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<style>
+    :root {
+        --primary-blue:#0B2A6F; --primary-blue-dark:#081F4D;
+        --accent-red:#D91E2E; --accent-red-hover:#B51725;
+        --text-dark:#1E293B; --text-muted:#64748B;
+        --cream:#F8FAFC; --border-card:rgba(11,42,111,0.10);
+        --shadow:0 20px 45px rgba(11,42,111,0.10); --shadow-gold:0 15px 35px rgba(217,30,46,0.18);
+        --radius:16px;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'IBM Plex Sans Arabic','Cairo',sans-serif; background:var(--cream); color:var(--text-dark); line-height:1.7; min-height:100vh; }
+    .container { max-width:640px; margin:0 auto; padding:0 20px; }
+    header.topbar {
+        background:linear-gradient(135deg, var(--primary-blue-dark), var(--primary-blue));
+        padding:26px 20px; text-align:center; position:relative;
+    }
+    header.topbar .logo-row { display:flex; align-items:center; justify-content:center; gap:10px; }
+    header.topbar img { height:44px; }
+    header.topbar .logo-row span { color:#fff; font-weight:800; font-size:1.15rem; font-family:'Cairo',sans-serif; }
+    header.topbar .logo-row span .accent { color:#FF6B6B; }
+    .back-link {
+        position:absolute; top:26px; right:20px; color:rgba(255,255,255,0.85); text-decoration:none;
+        font-size:0.85rem; display:flex; align-items:center; gap:6px; background:rgba(255,255,255,0.1);
+        padding:8px 16px; border-radius:30px; transition:0.2s;
+    }
+    .back-link:hover { background:#fff; color:var(--primary-blue); }
+
+    main { padding:50px 0 60px; }
+    .profile-card {
+        background:#fff; border-radius:var(--radius); overflow:hidden; border:1px solid var(--border-card); box-shadow:var(--shadow);
+    }
+    .profile-header {
+        background:linear-gradient(135deg, var(--primary-blue-dark), var(--primary-blue));
+        padding:40px 20px 60px; text-align:center; position:relative;
+    }
+    .avatar-big {
+        width:110px; height:110px; border-radius:50%; background:linear-gradient(135deg, var(--accent-red), var(--accent-red-hover));
+        display:flex; align-items:center; justify-content:center; margin:0 auto -45px; color:#fff; font-size:2.4rem; font-weight:800;
+        border:5px solid #fff; box-shadow:0 10px 25px rgba(0,0,0,0.2); position:relative; z-index:2;
+    }
+    .profile-body { padding:60px 30px 34px; text-align:center; }
+    .profile-body h2 { font-size:1.5rem; font-weight:800; margin-bottom:6px; }
+    .cat-badge {
+        display:inline-block; background:var(--accent-red); color:#fff; padding:4px 18px; border-radius:30px;
+        font-weight:700; font-size:0.82rem; margin-bottom:22px;
+    }
+    .info-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; text-align:right; }
+    .info-item { background:var(--cream); border-radius:12px; padding:14px 16px; border:1px solid var(--border-card); }
+    .info-item .lbl { color:var(--text-muted); font-size:0.75rem; margin-bottom:4px; }
+    .info-item .val { font-weight:700; }
+
+    .empty-state { text-align:center; padding:60px 20px; color:var(--text-muted); }
+    .empty-state i { font-size:2.8rem; color:var(--accent-red); opacity:0.4; margin-bottom:14px; display:block; }
+    .empty-state a { color:var(--accent-red); font-weight:700; text-decoration:none; }
+
+    @media (max-width:480px) { .info-grid { grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+    <a href="index.html" class="back-link"><i class="fas fa-arrow-right"></i> الرئيسية</a>
+    <div class="logo-row">
+        <img src="https://github.com/darkonovic51-hash/Academy-Tecnho-football-/raw/42aaf4132007f328e33d2aeaa0b05670a9e3f332/1000015229-removebg-preview.png" alt="شعار">
+        <span>تيكنو <span class="accent">Academy</span></span>
+    </div>
+</header>
+
+<main>
+    <div class="container" id="mainContainer">
+        <p style="text-align:center; color:var(--text-muted);">جارٍ التحميل...</p>
+    </div>
+</main>
+
+<script>
+    const DB_URL = "https://tecnho-new-default-rtdb.firebaseio.com";
+
+    async function fbGet(path) {
+        try { const res = await fetch(`${DB_URL}/${path}.json`); if (!res.ok) throw 0; return await res.json(); }
+        catch (e) { return null; }
+    }
+
+    const defaultCategories = [
+        { key:'U11', label:'تحت 11 سنة (U11)' }, { key:'U12', label:'تحت 12 سنة (U12)' },
+        { key:'U13', label:'تحت 13 سنة (U13)' }, { key:'U14', label:'تحت 14 سنة (U14)' },
+        { key:'U15', label:'تحت 15 سنة (U15)' }, { key:'U16', label:'تحت 16 سنة (U16)' },
+        { key:'U17', label:'تحت 17 سنة (U17)' }
+    ];
+
+    function getParam(name) {
+        return new URLSearchParams(window.location.search).get(name);
+    }
+
+    function initialsOf(name) {
+        return (name || '؟').trim().charAt(0);
+    }
+
+    async function init() {
+        const id = getParam('id');
+        const container = document.getElementById('mainContainer');
+        if (!id) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <p>لم يتم تحديد لاعب.</p>
+                    <a href="index.html">العودة للصفحة الرئيسية</a>
+                </div>`;
+            return;
+        }
+
+        const [playersRaw, catList] = await Promise.all([
+            fbGet('academyData/players'),
+            fbGet('categoriesList')
+        ]);
+        const players = playersRaw ? (Array.isArray(playersRaw) ? playersRaw : Object.values(playersRaw)) : [];
+        const categories = catList || defaultCategories;
+        const p = players.find(pl => String(pl.id) === String(id));
+
+        if (!p) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-user-slash"></i>
+                    <p>تعذر العثور على هذا اللاعب.</p>
+                    <a href="index.html">العودة للصفحة الرئيسية</a>
+                </div>`;
+            return;
+        }
+
+        const catLabel = categories.find(c => c.key === p.category)?.label || p.category || '—';
+
+        container.innerHTML = `
+            <div class="profile-card">
+                <div class="profile-header">
+                    <div class="avatar-big">${initialsOf(p.firstName)}</div>
+                </div>
+                <div class="profile-body">
+                    <h2>${p.firstName || ''} ${p.lastName || ''}</h2>
+                    <div class="cat-badge">${catLabel}</div>
+                    <div class="info-grid">
+                        <div class="info-item"><div class="lbl">الفئة العمرية</div><div class="val">${catLabel}</div></div>
+                        <div class="info-item"><div class="lbl">مكان التدريب</div><div class="val">${p.location || '—'}</div></div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
