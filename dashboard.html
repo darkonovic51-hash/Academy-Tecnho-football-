@@ -72,6 +72,42 @@
     .placeholder-box { text-align:center; padding:60px 20px; background:#fff; border-radius:14px; border:1px dashed var(--border-card); color:var(--text-muted); }
     .placeholder-box i { font-size:2.5rem; color:var(--accent-red); opacity:0.4; margin-bottom:12px; display:block; }
 
+    .folder-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:16px; margin-bottom:10px; }
+    .folder-card { background:#fff; border:1px solid var(--border-card); border-radius:16px; padding:22px 16px; text-align:center; cursor:pointer; transition:0.25s; }
+    .folder-card:hover { transform:translateY(-4px); border-color:var(--accent-red); box-shadow:0 10px 24px rgba(217,30,46,0.15); }
+    .folder-card i { font-size:2rem; color:var(--accent-red); margin-bottom:8px; display:block; }
+    .folder-card .cat-name { font-weight:700; font-size:1rem; margin-bottom:4px; }
+    .folder-card .cat-count { color:var(--text-muted); font-size:0.8rem; }
+    .back-link { display:inline-flex; align-items:center; gap:6px; color:var(--primary-blue); font-weight:600; font-size:0.88rem; cursor:pointer; margin-bottom:14px; }
+    .back-link:hover { color:var(--accent-red); }
+    .att-toggle { display:flex; gap:6px; justify-content:center; }
+    .att-toggle button { border:none; padding:5px 14px; border-radius:20px; font-weight:700; font-size:0.75rem; cursor:pointer; opacity:0.35; transition:0.2s; }
+    .att-toggle button.present-btn { background:var(--color-success); color:#fff; }
+    .att-toggle button.absent-btn { background:var(--color-danger); color:#fff; }
+    .att-toggle button.selected { opacity:1; transform:scale(1.05); }
+    .profile-tabs { display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap; }
+    .profile-tab-btn { background:#F1F5F9; border:none; padding:7px 16px; border-radius:20px; cursor:pointer; font-weight:600; color:var(--text-muted); font-size:0.82rem; }
+    .profile-tab-btn.active { background:var(--accent-red); color:#fff; }
+    .profile-tab-content { display:none; }
+    .profile-tab-content.active { display:block; }
+    .pay-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:10px; }
+    .pay-month-box { border:1px solid var(--border-card); border-radius:12px; padding:10px; text-align:center; }
+    .pay-month-box .m-label { font-weight:700; font-size:0.85rem; margin-bottom:6px; }
+    .pay-month-box button { border:none; padding:5px 12px; border-radius:20px; font-weight:700; font-size:0.75rem; cursor:pointer; width:100%; }
+    .pay-month-box.paid button { background:var(--color-success); color:#fff; }
+    .pay-month-box.unpaid button { background:#e2e8f0; color:var(--text-muted); }
+
+    .dyn-row { display:flex; gap:8px; align-items:center; margin-bottom:8px; flex-wrap:wrap; }
+    .dyn-row input { flex:1; min-width:120px; padding:9px 13px; border-radius:10px; border:1.5px solid var(--border-card); font-family:inherit; }
+    .dyn-row .btn-sm { flex-shrink:0; }
+    .settings-section { margin-bottom:26px; }
+    .settings-section h4 { font-size:0.95rem; margin-bottom:12px; color:var(--primary-blue); }
+    .badge-status { display:inline-block; padding:4px 12px; border-radius:20px; font-size:0.72rem; font-weight:700; }
+    .badge-status.pending { background:rgba(245,158,11,0.15); color:#B45309; }
+    .badge-status.approved { background:rgba(34,197,94,0.15); color:#15803D; }
+    .badge-status.rejected { background:rgba(220,38,38,0.15); color:#B91C1C; }
+    .badge-status.edit_requested { background:rgba(11,42,111,0.12); color:var(--primary-blue); }
+
     /* Modal */
     .modal-overlay { display:none; position:fixed; inset:0; background:rgba(8,31,77,0.55); backdrop-filter:blur(4px); z-index:9999; justify-content:center; align-items:center; padding:20px; }
     .modal-overlay.active { display:flex; }
@@ -106,6 +142,10 @@
 
 <div class="modal-overlay" id="resourceModal">
     <div class="modal-box" id="resourceModalBox"></div>
+</div>
+
+<div class="modal-overlay" id="playerRecordModal">
+    <div class="modal-box" id="playerRecordModalBox" style="max-width:640px;"></div>
 </div>
 
 <script>
@@ -367,6 +407,516 @@
     }
 
     // ================================================================
+    // اللاعبون كملفات فئات (Category Folders) + سجل اللاعب
+    // ================================================================
+    function generateParentCode(firstName, lastName) {
+        const randomPart = Math.floor(1000 + Math.random() * 9000);
+        return `${firstName || ''}${lastName || ''}`.replace(/\s+/g, '') + randomPart;
+    }
+
+    const arabicMonths = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+
+    async function showDashPlayers() {
+        setActiveNav('players');
+        const players = await loadKeyedList('academyData/players');
+        window._playersCache = players;
+        document.getElementById('mainContent').innerHTML = `
+            <h2 class="page-title">👥 اللاعبون</h2>
+            <p class="page-sub">اختر فئة عمرية لعرض لاعبيها</p>
+            <div class="folder-grid" id="folderGrid"></div>
+        `;
+        const grid = document.getElementById('folderGrid');
+        grid.innerHTML = categories.map(cat => {
+            const count = players.filter(p => p.category === cat.key).length;
+            return `
+                <div class="folder-card" onclick="openCategoryFolder('${cat.key}')">
+                    <i class="fas fa-folder"></i>
+                    <div class="cat-name">${cat.label}</div>
+                    <div class="cat-count">${count} لاعب</div>
+                </div>`;
+        }).join('');
+    }
+    window.showDashPlayers = showDashPlayers;
+
+    let currentCategoryKey = null;
+
+    async function openCategoryFolder(catKey) {
+        currentCategoryKey = catKey;
+        setActiveNav('players');
+        const catLabel = categories.find(c => c.key === catKey)?.label || catKey;
+        document.getElementById('mainContent').innerHTML = `
+            <div class="back-link" onclick="showDashPlayers()"><i class="fas fa-arrow-right"></i> رجوع لكل الفئات</div>
+            <h2 class="page-title">👥 ${catLabel}</h2>
+            <p class="page-sub">لاعبو هذه الفئة</p>
+            <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px;">
+                <input type="text" id="catPlayerSearch" placeholder="🔍 بحث بالاسم..." style="flex:1; min-width:200px; padding:9px 14px; border-radius:10px; border:1.5px solid var(--border-card); font-family:inherit;" oninput="renderCategoryPlayersTable()">
+                <button class="btn-sm btn-sm-primary" onclick="openPlayerModal(null, '${catKey}')"><i class="fas fa-plus"></i> إضافة لاعب</button>
+            </div>
+            <div class="table-wrap">
+                <table>
+                    <thead><tr><th>#</th><th>الاسم</th><th>اللقب</th><th>الهاتف</th><th>المكان</th><th>إجراءات</th></tr></thead>
+                    <tbody id="catPlayersTbody"></tbody>
+                </table>
+            </div>
+        `;
+        await renderCategoryPlayersTable();
+    }
+    window.openCategoryFolder = openCategoryFolder;
+
+    async function renderCategoryPlayersTable() {
+        const players = await loadKeyedList('academyData/players');
+        window._playersCache = players;
+        const term = document.getElementById('catPlayerSearch')?.value.trim().toLowerCase() || '';
+        const filtered = players.filter(p => p.category === currentCategoryKey && (!term || `${p.firstName||''} ${p.lastName||''}`.toLowerCase().includes(term)));
+        const tbody = document.getElementById('catPlayersTbody');
+        if (!tbody) return;
+        if (!filtered.length) {
+            tbody.innerHTML = `<tr><td colspan="6" style="padding:20px; color:var(--text-muted);">لا يوجد لاعبون في هذه الفئة بعد</td></tr>`;
+            return;
+        }
+        tbody.innerHTML = filtered.map((p, idx) => `
+            <tr>
+                <td>${idx+1}</td>
+                <td style="font-weight:700;">${p.firstName || ''}</td>
+                <td>${p.lastName || ''}</td>
+                <td>${p.phone || '—'}</td>
+                <td>${p.location || '—'}</td>
+                <td>
+                    <button class="btn-sm btn-sm-warning" onclick='openPlayerRecord("${p._key}")'><i class="fas fa-id-card"></i> سجل اللاعب</button>
+                    <button class="btn-sm btn-sm-primary" onclick='openPlayerModal(${JSON.stringify(p).replace(/'/g,"&apos;")}, "${currentCategoryKey}")'><i class="fas fa-edit"></i></button>
+                    <button class="btn-sm btn-sm-danger" onclick="deletePlayer('${p._key}')"><i class="fas fa-times"></i></button>
+                </td>
+            </tr>
+        `).join('');
+    }
+    window.renderCategoryPlayersTable = renderCategoryPlayersTable;
+
+    function openPlayerModal(player, presetCategory) {
+        const isEdit = !!player;
+        const modalBox = document.getElementById('resourceModalBox');
+        modalBox.innerHTML = `
+            <h3>${isEdit ? 'تعديل لاعب' : 'إضافة لاعب جديد'}</h3>
+            <div class="form-grid">
+                <div class="form-group"><label>الاسم الشخصي</label><input type="text" id="pmFirstName" value="${player?.firstName || ''}"></div>
+                <div class="form-group"><label>اللقب العائلي</label><input type="text" id="pmLastName" value="${player?.lastName || ''}"></div>
+                <div class="form-group"><label>الهاتف</label><input type="text" id="pmPhone" value="${player?.phone || ''}"></div>
+                <div class="form-group"><label>الفئة</label>
+                    <select id="pmCategory">${categories.map(c => `<option value="${c.key}" ${((player?.category)||presetCategory)===c.key?'selected':''}>${c.label}</option>`).join('')}</select>
+                </div>
+                <div class="form-group full"><label>المكان</label><input type="text" id="pmLocation" value="${player?.location || ''}"></div>
+                ${isEdit ? `<div class="form-group full"><label>كود ولي الأمر</label><input type="text" value="${player.parentCode || ''}" disabled style="background:#f1f5f9;"></div>` : ''}
+            </div>
+            <div class="modal-actions">
+                <button class="btn-sm" style="background:#e2e8f0;" onclick="closeResourceModal()">إلغاء</button>
+                <button class="btn-sm btn-sm-primary" onclick='savePlayerModal(${isEdit ? `"${player._key}"` : 'null'})'><i class="fas fa-save"></i> حفظ</button>
+            </div>
+        `;
+        document.getElementById('resourceModal').classList.add('active');
+    }
+    window.openPlayerModal = openPlayerModal;
+
+    async function savePlayerModal(key) {
+        const firstName = document.getElementById('pmFirstName').value.trim();
+        const lastName = document.getElementById('pmLastName').value.trim();
+        const phone = document.getElementById('pmPhone').value.trim();
+        const category = document.getElementById('pmCategory').value;
+        const location = document.getElementById('pmLocation').value.trim();
+        if (!firstName || !lastName) { alert('❌ الرجاء إدخال الاسم واللقب'); return; }
+        if (key) {
+            await fbUpdate(`academyData/players/${key}`, { firstName, lastName, phone, category, location });
+        } else {
+            const id = Date.now();
+            const parentCode = generateParentCode(firstName, lastName);
+            await fbPush('academyData/players', { id, firstName, lastName, phone, category, location, parentCode });
+        }
+        closeResourceModal();
+        if (currentCategoryKey) renderCategoryPlayersTable();
+        else showDashPlayers();
+    }
+    window.savePlayerModal = savePlayerModal;
+
+    async function deletePlayer(key) {
+        if (!confirm('هل أنت متأكد من حذف هذا اللاعب نهائياً؟')) return;
+        await fbDelete(`academyData/players/${key}`);
+        renderCategoryPlayersTable();
+    }
+    window.deletePlayer = deletePlayer;
+
+    // ===== سجل اللاعب (بيانات + حضور + دفعات) =====
+    let currentProfilePlayer = null;
+
+    async function openPlayerRecord(key) {
+        const players = window._playersCache || await loadKeyedList('academyData/players');
+        const p = players.find(pl => pl._key === key);
+        if (!p) return;
+        currentProfilePlayer = p;
+        const modalBox = document.getElementById('playerRecordModalBox');
+        modalBox.innerHTML = `
+            <h3>${p.firstName} ${p.lastName}</h3>
+            <div class="profile-tabs">
+                <button class="profile-tab-btn active" data-tab="info" onclick="switchRecordTab('info')">البيانات</button>
+                <button class="profile-tab-btn" data-tab="attendance" onclick="switchRecordTab('attendance')">سجل الحضور</button>
+                <button class="profile-tab-btn" data-tab="payments" onclick="switchRecordTab('payments')">سجل الدفعات</button>
+            </div>
+            <div class="profile-tab-content active" id="recordTab-info"></div>
+            <div class="profile-tab-content" id="recordTab-attendance"></div>
+            <div class="profile-tab-content" id="recordTab-payments"></div>
+            <div class="modal-actions"><button class="btn-sm" style="background:#e2e8f0;" onclick="closePlayerRecordModal()">إغلاق</button></div>
+        `;
+        renderRecordInfo(p);
+        await renderRecordAttendance(p);
+        await renderRecordPayments(p);
+        document.getElementById('playerRecordModal').classList.add('active');
+    }
+    window.openPlayerRecord = openPlayerRecord;
+
+    window.closePlayerRecordModal = function() {
+        document.getElementById('playerRecordModal').classList.remove('active');
+    };
+
+    window.switchRecordTab = function(tab) {
+        document.querySelectorAll('.profile-tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+        document.querySelectorAll('.profile-tab-content').forEach(c => c.classList.remove('active'));
+        document.getElementById('recordTab-' + tab).classList.add('active');
+    };
+
+    function renderRecordInfo(p) {
+        document.getElementById('recordTab-info').innerHTML = `
+            <div class="form-grid">
+                <div class="form-group"><label>الاسم الكامل</label><input value="${p.firstName} ${p.lastName}" disabled style="background:#f1f5f9;"></div>
+                <div class="form-group"><label>الفئة</label><input value="${categories.find(c=>c.key===p.category)?.label || p.category || '—'}" disabled style="background:#f1f5f9;"></div>
+                <div class="form-group"><label>الهاتف</label><input value="${p.phone || '—'}" disabled style="background:#f1f5f9;"></div>
+                <div class="form-group"><label>المكان</label><input value="${p.location || '—'}" disabled style="background:#f1f5f9;"></div>
+                <div class="form-group full"><label>كود ولي الأمر</label><input value="${p.parentCode || '—'}" disabled style="background:#f1f5f9; color:var(--accent-red); font-weight:700;"></div>
+            </div>
+        `;
+    }
+
+    async function renderRecordAttendance(p) {
+        const records = await loadKeyedList('academyData/attendance');
+        const mine = records.filter(r => r.playerId === p.id).sort((a,b) => new Date(b.date) - new Date(a.date));
+        const presentCount = mine.filter(r => r.status === 'present').length;
+        const absentCount = mine.filter(r => r.status === 'absent').length;
+        let html = `
+            <p style="margin-bottom:12px; color:var(--text-muted);">حاضر: <strong style="color:var(--color-success);">${presentCount}</strong> | غائب: <strong style="color:var(--color-danger);">${absentCount}</strong></p>
+            <div style="display:flex; gap:8px; margin-bottom:14px; flex-wrap:wrap; align-items:center;">
+                <input type="date" id="quickAttDate" style="padding:8px 12px; border-radius:10px; border:1.5px solid var(--border-card);">
+                <button class="btn-sm btn-sm-success" onclick="setPlayerAttendance('present')">تسجيل حاضر</button>
+                <button class="btn-sm btn-sm-danger" onclick="setPlayerAttendance('absent')">تسجيل غائب</button>
+            </div>
+            <table><thead><tr><th>التاريخ</th><th>الحالة</th></tr></thead><tbody>
+        `;
+        if (!mine.length) html += `<tr><td colspan="2" style="padding:12px; color:var(--text-muted);">لا يوجد سجل حضور بعد</td></tr>`;
+        mine.forEach(r => { html += `<tr><td>${r.date}</td><td>${r.status === 'present' ? '✔ حاضر' : '✕ غائب'}</td></tr>`; });
+        html += `</tbody></table>`;
+        document.getElementById('recordTab-attendance').innerHTML = html;
+        const dateInput = document.getElementById('quickAttDate');
+        if (dateInput) dateInput.value = new Date().toISOString().split('T')[0];
+    }
+
+    window.setPlayerAttendance = async function(status) {
+        const date = document.getElementById('quickAttDate').value || new Date().toISOString().split('T')[0];
+        const records = await loadKeyedList('academyData/attendance');
+        const existing = records.find(r => r.playerId === currentProfilePlayer.id && r.date === date);
+        if (existing) await fbUpdate(`academyData/attendance/${existing._key}`, { status });
+        else await fbPush('academyData/attendance', { playerId: currentProfilePlayer.id, date, status });
+        renderRecordAttendance(currentProfilePlayer);
+    };
+
+    async function renderRecordPayments(p) {
+        const records = await loadKeyedList('academyData/payments');
+        const year = new Date().getFullYear();
+        let html = `<div class="pay-grid">`;
+        for (let m = 1; m <= 12; m++) {
+            const key = `${year}-${String(m).padStart(2,'0')}`;
+            const rec = records.find(r => r.playerId === p.id && r.month === key);
+            const status = rec?.status || 'unpaid';
+            html += `
+                <div class="pay-month-box ${status}">
+                    <div class="m-label">${arabicMonths[m-1]}</div>
+                    <button onclick="togglePlayerPayment('${key}', '${status === 'paid' ? 'unpaid' : 'paid'}')">${status === 'paid' ? '✔ مدفوع' : 'غير مدفوع'}</button>
+                </div>`;
+        }
+        html += `</div>`;
+        document.getElementById('recordTab-payments').innerHTML = html;
+    }
+
+    window.togglePlayerPayment = async function(monthKey, newStatus) {
+        const records = await loadKeyedList('academyData/payments');
+        const existing = records.find(r => r.playerId === currentProfilePlayer.id && r.month === monthKey);
+        if (existing) await fbUpdate(`academyData/payments/${existing._key}`, { status: newStatus, date: new Date().toLocaleDateString('ar-EG') });
+        else await fbPush('academyData/payments', { playerId: currentProfilePlayer.id, month: monthKey, status: newStatus, date: new Date().toLocaleDateString('ar-EG') });
+        renderRecordPayments(currentProfilePlayer);
+    };
+
+    // ================================================================
+    // طلبات التسجيل
+    // ================================================================
+    async function showDashRegistrations() {
+        setActiveNav('registrations');
+        document.getElementById('mainContent').innerHTML = `
+            <h2 class="page-title">📋 طلبات التسجيل</h2>
+            <p class="page-sub">مراجعة الطلبات الجديدة واعتماد اللاعبين</p>
+            <div class="table-wrap">
+                <table>
+                    <thead><tr><th>#</th><th>الاسم</th><th>اللقب</th><th>الهاتف</th><th>الفئة</th><th>المكان</th><th>التاريخ</th><th>الحالة</th><th>إجراءات</th></tr></thead>
+                    <tbody id="regTbody"></tbody>
+                </table>
+            </div>
+        `;
+        renderRegistrationsTable();
+    }
+    window.showDashRegistrations = showDashRegistrations;
+
+    async function renderRegistrationsTable() {
+        const list = await loadKeyedList('registrationRequests');
+        list.sort((a,b) => (b.timestamp||0) - (a.timestamp||0));
+        const tbody = document.getElementById('regTbody');
+        if (!tbody) return;
+        if (!list.length) {
+            tbody.innerHTML = `<tr><td colspan="9" style="padding:20px; color:var(--text-muted);">لا توجد طلبات تسجيل بعد</td></tr>`;
+            return;
+        }
+        const statusLabels = { pending:'⏳ قيد الانتظار', approved:'✔ معتمد', rejected:'✕ مرفوض', edit_requested:'✏️ طلب تعديل' };
+        tbody.innerHTML = list.map((r, idx) => `
+            <tr>
+                <td>${idx+1}</td>
+                <td style="font-weight:700;">${r.firstName||''}</td>
+                <td>${r.lastName||''}</td>
+                <td>${r.phone||''}</td>
+                <td>${categories.find(c=>c.key===r.category)?.label || r.category || ''}</td>
+                <td>${r.location||''}</td>
+                <td>${r.date||''}</td>
+                <td><span class="badge-status ${r.status}">${statusLabels[r.status]||r.status}</span>${r.editNote ? `<div style="font-size:0.72rem; color:var(--text-muted); margin-top:4px;">📝 ${r.editNote}</div>` : ''}</td>
+                <td>
+                    ${r.status === 'pending' || r.status === 'edit_requested' ? `
+                        <button class="btn-sm btn-sm-success" onclick="approveRegistrationReq('${r._key}')"><i class="fas fa-check"></i></button>
+                        <button class="btn-sm btn-sm-danger" onclick="rejectRegistrationReq('${r._key}')"><i class="fas fa-times"></i></button>
+                        <button class="btn-sm btn-sm-warning" onclick="requestEditRegistrationReq('${r._key}')"><i class="fas fa-pen"></i></button>
+                    ` : `<button class="btn-sm btn-sm-danger" onclick="deleteRegistrationReq('${r._key}')"><i class="fas fa-trash"></i></button>`}
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    window.approveRegistrationReq = async function(key) {
+        if (!confirm('اعتماد هذا الطلب وتحويله إلى لاعب معتمد؟')) return;
+        const list = await loadKeyedList('registrationRequests');
+        const r = list.find(x => x._key === key);
+        if (!r) return;
+        const id = Date.now();
+        const parentCode = generateParentCode(r.firstName, r.lastName);
+        await fbPush('academyData/players', { id, firstName:r.firstName, lastName:r.lastName, phone:r.phone, category:r.category, location:r.location, parentCode });
+        await fbUpdate(`registrationRequests/${key}`, { status:'approved' });
+        renderRegistrationsTable();
+    };
+
+    window.rejectRegistrationReq = async function(key) {
+        if (!confirm('رفض هذا الطلب؟')) return;
+        await fbUpdate(`registrationRequests/${key}`, { status:'rejected' });
+        renderRegistrationsTable();
+    };
+
+    window.requestEditRegistrationReq = async function(key) {
+        const note = prompt('اكتب ملاحظة التعديل المطلوبة من ولي الأمر:');
+        if (note === null) return;
+        await fbUpdate(`registrationRequests/${key}`, { status:'edit_requested', editNote: note });
+        renderRegistrationsTable();
+    };
+
+    window.deleteRegistrationReq = async function(key) {
+        if (!confirm('حذف هذا الطلب نهائياً؟')) return;
+        await fbDelete(`registrationRequests/${key}`);
+        renderRegistrationsTable();
+    };
+
+    // ================================================================
+    // إدارة الفئات الديناميكية
+    // ================================================================
+    async function showDashCategories() {
+        setActiveNav('categories');
+        document.getElementById('mainContent').innerHTML = `
+            <h2 class="page-title">🏷️ إدارة الفئات العمرية</h2>
+            <p class="page-sub">تُستخدم هذه الفئات في نموذج التسجيل، جدول التدريبات، المدربين، وملفات اللاعبين</p>
+            <div class="form-card">
+                <div id="catRowsContainer"></div>
+                <button class="btn-sm btn-sm-primary" onclick="addCategoryRow()" style="margin-top:6px;"><i class="fas fa-plus"></i> إضافة فئة</button>
+                <div style="margin-top:16px;">
+                    <button class="btn-sm btn-sm-success" onclick="saveCategoriesAll()"><i class="fas fa-save"></i> حفظ كل التغييرات</button>
+                </div>
+            </div>
+        `;
+        renderCategoryRows();
+    }
+    window.showDashCategories = showDashCategories;
+
+    let categoriesDraft = [];
+
+    function renderCategoryRows() {
+        categoriesDraft = categories.map(c => ({ ...c }));
+        const container = document.getElementById('catRowsContainer');
+        container.innerHTML = categoriesDraft.map((c, idx) => `
+            <div class="dyn-row" data-idx="${idx}">
+                <input placeholder="المفتاح (مثال: U11)" value="${c.key}" onchange="updateCatDraft(${idx},'key',this.value)">
+                <input placeholder="الاسم الظاهر" value="${c.label}" onchange="updateCatDraft(${idx},'label',this.value)">
+                <button class="btn-sm btn-sm-danger" onclick="removeCatRow(${idx})"><i class="fas fa-times"></i></button>
+            </div>
+        `).join('');
+    }
+
+    window.updateCatDraft = function(idx, field, value) { categoriesDraft[idx][field] = value; };
+    window.addCategoryRow = function() { categoriesDraft.push({ key:'', label:'' }); renderCatRowsFromDraft(); };
+    window.removeCatRow = function(idx) { categoriesDraft.splice(idx,1); renderCatRowsFromDraft(); };
+    function renderCatRowsFromDraft() {
+        const container = document.getElementById('catRowsContainer');
+        container.innerHTML = categoriesDraft.map((c, idx) => `
+            <div class="dyn-row" data-idx="${idx}">
+                <input placeholder="المفتاح (مثال: U11)" value="${c.key}" onchange="updateCatDraft(${idx},'key',this.value)">
+                <input placeholder="الاسم الظاهر" value="${c.label}" onchange="updateCatDraft(${idx},'label',this.value)">
+                <button class="btn-sm btn-sm-danger" onclick="removeCatRow(${idx})"><i class="fas fa-times"></i></button>
+            </div>
+        `).join('');
+    }
+
+    window.saveCategoriesAll = async function() {
+        const cleaned = categoriesDraft.filter(c => c.key.trim() && c.label.trim());
+        if (!cleaned.length) { alert('❌ يجب أن تبقى فئة واحدة على الأقل'); return; }
+        await fbSet('categoriesList', cleaned);
+        categories = cleaned;
+        alert('✅ تم حفظ الفئات بنجاح');
+        showDashCategories();
+    };
+
+    // ================================================================
+    // الإعدادات العامة (+ تغيير كود الدخول)
+    // ================================================================
+    const defaultSiteSettingsFallback = {
+        heroTitle: 'أكاديمية <span class="highlight">تيكنو</span><br>لكرة القدم',
+        heroSubtitle: 'حيث تُصنع المواهب وتُكتب الأساطير. نعدّ الجيل القادم من أبطال كرة القدم.',
+        visionText: 'تخريج جيل من اللاعبين المحترفين القادرين على تمثيل الأكاديمية والوطن في المحافل الدولية.',
+        missionText: 'توفير بيئة تدريبية عالمية المستوى وتطوير المهارات الفنية والبدنية والنفسية للاعبين.',
+        valuesText: 'الانضباط، العمل الجماعي، الاحترام، التميز، والشغف – أساس نجاح كل لاعب.',
+        address: 'المركب الرياضي، برج الكيفان، الجزائر',
+        phone: '05.52.47.41.40',
+        email: 'info@technoacademy.dz',
+        facebookUrl: 'https://www.facebook.com/profile.php?id=100063920144998',
+        instagramUrl: '#', youtubeUrl: '#',
+        locations: ['باب الزوار','برج الكيفان','الخروبة'],
+        locationPhones: { 'باب الزوار':'05.52.47.41.40', 'برج الكيفان':'05.57.76.86.08', 'الخروبة':'07.91.96.16.63' }
+    };
+
+    let settingsDraft = null;
+    let locationsDraft = [];
+
+    async function showDashSettings() {
+        setActiveNav('settings');
+        const saved = await fbGet('siteSettings');
+        settingsDraft = { ...defaultSiteSettingsFallback, ...(saved || {}) };
+        locationsDraft = (settingsDraft.locations || []).map(loc => ({ name: loc, phone: settingsDraft.locationPhones?.[loc] || '' }));
+
+        document.getElementById('mainContent').innerHTML = `
+            <h2 class="page-title">⚙️ الإعدادات العامة</h2>
+            <p class="page-sub">تتحكم هذه الإعدادات في النصوص الظاهرة بالصفحة الرئيسية</p>
+
+            <div class="form-card settings-section">
+                <h4>النصوص الرئيسية</h4>
+                <div class="form-grid">
+                    <div class="form-group full"><label>عنوان الهيرو (يدعم HTML بسيط)</label><textarea id="setHeroTitle">${settingsDraft.heroTitle}</textarea></div>
+                    <div class="form-group full"><label>وصف الهيرو</label><textarea id="setHeroSubtitle">${settingsDraft.heroSubtitle}</textarea></div>
+                    <div class="form-group"><label>رؤيتنا</label><textarea id="setVision">${settingsDraft.visionText}</textarea></div>
+                    <div class="form-group"><label>رسالتنا</label><textarea id="setMission">${settingsDraft.missionText}</textarea></div>
+                    <div class="form-group full"><label>قيمنا</label><textarea id="setValues">${settingsDraft.valuesText}</textarea></div>
+                </div>
+            </div>
+
+            <div class="form-card settings-section">
+                <h4>معلومات التواصل والسوشيال ميديا</h4>
+                <div class="form-grid">
+                    <div class="form-group full"><label>العنوان</label><input id="setAddress" value="${settingsDraft.address}"></div>
+                    <div class="form-group"><label>الهاتف العام</label><input id="setPhone" value="${settingsDraft.phone}"></div>
+                    <div class="form-group"><label>البريد الإلكتروني</label><input id="setEmail" value="${settingsDraft.email}"></div>
+                    <div class="form-group"><label>رابط فيسبوك</label><input id="setFacebook" value="${settingsDraft.facebookUrl}"></div>
+                    <div class="form-group"><label>رابط إنستغرام</label><input id="setInstagram" value="${settingsDraft.instagramUrl}"></div>
+                    <div class="form-group"><label>رابط يوتيوب</label><input id="setYoutube" value="${settingsDraft.youtubeUrl}"></div>
+                </div>
+            </div>
+
+            <div class="form-card settings-section">
+                <h4>الفروع (المواقع وأرقام هواتفها)</h4>
+                <div id="locRowsContainer"></div>
+                <button class="btn-sm btn-sm-primary" onclick="addLocationRow()" style="margin-top:6px;"><i class="fas fa-plus"></i> إضافة فرع</button>
+            </div>
+
+            <button class="btn-sm btn-sm-success" onclick="saveSiteSettings()" style="margin-bottom:26px;"><i class="fas fa-save"></i> حفظ كل الإعدادات</button>
+
+            <div class="form-card settings-section">
+                <h4>🔑 الأمان — تغيير كود دخول المدير</h4>
+                <div class="form-grid">
+                    <div class="form-group"><label>الكود الجديد</label><input type="password" id="newAdminCode" placeholder="كود جديد"></div>
+                    <div class="form-group"><label>تأكيد الكود الجديد</label><input type="password" id="confirmAdminCode" placeholder="أعد كتابة الكود"></div>
+                    <div class="form-group full"><button class="btn-sm btn-sm-primary" onclick="changeAdminCode()"><i class="fas fa-key"></i> تغيير الكود</button></div>
+                </div>
+            </div>
+        `;
+        renderLocationRows();
+    }
+    window.showDashSettings = showDashSettings;
+
+    function renderLocationRows() {
+        const container = document.getElementById('locRowsContainer');
+        container.innerHTML = locationsDraft.map((l, idx) => `
+            <div class="dyn-row" data-idx="${idx}">
+                <input placeholder="اسم الفرع" value="${l.name}" onchange="updateLocDraft(${idx},'name',this.value)">
+                <input placeholder="رقم الهاتف" value="${l.phone}" onchange="updateLocDraft(${idx},'phone',this.value)">
+                <button class="btn-sm btn-sm-danger" onclick="removeLocRow(${idx})"><i class="fas fa-times"></i></button>
+            </div>
+        `).join('');
+    }
+    window.updateLocDraft = function(idx, field, value) { locationsDraft[idx][field] = value; };
+    window.addLocationRow = function() { locationsDraft.push({ name:'', phone:'' }); renderLocationRows(); };
+    window.removeLocRow = function(idx) { locationsDraft.splice(idx,1); renderLocationRows(); };
+
+    window.saveSiteSettings = async function() {
+        const cleanedLocations = locationsDraft.filter(l => l.name.trim());
+        const locationPhones = {};
+        cleanedLocations.forEach(l => { locationPhones[l.name] = l.phone; });
+        const updated = {
+            heroTitle: document.getElementById('setHeroTitle').value,
+            heroSubtitle: document.getElementById('setHeroSubtitle').value,
+            visionText: document.getElementById('setVision').value,
+            missionText: document.getElementById('setMission').value,
+            valuesText: document.getElementById('setValues').value,
+            address: document.getElementById('setAddress').value,
+            phone: document.getElementById('setPhone').value,
+            email: document.getElementById('setEmail').value,
+            facebookUrl: document.getElementById('setFacebook').value,
+            instagramUrl: document.getElementById('setInstagram').value,
+            youtubeUrl: document.getElementById('setYoutube').value,
+            locations: cleanedLocations.map(l => l.name),
+            locationPhones
+        };
+        await fbSet('siteSettings', updated);
+        alert('✅ تم حفظ الإعدادات بنجاح — ستظهر التغييرات فوراً في الصفحة الرئيسية');
+    };
+
+    async function sha256(text) {
+        const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
+        return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+    }
+
+    window.changeAdminCode = async function() {
+        const newCode = document.getElementById('newAdminCode').value.trim();
+        const confirmCode = document.getElementById('confirmAdminCode').value.trim();
+        if (newCode.length < 4) { alert('❌ الكود يجب أن يكون 4 خانات على الأقل'); return; }
+        if (newCode !== confirmCode) { alert('❌ الكود غير متطابق مع التأكيد'); return; }
+        const hash = await sha256(newCode);
+        await fbSet('adminAccess/codeHash', hash);
+        alert('✅ تم تغيير كود الدخول بنجاح');
+        document.getElementById('newAdminCode').value = '';
+        document.getElementById('confirmAdminCode').value = '';
+    };
+
+    // ================================================================
     // الصفحة الرئيسية (نظرة عامة)
     // ================================================================
     async function showDashHome() {
@@ -388,10 +938,13 @@
                 <div class="stat-box"><div class="num">${matchesCount}</div><div class="label">المباريات الودية</div></div>
             </div>
             <div class="form-card">
-                <h3>📌 هذه المرحلة (المرحلة 2)</h3>
+                <h3>📌 لوحة التحكم — جميع الأقسام مفعلة</h3>
                 <p style="color:var(--text-muted); font-size:0.9rem; line-height:1.8;">
-                    الأقسام التالية جاهزة وتعمل بالكامل: المعرض، الفيديوهات، الأطقم، المباريات الودية، جدول التدريبات، والمدربون.<br>
-                    أقسام "طلبات التسجيل"، "اللاعبون"، "الحضور والغياب"، "الدفعات"، "إدارة الفئات"، "الإعدادات العامة"، و"الأمان" ستُبنى في المرحلتين 3 و4 القادمتين.
+                    ✅ المعرض، الفيديوهات، الأطقم، المباريات الودية، جدول التدريبات، المدربون<br>
+                    ✅ اللاعبون (مع سجل الحضور والدفعات)<br>
+                    ✅ طلبات التسجيل (اعتماد، رفض، طلب تعديل)<br>
+                    ✅ إدارة الفئات الديناميكية<br>
+                    ✅ الإعدادات العامة والأمان (تغيير كود المدير)
                 </p>
             </div>
         `;
@@ -413,8 +966,8 @@
     // ================================================================
     const ADMIN_NAV = [
         { key:'home', label:'نظرة عامة', icon:'fa-chart-pie', fn:'showDashHome' },
-        { key:'registrations', label:'طلبات التسجيل', icon:'fa-clipboard-list', fn:"()=>showPlaceholder('📋 طلبات التسجيل','مراجعة واعتماد طلبات التسجيل الجديدة')" },
-        { key:'players', label:'اللاعبون', icon:'fa-users', fn:"()=>showPlaceholder('👥 اللاعبون','ملفات الفئات العمرية وسجلات اللاعبين')" },
+        { key:'registrations', label:'طلبات التسجيل', icon:'fa-clipboard-list', fn:'showDashRegistrations' },
+        { key:'players', label:'اللاعبون', icon:'fa-users', fn:'showDashPlayers' },
         { key:'attendance', label:'الحضور والغياب', icon:'fa-calendar-check', fn:"()=>showPlaceholder('✅ الحضور والغياب','تسجيل حضور اللاعبين حسب الفئة والتاريخ')" },
         { key:'payments', label:'الدفعات الشهرية', icon:'fa-money-bill-wave', fn:"()=>showPlaceholder('💵 الدفعات الشهرية','متابعة اشتراكات اللاعبين شهرياً')" },
         { key:'coaches', label:'المدربون', icon:'fa-chalkboard-teacher', fn:"()=>renderGenericResourcePage('coaches')" },
@@ -423,9 +976,9 @@
         { key:'kits', label:'الأطقم', icon:'fa-tshirt', fn:"()=>renderGenericResourcePage('kits')" },
         { key:'schedule', label:'جدول التدريبات', icon:'fa-calendar-alt', fn:"()=>renderGenericResourcePage('schedule')" },
         { key:'matches', label:'المباريات الودية', icon:'fa-futbol', fn:"()=>renderGenericResourcePage('matches')" },
-        { key:'categories', label:'إدارة الفئات', icon:'fa-layer-group', fn:"()=>showPlaceholder('🏷️ إدارة الفئات','إضافة/تعديل/حذف الفئات العمرية')" },
-        { key:'settings', label:'الإعدادات العامة', icon:'fa-cog', fn:"()=>showPlaceholder('⚙️ الإعدادات العامة','تعديل نصوص الصفحة الرئيسية ومعلومات التواصل')" },
-        { key:'security', label:'الأمان', icon:'fa-key', fn:"()=>showPlaceholder('🔑 الأمان','تغيير كود دخول المدير')" }
+        { key:'categories', label:'إدارة الفئات', icon:'fa-layer-group', fn:'showDashCategories' },
+        { key:'settings', label:'الإعدادات العامة', icon:'fa-cog', fn:'showDashSettings' },
+        { key:'security', label:'الأمان', icon:'fa-key', fn:'showDashSettings' }
     ];
     const COACH_NAV = [
         { key:'coachHome', label:'الرئيسية', icon:'fa-tachometer-alt', fn:"()=>showPlaceholder('🧑‍🏫 لوحة المدرب','عرض لاعبي فئتك — سيُفعّل بالمرحلة 3')" },
@@ -472,4 +1025,4 @@
     initDashboard();
 </script>
 </body>
-</html>
+</html>ض
