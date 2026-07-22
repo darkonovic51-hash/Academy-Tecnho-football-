@@ -108,6 +108,56 @@
     .badge-status.rejected { background:rgba(220,38,38,0.15); color:#B91C1C; }
     .badge-status.edit_requested { background:rgba(11,42,111,0.12); color:var(--primary-blue); }
 
+    /* ===== المرحلة 6: تصميم رياضي احترافي ===== */
+    @keyframes fadeInUp { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:translateY(0); } }
+    @keyframes glowPulse { 0%,100% { box-shadow:0 0 0 0 rgba(217,30,46,0.35); } 50% { box-shadow:0 0 0 8px rgba(217,30,46,0); } }
+
+    body { background:linear-gradient(160deg, #F5F7FA 0%, #EEF1F6 100%); }
+
+    .sidebar { background:linear-gradient(180deg, var(--primary-blue-dark) 0%, #061630 100%); box-shadow:4px 0 20px rgba(0,0,0,0.15); position:relative; }
+    .sidebar::after { content:''; position:absolute; top:0; right:0; width:3px; height:100%; background:linear-gradient(180deg, var(--accent-red), transparent 60%, var(--accent-red)); }
+    .sidebar .brand i { animation:glowPulse 2.5s infinite; border-radius:50%; padding:6px; }
+    .nav-item { position:relative; overflow:hidden; }
+    .nav-item::before { content:''; position:absolute; right:0; top:0; height:100%; width:4px; background:var(--accent-red); transform:scaleY(0); transition:transform 0.25s ease; }
+    .nav-item:hover::before, .nav-item.active::before { transform:scaleY(1); }
+    .nav-item.active { background:linear-gradient(90deg, var(--accent-red), var(--accent-red-hover)); box-shadow:0 4px 14px rgba(217,30,46,0.35); }
+    .nav-item i { transition:transform 0.25s ease; }
+    .nav-item:hover i { transform:scale(1.15) rotate(-6deg); }
+
+    .page-title { animation:fadeInUp 0.45s ease; background:linear-gradient(90deg, var(--primary-blue), var(--accent-red)); -webkit-background-clip:text; background-clip:text; color:transparent; display:inline-block; }
+    .page-sub { animation:fadeInUp 0.5s ease; }
+    .form-card, .table-wrap, .stats-row, .folder-grid { animation:fadeInUp 0.55s ease; }
+
+    .stat-box { position:relative; overflow:hidden; border-top:3px solid var(--accent-red); }
+    .stat-box::before { content:''; position:absolute; inset:0; background:radial-gradient(circle at top left, rgba(217,30,46,0.06), transparent 60%); }
+    .stat-box:hover { box-shadow:0 14px 30px rgba(217,30,46,0.18); border-top-color:var(--primary-blue); }
+    .stat-box .num { background:linear-gradient(90deg, var(--primary-blue), var(--accent-red)); -webkit-background-clip:text; background-clip:text; color:transparent; }
+
+    .btn-sm { position:relative; overflow:hidden; box-shadow:0 3px 10px rgba(0,0,0,0.08); }
+    .btn-sm::after { content:''; position:absolute; top:0; left:-120%; width:60%; height:100%; background:linear-gradient(120deg, transparent, rgba(255,255,255,0.5), transparent); transform:skewX(-20deg); transition:left 0.5s ease; }
+    .btn-sm:hover::after { left:130%; }
+    .btn-sm-primary { background:linear-gradient(135deg, var(--primary-blue), var(--primary-blue-light)); }
+    .btn-sm-danger { background:linear-gradient(135deg, var(--color-danger), #B91C1C); }
+    .btn-sm-success { background:linear-gradient(135deg, var(--color-success), #16A34A); }
+    .btn-sm-warning { background:linear-gradient(135deg, var(--color-warning), #D97706); }
+
+    .modal-overlay.active .modal-box { animation:fadeInUp 0.3s ease; }
+    .modal-box { border-top:5px solid var(--accent-red); box-shadow:0 25px 60px rgba(8,31,77,0.35); }
+    .modal-box h3 { color:var(--primary-blue-dark); font-size:1.2rem; position:relative; padding-bottom:10px; }
+    .modal-box h3::after { content:''; position:absolute; bottom:0; right:0; width:50px; height:3px; background:linear-gradient(90deg, var(--accent-red), var(--primary-blue)); border-radius:4px; }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { box-shadow:0 0 0 4px rgba(217,30,46,0.12); }
+
+    .table-wrap th { background:linear-gradient(90deg, var(--primary-blue-dark), var(--primary-blue)); }
+    .table-wrap tbody tr { transition:0.2s; border-right:3px solid transparent; }
+    .table-wrap tbody tr:hover { border-right-color:var(--accent-red); background:linear-gradient(90deg, rgba(217,30,46,0.04), transparent); }
+    .table-wrap tbody tr:nth-child(even) { background:rgba(11,42,111,0.02); }
+
+    .folder-card { position:relative; overflow:hidden; }
+    .folder-card i { width:56px; height:56px; border-radius:50%; background:linear-gradient(135deg, var(--accent-red), var(--primary-blue)); color:#fff; display:flex; align-items:center; justify-content:center; margin:0 auto 10px; font-size:1.4rem; }
+    .folder-card:hover i { animation:glowPulse 1.2s infinite; }
+
+    .badge-status { box-shadow:0 2px 6px rgba(0,0,0,0.08); }
+
     /* Modal */
     .modal-overlay { display:none; position:fixed; inset:0; background:rgba(8,31,77,0.55); backdrop-filter:blur(4px); z-index:9999; justify-content:center; align-items:center; padding:20px; }
     .modal-overlay.active { display:flex; }
@@ -152,8 +202,9 @@
     const DB_URL = "https://techno-new-a2ff4-default-rtdb.firebaseio.com";
 
     async function fbGet(path) {
-        try { const res = await fetch(`${DB_URL}/${path}.json`); if (!res.ok) throw 0; return await res.json(); }
-        catch (e) { return null; }
+        const res = await fetch(`${DB_URL}/${path}.json`);
+        if (!res.ok) throw new Error('fbGet failed: ' + path + ' (' + res.status + ')');
+        return await res.json();
     }
     async function fbPush(path, data) {
         try { const res = await fetch(`${DB_URL}/${path}.json`, { method:'POST', body: JSON.stringify(data) }); return await res.json(); }
@@ -196,10 +247,17 @@
     // تحويل مجموعة بيانات من array (الشكل القديم) إلى object بمفاتيح push (آمن للـ CRUD)
     // ================================================================
     async function migrateToKeyedObject(path) {
-        const raw = await fbGet(path);
+        let raw;
+        try {
+            raw = await fbGet(path);
+        } catch (e) {
+            console.error('⚠️ فشل تحميل البيانات من', path, e);
+            alert('⚠️ تعذر تحميل البيانات (مشكلة اتصال). لم يتم حذف أو تعديل أي شيء — حدّث الصفحة وحاول مجدداً.');
+            return {};
+        }
         if (Array.isArray(raw)) {
             const obj = {};
-            raw.forEach((item, i) => { obj['m' + Date.now() + i] = item; });
+            raw.forEach((item, i) => { obj['m' + Date.now() + '_' + i] = item; });
             await fbSet(path, obj);
             return obj;
         }
@@ -659,7 +717,7 @@
             <p class="page-sub">مراجعة الطلبات الجديدة واعتماد اللاعبين</p>
             <div class="table-wrap">
                 <table>
-                    <thead><tr><th>#</th><th>الاسم</th><th>اللقب</th><th>الهاتف</th><th>الفئة</th><th>المكان</th><th>التاريخ</th><th>الحالة</th><th>إجراءات</th></tr></thead>
+                    <thead><tr><th>#</th><th>الاسم</th><th>اللقب</th><th>الهاتف</th><th>الفئة</th><th>المكان</th><th>المرفقات</th><th>التاريخ</th><th>الحالة</th><th>إجراءات</th></tr></thead>
                     <tbody id="regTbody"></tbody>
                 </table>
             </div>
@@ -674,11 +732,14 @@
         const tbody = document.getElementById('regTbody');
         if (!tbody) return;
         if (!list.length) {
-            tbody.innerHTML = `<tr><td colspan="9" style="padding:20px; color:var(--text-muted);">لا توجد طلبات تسجيل بعد</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="10" style="padding:20px; color:var(--text-muted);">لا توجد طلبات تسجيل بعد</td></tr>`;
             return;
         }
         const statusLabels = { pending:'⏳ قيد الانتظار', approved:'✔ معتمد', rejected:'✕ مرفوض', edit_requested:'✏️ طلب تعديل' };
-        tbody.innerHTML = list.map((r, idx) => `
+        window._regAttachmentsCache = window._regAttachmentsCache || {};
+        tbody.innerHTML = list.map((r, idx) => {
+            window._regAttachmentsCache[r._key] = { medical: r.medicalCertificate || '', parental: r.parentalAuthorization || '' };
+            return `
             <tr>
                 <td>${idx+1}</td>
                 <td style="font-weight:700;">${r.firstName||''}</td>
@@ -686,6 +747,11 @@
                 <td>${r.phone||''}</td>
                 <td>${categories.find(c=>c.key===r.category)?.label || r.category || ''}</td>
                 <td>${r.location||''}</td>
+                <td>
+                    ${r.medicalCertificate ? `<button class="btn-sm btn-sm-primary" onclick="viewRegAttachment('${r._key}','medical')"><i class="fas fa-file-medical"></i></button>` : ''}
+                    ${r.parentalAuthorization ? `<button class="btn-sm btn-sm-primary" onclick="viewRegAttachment('${r._key}','parental')"><i class="fas fa-file-signature"></i></button>` : ''}
+                    ${(!r.medicalCertificate && !r.parentalAuthorization) ? '—' : ''}
+                </td>
                 <td>${r.date||''}</td>
                 <td><span class="badge-status ${r.status}">${statusLabels[r.status]||r.status}</span>${r.editNote ? `<div style="font-size:0.72rem; color:var(--text-muted); margin-top:4px;">📝 ${r.editNote}</div>` : ''}</td>
                 <td>
@@ -695,9 +761,19 @@
                         <button class="btn-sm btn-sm-warning" onclick="requestEditRegistrationReq('${r._key}')"><i class="fas fa-pen"></i></button>
                     ` : `<button class="btn-sm btn-sm-danger" onclick="deleteRegistrationReq('${r._key}')"><i class="fas fa-trash"></i></button>`}
                 </td>
-            </tr>
-        `).join('');
+            </tr>`;
+        }).join('');
     }
+
+    window.viewRegAttachment = function(key, type) {
+        const data = window._regAttachmentsCache[key];
+        if (!data) return;
+        const base64 = type === 'medical' ? data.medical : data.parental;
+        if (!base64) return;
+        const win = window.open();
+        if (base64.startsWith('data:application/pdf')) win.document.write(`<iframe src="${base64}" style="width:100%;height:100vh;border:none;"></iframe>`);
+        else win.document.write(`<img src="${base64}" style="max-width:100%;">`);
+    };
 
     window.approveRegistrationReq = async function(key) {
         if (!confirm('اعتماد هذا الطلب وتحويله إلى لاعب معتمد؟')) return;
