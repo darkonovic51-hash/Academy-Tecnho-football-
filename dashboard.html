@@ -225,11 +225,14 @@
     // ================================================================
     let session = null;
     try { session = JSON.parse(sessionStorage.getItem('techno_session')); } catch(e) {}
-    if (!session || !session.role) { window.location.href = 'login.html'; }
+    if (!session || session.role !== 'admin') {
+        sessionStorage.removeItem('techno_session');
+        window.location.href = 'login.html';
+    }
 
     function logout() {
         sessionStorage.removeItem('techno_session');
-        window.location.href = 'login.html';
+        window.location.href = 'index.html';
     }
 
     // ================================================================
@@ -1038,7 +1041,7 @@
     }
 
     // ================================================================
-    // الشريط الجانبي حسب الدور
+    // الشريط الجانبي
     // ================================================================
     const ADMIN_NAV = [
         { key:'home', label:'نظرة عامة', icon:'fa-chart-pie', fn:'showDashHome' },
@@ -1056,24 +1059,14 @@
         { key:'settings', label:'الإعدادات العامة', icon:'fa-cog', fn:'showDashSettings' },
         { key:'security', label:'الأمان', icon:'fa-key', fn:'showDashSettings' }
     ];
-    const COACH_NAV = [
-        { key:'coachHome', label:'الرئيسية', icon:'fa-tachometer-alt', fn:"()=>showPlaceholder('🧑‍🏫 لوحة المدرب','عرض لاعبي فئتك — سيُفعّل بالمرحلة 3')" },
-        { key:'coachAttendance', label:'حضور فئتي', icon:'fa-calendar-check', fn:"()=>showPlaceholder('✅ حضور فئتي','سيُفعّل بالمرحلة 3')" }
-    ];
-    const PARENT_NAV = [
-        { key:'parentHome', label:'حالة ابني', icon:'fa-user', fn:"()=>showPlaceholder('👨‍👦 ملف ابني','سجل الحضور والدفعات — سيُفعّل بالمرحلة 3')" }
-    ];
 
     let navFnMap = {};
 
     function buildNav() {
         const navEl = document.getElementById('navItems');
         const brandEl = document.getElementById('sidebarBrand');
-        let items;
-        if (session.role === 'admin') { items = ADMIN_NAV; brandEl.innerHTML = `<i class="fas fa-shield-alt"></i> لوحة المدير`; }
-        else if (session.role === 'coach') { items = COACH_NAV; brandEl.innerHTML = `<i class="fas fa-chalkboard-teacher"></i> ${session.data?.name || 'المدرب'}`; }
-        else { items = PARENT_NAV; brandEl.innerHTML = `<i class="fas fa-user-friends"></i> ولي الأمر`; }
-
+        brandEl.innerHTML = `<i class="fas fa-shield-alt"></i> لوحة المدير`;
+        const items = ADMIN_NAV;
         navEl.innerHTML = items.map(it => `<div class="nav-item" data-key="${it.key}" id="nav-${it.key}"><i class="fas ${it.icon}"></i><span>${it.label}</span></div>`).join('');
         items.forEach(it => {
             const fn = typeof it.fn === 'string' && it.fn.startsWith('()=>') ? new Function('return ' + it.fn)() : window[it.fn];
@@ -1093,9 +1086,7 @@
         const catList = await fbGet('categoriesList');
         categories = catList || defaultCategories;
         buildNav();
-        if (session.role === 'admin') showDashHome();
-        else if (session.role === 'coach') navFnMap['coachHome']();
-        else navFnMap['parentHome']();
+        showDashHome();
     }
 
     initDashboard();
