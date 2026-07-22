@@ -63,9 +63,10 @@
         .btn-outline { background:rgba(255,255,255,0.1); backdrop-filter:blur(10px); border:2px solid rgba(255,255,255,0.5); padding:11px 30px; border-radius:60px; font-weight:600; color:#fff; cursor:pointer; transition:var(--transition); display:inline-block; text-decoration:none; }
         .btn-outline:hover { background:#fff; transform:translateY(-2px); color:var(--primary-blue); border-color:#fff; }
 
-        .section-title { font-size:2.4rem; font-weight:800; text-align:center; margin-bottom:40px; color:var(--text-dark); }
+        .section-title { font-size:2.4rem; font-weight:800; text-align:center; margin-bottom:40px; color:var(--text-dark); position:relative; }
         .section-title span { color:var(--accent-red); }
-        .section-title::after { content:''; display:block; width:70px; height:4px; background:linear-gradient(90deg, var(--accent-red), var(--primary-blue)); margin:12px auto 0; border-radius:5px; }
+        .section-title::before { content:''; display:block; width:38px; height:6px; background:var(--primary-blue); margin:0 auto 14px; border-radius:3px; transform:skewX(-20deg); }
+        .section-title::after { content:''; display:block; width:90px; height:4px; background:linear-gradient(90deg, var(--accent-red), var(--primary-blue)); margin:14px auto 0; border-radius:5px; }
         .section-title, .hero h1, .logo span, h1, h2, h3, h4 { font-family:'Cairo','IBM Plex Sans Arabic',sans-serif; }
         .section-subtitle { text-align:center; color:var(--text-muted); max-width:700px; margin:-25px auto 40px; font-size:1.05rem; opacity:0.9; }
 
@@ -125,19 +126,19 @@
         .card h3 { font-size:1.2rem; margin-bottom:8px; color:var(--text-dark); font-weight:700; position:relative; z-index:1; }
         .card p { color:var(--text-muted); opacity:1; font-size:0.95rem; line-height:1.7; position:relative; z-index:1; }
 
-        .gallery-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(240px,1fr)); gap:14px; }
-        .gallery-item { border-radius:18px; overflow:hidden; position:relative; cursor:pointer; aspect-ratio:4/3; border:1px solid var(--border-card); transition:transform 0.45s cubic-bezier(0.22,0.9,0.35,1), box-shadow 0.45s ease, border-color 0.45s ease; }
-        .gallery-item::after { content:''; position:absolute; top:0; left:-150%; width:60%; height:100%; background:linear-gradient(120deg, transparent, rgba(255,255,255,0.4), transparent); transform:skewX(-20deg); transition:left 0.7s ease; z-index:2; pointer-events:none; }
-        .gallery-item:hover::after { left:150%; }
-        .gallery-item:hover { border-color:rgba(217,30,46,0.45); box-shadow:0 20px 45px rgba(217,30,46,0.25); transform:translateY(-8px) scale(1.03) rotate(-0.5deg); }
-        .gallery-item img { width:100%; height:100%; object-fit:cover; transition:transform 0.6s cubic-bezier(0.22,0.9,0.35,1); }
-        .gallery-item:hover img { transform:scale(1.12) rotate(1deg); }
-        .gallery-item .overlay { position:absolute; bottom:0; left:0; width:100%; padding:16px; background:linear-gradient(0deg, rgba(8,31,77,0.92), transparent); transform:translateY(60%); opacity:0; transition:transform 0.4s ease, opacity 0.4s ease; }
-        .gallery-item:hover .overlay { transform:translateY(0); opacity:1; }
-        .gallery-item .overlay span { color:#fff; font-weight:600; font-size:0.95rem; }
+        .gallery-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(280px,1fr)); gap:26px; }
+        .media-card { background:#fff; border-radius:18px; overflow:hidden; border:1px solid var(--border-card); transition:0.4s cubic-bezier(0.22,0.9,0.35,1); box-shadow:0 10px 30px rgba(11,42,111,0.08); }
+        .media-card:hover { transform:translateY(-8px); box-shadow:0 22px 48px rgba(217,30,46,0.22); border-color:rgba(217,30,46,0.35); }
+        .media-card .media-frame { position:relative; width:100%; aspect-ratio:4/3; overflow:hidden; background:var(--primary-blue-dark); }
+        .media-card .media-frame img { width:100%; height:100%; object-fit:cover; transition:transform 0.6s cubic-bezier(0.22,0.9,0.35,1); display:block; }
+        .media-card:hover .media-frame img { transform:scale(1.1); }
+        .media-card .media-caption { padding:16px 18px 18px; border-top:4px solid var(--accent-red); background:linear-gradient(180deg,#fff,#fbfbfd); }
+        .media-card .cap-tag { display:inline-block; background:var(--accent-red); color:#fff; font-size:0.66rem; font-weight:800; padding:3px 12px; border-radius:20px; margin-bottom:8px; letter-spacing:0.5px; }
+        .media-card .cap-title { font-family:'Cairo',sans-serif; font-weight:800; font-size:1.05rem; color:var(--primary-blue-dark); line-height:1.4; }
 
-        .video-wrapper { max-width:850px; margin:0 auto; border-radius:var(--radius); overflow:hidden; box-shadow:var(--shadow); border:2px solid var(--accent-red); }
-        .video-wrapper video { width:100%; display:block; background:#000; }
+        .videos-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(300px,1fr)); gap:26px; }
+        .videos-grid .media-frame { aspect-ratio:16/9; background:#000; }
+        .videos-grid .media-frame video { object-fit:contain; background:#000; width:100%; height:100%; display:block; }
 
         .team-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(240px,1fr)); gap:25px; max-width:1100px; margin:0 auto; }
         .team-card { background:var(--bg-card); border-radius:var(--radius); overflow:hidden; border:1px solid var(--border-card); transition:var(--transition); text-align:center; position:relative; }
@@ -179,10 +180,8 @@
         .file-upload-label i { color:var(--accent-red); font-size:1.1rem; }
         .file-upload-label .file-name { color:var(--text-dark); font-weight:500; margin-right:auto; font-size:0.85rem; max-width:120px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 
-        .kits-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(260px,1fr)); gap:20px; }
-        .kits-grid > div { position:relative; overflow:hidden; border-radius:var(--radius); transition:0.35s; }
-        .kits-grid > div:hover { transform:translateY(-6px) scale(1.02); box-shadow:var(--shadow-gold); }
-        .kits-grid img { width:100%; border-radius:var(--radius); box-shadow:var(--shadow); }
+        .kits-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(260px,1fr)); gap:26px; }
+        .kits-grid .media-frame { aspect-ratio:1/1; }
 
         .contact-grid { display:grid; grid-template-columns:1fr 1fr; gap:35px; }
         .contact-info p { margin:14px 0; display:flex; align-items:center; gap:14px; color:var(--text-muted); }
@@ -262,6 +261,9 @@
             .section-title { font-size:1.6rem; }
             .admin-toggle { bottom:15px; left:15px; padding:8px 16px; font-size:0.75rem; }
             .hero-badges span { font-size:0.7rem; padding:6px 12px; }
+            .gallery-grid { grid-template-columns:repeat(auto-fit, minmax(220px,1fr)); gap:18px; }
+            .videos-grid { grid-template-columns:1fr; gap:18px; }
+            .kits-grid { grid-template-columns:repeat(auto-fit, minmax(200px,1fr)); gap:18px; }
         }
         @media (max-width:480px) {
             .hero h1 { font-size:1.7rem; }
@@ -271,6 +273,9 @@
             .admin-toggle i { font-size:0.8rem; }
             .hero-badges span { font-size:0.65rem; padding:4px 10px; gap:4px; }
             .hero-badges { gap:8px; margin-top:18px; }
+            .gallery-grid { grid-template-columns:1fr; gap:14px; }
+            .videos-grid { grid-template-columns:1fr; }
+            .kits-grid { grid-template-columns:1fr; }
         }
     </style>
 </head>
@@ -358,7 +363,7 @@
     <div class="container">
         <h2 class="section-title">🎥 فيديوهات <span>الأكاديمية</span></h2>
         <p class="section-subtitle">شاهد نبذة عن مقر تدريباتنا – تجربة حية لأجواء التدريب.</p>
-        <div class="video-wrapper" id="videoWrapper"></div>
+        <div class="videos-grid reveal-stagger" id="videosGrid"></div>
     </div>
 </section>
 
@@ -564,6 +569,12 @@
     // ================================================================
     // 4. تحميل جميع البيانات (مع بذر تلقائي عند أول تشغيل)
     // ================================================================
+    function normalizeToArray(val) {
+        if (Array.isArray(val)) return val;
+        if (val && typeof val === 'object') return Object.values(val);
+        return [];
+    }
+
     async function loadAllData() {
         const [galleryRes, videosRes, kitsRes, coachesRes, catRes, settingsRes] = await Promise.all([
             safeGet('academyData/gallery'),
@@ -574,10 +585,10 @@
             safeGet('siteSettings')
         ]);
 
-        appData.gallery = (galleryRes.ok && galleryRes.value) || defaultGallery;
-        appData.videos = (videosRes.ok && videosRes.value) || defaultVideos;
-        appData.kits = (kitsRes.ok && kitsRes.value) || defaultKits;
-        appData.coaches = (coachesRes.ok && coachesRes.value) ? Object.values(coachesRes.value) : [];
+        appData.gallery = normalizeToArray((galleryRes.ok && galleryRes.value) || defaultGallery);
+        appData.videos = normalizeToArray((videosRes.ok && videosRes.value) || defaultVideos);
+        appData.kits = normalizeToArray((kitsRes.ok && kitsRes.value) || defaultKits);
+        appData.coaches = normalizeToArray((coachesRes.ok && coachesRes.value) || []);
         appData.categories = (catRes.ok && catRes.value) || defaultCategories;
         appData.siteSettings = (settingsRes.ok && settingsRes.value) || defaultSiteSettings;
 
@@ -620,18 +631,33 @@
         if (!appData.gallery.length) { container.innerHTML = '<p style="color:var(--text-muted);">لا توجد صور في المعرض.</p>'; return; }
         appData.gallery.forEach(item => {
             const div = document.createElement('div');
-            div.className = 'gallery-item';
-            div.innerHTML = `<img src="${item.url}" alt="${item.title}" loading="lazy"><div class="overlay"><span>${item.title}</span></div>`;
+            div.className = 'media-card';
+            div.innerHTML = `
+                <div class="media-frame"><img src="${item.url}" alt="${item.title || ''}" loading="lazy"></div>
+                <div class="media-caption">
+                    <span class="cap-tag">معرض الأكاديمية</span>
+                    <div class="cap-title">${item.title || ''}</div>
+                </div>`;
             container.appendChild(div);
         });
     }
 
     function renderVideos() {
-        const container = document.getElementById('videoWrapper');
+        const container = document.getElementById('videosGrid');
         if (!container) return;
+        container.innerHTML = '';
         if (!appData.videos.length) { container.innerHTML = '<p style="color:var(--text-muted);">لا توجد فيديوهات.</p>'; return; }
-        const video = appData.videos[0];
-        container.innerHTML = `<video controls preload="metadata"><source src="${video.url}" type="video/mp4">متصفحك لا يدعم تشغيل الفيديو.</video>`;
+        appData.videos.forEach(item => {
+            const div = document.createElement('div');
+            div.className = 'media-card';
+            div.innerHTML = `
+                <div class="media-frame"><video controls preload="metadata"><source src="${item.url}" type="video/mp4">متصفحك لا يدعم تشغيل الفيديو.</video></div>
+                <div class="media-caption">
+                    <span class="cap-tag">فيديو الأكاديمية</span>
+                    <div class="cap-title">${item.title || ''}</div>
+                </div>`;
+            container.appendChild(div);
+        });
     }
 
     function renderKits() {
@@ -641,7 +667,13 @@
         if (!appData.kits.length) { container.innerHTML = '<p style="color:var(--text-muted); text-align:center;">لا توجد أطقم بعد.</p>'; return; }
         appData.kits.forEach(kit => {
             const div = document.createElement('div');
-            div.innerHTML = `<img src="${kit.url}" alt="${kit.title || 'طقم'}" loading="lazy">`;
+            div.className = 'media-card';
+            div.innerHTML = `
+                <div class="media-frame"><img src="${kit.url}" alt="${kit.title || 'طقم'}" loading="lazy"></div>
+                <div class="media-caption">
+                    <span class="cap-tag">الطقم الرسمي</span>
+                    <div class="cap-title">${kit.title || ''}</div>
+                </div>`;
             container.appendChild(div);
         });
     }
