@@ -60,9 +60,7 @@
     <h2>🔐 لوحة تحكم أكاديمية تيكنو</h2>
     <p class="sub">اختر نوع الحساب لتسجيل الدخول</p>
     <div class="role-btns">
-        <button class="btn-admin" onclick="showCodeForm('admin')"><i class="fas fa-user-cog"></i> المدير</button>
-        <button class="btn-coach" onclick="showCodeForm('coach')"><i class="fas fa-chalkboard-teacher"></i> المدرب</button>
-        <button class="btn-parent" onclick="showCodeForm('parent')"><i class="fas fa-user-friends"></i> ولي الأمر</button>
+        <button class="btn-admin" onclick="showCodeForm('admin')"><i class="fas fa-user-cog"></i> دخول المدير</button>
     </div>
     <a class="back-home" href="index.html"><i class="fas fa-arrow-right"></i> رجوع للصفحة الرئيسية</a>
 </div>
@@ -149,42 +147,19 @@
         const input = document.getElementById('codeInput').value.trim();
         if (!input) return;
 
-        if (selectedRole === 'admin') {
-            if (!adminCodeExists) {
-                // أول استخدام حقيقي: نحفظ هذا الكود كأول كود دخول
-                const hash = await sha256(input);
-                await fbSet('adminAccess/codeHash', hash);
-                sessionStorage.setItem('techno_session', JSON.stringify({ role:'admin' }));
-                window.location.href = 'dashboard.html';
-                return;
-            }
-            const storedHash = await fbGet('adminAccess/codeHash');
-            const inputHash = await sha256(input);
-            if (inputHash === storedHash) {
-                sessionStorage.setItem('techno_session', JSON.stringify({ role:'admin' }));
-                window.location.href = 'dashboard.html';
-            } else showError();
-
-        } else if (selectedRole === 'coach') {
-            let coaches = await fbGet('academyData/coaches');
-            if (!coaches) coaches = {};
-            const list = Array.isArray(coaches) ? coaches.map((c,i)=>({_key:String(i), ...c})) : Object.entries(coaches).map(([k,v])=>({_key:k, ...v}));
-            const match = list.find(c => c.code === input);
-            if (match) {
-                sessionStorage.setItem('techno_session', JSON.stringify({ role:'coach', key: match._key, data: match }));
-                window.location.href = 'dashboard.html';
-            } else showError();
-
-        } else if (selectedRole === 'parent') {
-            let players = await fbGet('academyData/players');
-            if (!players) players = {};
-            const list = Array.isArray(players) ? players.map((p,i)=>({_key:String(i), ...p})) : Object.entries(players).map(([k,v])=>({_key:k, ...v}));
-            const match = list.find(p => p.parentCode === input);
-            if (match) {
-                sessionStorage.setItem('techno_session', JSON.stringify({ role:'parent', key: match._key, data: match }));
-                window.location.href = 'dashboard.html';
-            } else showError();
+        if (!adminCodeExists) {
+            const hash = await sha256(input);
+            await fbSet('adminAccess/codeHash', hash);
+            sessionStorage.setItem('techno_session', JSON.stringify({ role:'admin' }));
+            window.location.href = 'dashboard.html';
+            return;
         }
+        const storedHash = await fbGet('adminAccess/codeHash');
+        const inputHash = await sha256(input);
+        if (inputHash === storedHash) {
+            sessionStorage.setItem('techno_session', JSON.stringify({ role:'admin' }));
+            window.location.href = 'dashboard.html';
+        } else showError();
     };
 
     document.getElementById('codeInput').addEventListener('keypress', function(e) {
