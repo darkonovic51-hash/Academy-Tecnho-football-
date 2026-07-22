@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>فئة اللاعبين | أكاديمية تيكنو</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Cairo:wght@700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<style>
+    :root {
+        --primary-blue:#0B2A6F; --primary-blue-dark:#081F4D;
+        --accent-red:#D91E2E; --accent-red-hover:#B51725;
+        --text-dark:#1E293B; --text-muted:#64748B;
+        --cream:#F8FAFC; --border-card:rgba(11,42,111,0.10);
+        --shadow:0 20px 45px rgba(11,42,111,0.10); --shadow-gold:0 15px 35px rgba(217,30,46,0.18);
+        --radius:16px; --transition:0.3s cubic-bezier(0.22,0.9,0.35,1);
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'IBM Plex Sans Arabic','Cairo',sans-serif; background:var(--cream); color:var(--text-dark); line-height:1.7; }
+    .container { max-width:1200px; margin:0 auto; padding:0 20px; }
+    header.topbar {
+        background:linear-gradient(135deg, var(--primary-blue-dark), var(--primary-blue));
+        padding:26px 20px; text-align:center; position:relative;
+    }
+    header.topbar .logo-row { display:flex; align-items:center; justify-content:center; gap:10px; margin-bottom:10px; }
+    header.topbar img { height:44px; }
+    header.topbar .logo-row span { color:#fff; font-weight:800; font-size:1.15rem; font-family:'Cairo',sans-serif; }
+    header.topbar .logo-row span .accent { color:#FF6B6B; }
+    header.topbar h1 { color:#fff; font-size:1.6rem; font-family:'Cairo',sans-serif; font-weight:800; }
+    .back-link {
+        position:absolute; top:26px; right:20px; color:rgba(255,255,255,0.85); text-decoration:none;
+        font-size:0.85rem; display:flex; align-items:center; gap:6px; background:rgba(255,255,255,0.1);
+        padding:8px 16px; border-radius:30px; transition:0.2s;
+    }
+    .back-link:hover { background:#fff; color:var(--primary-blue); }
+
+    main { padding:40px 0 60px; }
+    .cat-selector { display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-bottom:34px; }
+    .cat-selector a {
+        text-decoration:none; padding:8px 20px; border-radius:30px; font-weight:600; font-size:0.88rem;
+        background:#fff; color:var(--text-dark); border:1.5px solid var(--border-card); transition:0.2s;
+    }
+    .cat-selector a:hover { border-color:var(--accent-red); color:var(--accent-red); }
+    .cat-selector a.active { background:var(--accent-red); color:#fff; border-color:var(--accent-red); }
+
+    .players-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(220px,1fr)); gap:20px; }
+    .player-card {
+        background:#fff; border-radius:var(--radius); padding:26px 20px; text-align:center;
+        border:1px solid var(--border-card); transition:var(--transition); text-decoration:none; color:inherit; display:block;
+    }
+    .player-card:hover { transform:translateY(-6px); border-color:var(--accent-red); box-shadow:var(--shadow-gold); }
+    .player-card .avatar {
+        width:70px; height:70px; border-radius:50%; background:linear-gradient(135deg, var(--primary-blue), var(--accent-red));
+        display:flex; align-items:center; justify-content:center; margin:0 auto 14px; color:#fff; font-size:1.6rem; font-weight:800;
+    }
+    .player-card .p-name { font-weight:700; font-size:1.05rem; margin-bottom:4px; }
+    .player-card .p-loc { color:var(--text-muted); font-size:0.82rem; }
+
+    .empty-state { text-align:center; padding:50px 20px; color:var(--text-muted); }
+    .empty-state i { font-size:2.6rem; color:var(--accent-red); opacity:0.4; margin-bottom:12px; display:block; }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+    <a href="index.html" class="back-link"><i class="fas fa-arrow-right"></i> الرئيسية</a>
+    <div class="logo-row">
+        <img src="https://github.com/darkonovic51-hash/Academy-Tecnho-football-/raw/42aaf4132007f328e33d2aeaa0b05670a9e3f332/1000015229-removebg-preview.png" alt="شعار">
+        <span>تيكنو <span class="accent">Academy</span></span>
+    </div>
+    <h1 id="catTitle">فئة اللاعبين</h1>
+</header>
+
+<main>
+    <div class="container">
+        <div class="cat-selector" id="catSelector"></div>
+        <div class="players-grid" id="playersGrid"></div>
+    </div>
+</main>
+
+<script>
+    const DB_URL = "https://tecnho-new-default-rtdb.firebaseio.com";
+
+    async function fbGet(path) {
+        try { const res = await fetch(`${DB_URL}/${path}.json`); if (!res.ok) throw 0; return await res.json(); }
+        catch (e) { return null; }
+    }
+
+    const defaultCategories = [
+        { key:'U11', label:'تحت 11 سنة (U11)' }, { key:'U12', label:'تحت 12 سنة (U12)' },
+        { key:'U13', label:'تحت 13 سنة (U13)' }, { key:'U14', label:'تحت 14 سنة (U14)' },
+        { key:'U15', label:'تحت 15 سنة (U15)' }, { key:'U16', label:'تحت 16 سنة (U16)' },
+        { key:'U17', label:'تحت 17 سنة (U17)' }
+    ];
+
+    function getParam(name) {
+        return new URLSearchParams(window.location.search).get(name);
+    }
+
+    function initialsOf(name) {
+        return (name || '؟').trim().charAt(0);
+    }
+
+    async function init() {
+        const [catList, playersRaw] = await Promise.all([
+            fbGet('categoriesList'),
+            fbGet('academyData/players')
+        ]);
+        const categories = catList || defaultCategories;
+        const players = playersRaw ? (Array.isArray(playersRaw) ? playersRaw : Object.values(playersRaw)) : [];
+
+        let currentCat = getParam('cat') || (categories[0] && categories[0].key);
+
+        const selector = document.getElementById('catSelector');
+        selector.innerHTML = categories.map(c => `
+            <a href="category.html?cat=${encodeURIComponent(c.key)}" class="${c.key === currentCat ? 'active' : ''}">${c.label}</a>
+        `).join('');
+
+        const catObj = categories.find(c => c.key === currentCat);
+        document.getElementById('catTitle').textContent = catObj ? catObj.label : 'فئة اللاعبين';
+
+        const grid = document.getElementById('playersGrid');
+        const filtered = players.filter(p => p.category === currentCat);
+
+        if (!filtered.length) {
+            grid.innerHTML = `
+                <div class="empty-state" style="grid-column:1/-1;">
+                    <i class="fas fa-users"></i>
+                    <p>لا يوجد لاعبون مسجلون في هذه الفئة حالياً.</p>
+                </div>`;
+            return;
+        }
+
+        grid.innerHTML = filtered.map(p => `
+            <a class="player-card" href="player.html?id=${encodeURIComponent(p.id)}">
+                <div class="avatar">${initialsOf(p.firstName)}</div>
+                <div class="p-name">${p.firstName || ''} ${p.lastName || ''}</div>
+                <div class="p-loc">${p.location || ''}</div>
+            </a>
+        `).join('');
+    }
+
+    document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
