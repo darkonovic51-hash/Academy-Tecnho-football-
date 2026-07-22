@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>لوحة التحكم | أكاديمية تيكنو</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Cairo:wght@700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<style>
+    :root {
+        --primary-blue:#0B2A6F; --primary-blue-dark:#081F4D; --primary-blue-light:#1E3F8F;
+        --accent-red:#D91E2E; --accent-red-hover:#B51725;
+        --color-success:#22C55E; --color-warning:#F59E0B; --color-danger:#DC2626;
+        --text-dark:#1E293B; --text-muted:#64748B; --border-card:rgba(11,42,111,0.10);
+        --transition:0.25s ease;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'IBM Plex Sans Arabic','Cairo',sans-serif; background:#F5F7FA; color:var(--text-dark); }
+    .shell { display:flex; height:100vh; overflow:hidden; }
+    .sidebar { width:260px; flex-shrink:0; background:var(--primary-blue-dark); display:flex; flex-direction:column; padding:20px 0; overflow-y:auto; }
+    .sidebar .brand { color:#fff; font-weight:800; font-size:1.05rem; padding:8px 22px 18px; display:flex; align-items:center; gap:10px; border-bottom:1px solid rgba(255,255,255,0.08); margin-bottom:10px; }
+    .sidebar .brand i { color:var(--accent-red); }
+    .nav-items { display:flex; flex-direction:column; gap:4px; padding:0 12px; flex:1; }
+    .nav-item { display:flex; align-items:center; gap:12px; color:rgba(255,255,255,0.75); padding:11px 16px; border-radius:12px; font-size:0.9rem; font-weight:500; cursor:pointer; transition:var(--transition); }
+    .nav-item i { width:18px; text-align:center; color:rgba(255,255,255,0.5); }
+    .nav-item:hover { background:var(--primary-blue-light); color:#fff; }
+    .nav-item:hover i { color:#fff; }
+    .nav-item.active { background:var(--accent-red); color:#fff; }
+    .nav-item.active i { color:#fff; }
+    .nav-back { color:rgba(255,255,255,0.55); font-size:0.8rem; padding:10px 22px; display:block; text-decoration:none; border-top:1px solid rgba(255,255,255,0.08); margin-top:6px; }
+    .nav-back:hover { color:#fff; }
+    .logout-btn { color:rgba(255,255,255,0.55); font-size:0.8rem; padding:10px 22px; background:none; border:none; text-align:right; cursor:pointer; width:100%; }
+    .logout-btn:hover { color:var(--accent-red); }
+    .main { flex:1; overflow-y:auto; padding:28px 30px 60px; }
+
+    .page-title { font-size:1.7rem; font-weight:800; margin-bottom:4px; }
+    .page-sub { color:var(--text-muted); margin-bottom:22px; font-size:0.95rem; }
+    .stats-row { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:16px; margin-bottom:26px; }
+    .stat-box { background:#fff; border-radius:14px; padding:16px; text-align:center; border:1px solid var(--border-card); box-shadow:0 4px 16px rgba(11,42,111,0.06); }
+    .stat-box .num { font-size:1.7rem; font-weight:800; color:var(--primary-blue); }
+    .stat-box .label { color:var(--text-muted); font-size:0.78rem; margin-top:4px; }
+
+    .form-card { background:#fff; border-radius:14px; border:1px solid var(--border-card); padding:20px; margin-bottom:20px; }
+    .form-card h3 { font-size:1.05rem; margin-bottom:14px; }
+    .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+    .form-grid .full { grid-column:1/-1; }
+    .form-group label { font-weight:600; font-size:0.83rem; display:block; margin-bottom:5px; }
+    .form-group input, .form-group select, .form-group textarea {
+        width:100%; padding:9px 13px; border-radius:10px; border:1.5px solid var(--border-card);
+        font-family:inherit; font-size:0.92rem; background:#fff; color:var(--text-dark);
+    }
+    .form-group textarea { min-height:70px; resize:vertical; }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline:none; border-color:var(--accent-red); }
+
+    .table-wrap { overflow-x:auto; background:#fff; border-radius:14px; border:1px solid var(--border-card); padding:4px 0; margin-bottom:20px; }
+    .table-wrap table { width:100%; border-collapse:collapse; font-size:0.88rem; }
+    .table-wrap th { background:var(--primary-blue-dark); color:#fff; padding:11px 9px; text-align:center; }
+    .table-wrap td { padding:10px 9px; text-align:center; border-bottom:1px solid rgba(11,42,111,0.08); }
+    .table-wrap tbody tr:hover { background:rgba(11,42,111,0.04); }
+
+    .btn-sm { border:none; padding:6px 14px; border-radius:20px; font-weight:600; font-size:0.78rem; cursor:pointer; display:inline-flex; align-items:center; gap:4px; transition:0.2s; }
+    .btn-sm:hover { transform:scale(1.05); }
+    .btn-sm-primary { background:var(--primary-blue); color:#fff; }
+    .btn-sm-success { background:var(--color-success); color:#fff; }
+    .btn-sm-danger { background:var(--color-danger); color:#fff; }
+    .btn-sm-warning { background:var(--color-warning); color:#212529; }
+
+    .image-field-preview { display:flex; align-items:center; gap:10px; margin-top:6px; flex-wrap:wrap; }
+    .image-field-preview img { width:56px; height:56px; object-fit:cover; border-radius:10px; border:1px solid var(--border-card); }
+    .upload-badge { color:var(--color-success); font-weight:700; font-size:0.82rem; }
+
+    .placeholder-box { text-align:center; padding:60px 20px; background:#fff; border-radius:14px; border:1px dashed var(--border-card); color:var(--text-muted); }
+    .placeholder-box i { font-size:2.5rem; color:var(--accent-red); opacity:0.4; margin-bottom:12px; display:block; }
+
+    /* Modal */
+    .modal-overlay { display:none; position:fixed; inset:0; background:rgba(8,31,77,0.55); backdrop-filter:blur(4px); z-index:9999; justify-content:center; align-items:center; padding:20px; }
+    .modal-overlay.active { display:flex; }
+    .modal-box { background:#fff; border-radius:20px; max-width:560px; width:100%; max-height:85vh; overflow-y:auto; padding:22px; }
+    .modal-box h3 { margin-bottom:16px; }
+    .modal-actions { display:flex; gap:10px; margin-top:16px; justify-content:flex-end; }
+
+    @media (max-width:850px) {
+        .shell { flex-direction:column; }
+        .sidebar { width:100%; flex-direction:row; overflow-x:auto; padding:10px 12px; }
+        .sidebar .brand { display:none; }
+        .nav-items { flex-direction:row; padding:0; gap:6px; }
+        .nav-item span { display:none; }
+        .nav-back, .logout-btn { display:none; }
+        .main { padding:18px 16px 40px; }
+        .form-grid { grid-template-columns:1fr; }
+        .stats-row { grid-template-columns:1fr 1fr; }
+    }
+</style>
+</head>
+<body>
+
+<div class="shell">
+    <aside class="sidebar">
+        <div class="brand" id="sidebarBrand"><i class="fas fa-shield-alt"></i> لوحة التحكم</div>
+        <nav class="nav-items" id="navItems"></nav>
+        <a class="nav-back" href="index.html"><i class="fas fa-arrow-right"></i> رجوع للصفحة الرئيسية</a>
+        <button class="logout-btn" onclick="logout()"><i class="fas fa-sign-out-alt"></i> تسجيل الخروج</button>
+    </aside>
+    <main class="main" id="mainContent"></main>
+</div>
+
+<div class="modal-overlay" id="resourceModal">
+    <div class="modal-box" id="resourceModalBox"></div>
+</div>
+
+<script>
+    const DB_URL = "https://tecnho-new-default-rtdb.firebaseio.com";
+
+    async function fbGet(path) {
+        try { const res = await fetch(`${DB_URL}/${path}.json`); if (!res.ok) throw 0; return await res.json(); }
+        catch (e) { return null; }
+    }
+    async function fbPush(path, data) {
+        try { const res = await fetch(`${DB_URL}/${path}.json`, { method:'POST', body: JSON.stringify(data) }); return await res.json(); }
+        catch (e) { return null; }
+    }
+    async function fbUpdate(path, data) {
+        try { await fetch(`${DB_URL}/${path}.json`, { method:'PATCH', body: JSON.stringify(data) }); } catch(e) {}
+    }
+    async function fbSet(path, data) {
+        try { await fetch(`${DB_URL}/${path}.json`, { method:'PUT', body: JSON.stringify(data) }); } catch(e) {}
+    }
+    async function fbDelete(path) {
+        try { await fetch(`${DB_URL}/${path}.json`, { method:'DELETE' }); } catch(e) {}
+    }
+
+    // ================================================================
+    // الجلسة
+    // ================================================================
+    let session = null;
+    try { session = JSON.parse(sessionStorage.getItem('techno_session')); } catch(e) {}
+    if (!session || !session.role) { window.location.href = 'login.html'; }
+
+    function logout() {
+        sessionStorage.removeItem('techno_session');
+        window.location.href = 'login.html';
+    }
+
+    // ================================================================
+    // الفئات (مشتركة بين كل الأقسام) - defaultCategories احتياطية فقط
+    // ================================================================
+    const defaultCategories = [
+        { key:'U11', label:'تحت 11 سنة (U11)' }, { key:'U12', label:'تحت 12 سنة (U12)' },
+        { key:'U13', label:'تحت 13 سنة (U13)' }, { key:'U14', label:'تحت 14 سنة (U14)' },
+        { key:'U15', label:'تحت 15 سنة (U15)' }, { key:'U16', label:'تحت 16 سنة (U16)' },
+        { key:'U17', label:'تحت 17 سنة (U17)' }
+    ];
+    let categories = [];
+
+    // ================================================================
+    // تحويل مجموعة بيانات من array (الشكل القديم) إلى object بمفاتيح push (آمن للـ CRUD)
+    // ================================================================
+    async function migrateToKeyedObject(path) {
+        const raw = await fbGet(path);
+        if (Array.isArray(raw)) {
+            const obj = {};
+            raw.forEach((item, i) => { obj['m' + Date.now() + i] = item; });
+            await fbSet(path, obj);
+            return obj;
+        }
+        return raw || {};
+    }
+
+    async function loadKeyedList(path) {
+        const obj = await migrateToKeyedObject(path);
+        return Object.entries(obj).map(([k, v]) => ({ _key: k, ...v }));
+    }
+
+    // ================================================================
+    // ضغط الصور إلى Base64 (حد أقصى 1200px، جودة 75%)
+    // ================================================================
+    function imageFileToBase64(file, maxDim = 1200, quality = 0.75) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onload = () => {
+                    let w = img.width, h = img.height;
+                    if (w > maxDim || h > maxDim) {
+                        if (w > h) { h = Math.round(h * maxDim / w); w = maxDim; }
+                        else { w = Math.round(w * maxDim / h); h = maxDim; }
+                    }
+                    const canvas = document.createElement('canvas');
+                    canvas.width = w; canvas.height = h;
+                    canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                    resolve(canvas.toDataURL('image/jpeg', quality));
+                };
+                img.onerror = reject;
+                img.src = e.target.result;
+            };
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+        });
+    }
+
+    // ================================================================
+    // محرك CRUD العام (RESOURCES)
+    // ================================================================
+    const RESOURCES = {
+        gallery: { path:'academyData/gallery', label:'المعرض', icon:'fa-images', fields:[
+            { key:'title', label:'العنوان', type:'text', required:true },
+            { key:'url', label:'الصورة', type:'image', required:true }
+        ]},
+        videos: { path:'academyData/videos', label:'الفيديوهات', icon:'fa-video', fields:[
+            { key:'title', label:'العنوان', type:'text', required:true },
+            { key:'url', label:'رابط الفيديو', type:'text', required:true }
+        ]},
+        kits: { path:'academyData/kits', label:'الأطقم', icon:'fa-tshirt', fields:[
+            { key:'title', label:'العنوان', type:'text', required:true },
+            { key:'url', label:'الصورة', type:'image', required:true }
+        ]},
+        matches: { path:'academyData/matches', label:'المباريات الودية', icon:'fa-futbol', fields:[
+            { key:'opponent', label:'الخصم', type:'text', required:true },
+            { key:'date', label:'التاريخ', type:'date' },
+            { key:'location', label:'المكان', type:'text' }
+        ]},
+        schedule: { path:'academyData/schedule', label:'جدول التدريبات', icon:'fa-calendar-alt', fields:[
+            { key:'category', label:'الفئة', type:'dynamicSelect', required:true },
+            { key:'days', label:'الأيام', type:'text' },
+            { key:'time', label:'الوقت', type:'text' },
+            { key:'field', label:'الملعب', type:'text' }
+        ]},
+        coaches: { path:'academyData/coaches', label:'المدربون / الطاقم الفني', icon:'fa-chalkboard-teacher', fields:[
+            { key:'name', label:'الاسم الكامل', type:'text', required:true },
+            { key:'role', label:'المنصب (يظهر للزوار)', type:'text' },
+            { key:'category', label:'الفئة المشرف عليها', type:'dynamicSelect' },
+            { key:'phone', label:'الهاتف', type:'text' },
+            { key:'code', label:'كود الدخول للوحة', type:'text', required:true },
+            { key:'photo', label:'الصورة (تظهر للزوار)', type:'image' },
+            { key:'bio', label:'نبذة مختصرة (تظهر للزوار)', type:'textarea' }
+        ]}
+    };
+
+    let resourceCache = {};
+
+    function fieldInputHtml(field, value) {
+        const val = value !== undefined && value !== null ? value : '';
+        if (field.type === 'textarea') {
+            return `<textarea data-field="${field.key}">${val}</textarea>`;
+        }
+        if (field.type === 'date') {
+            return `<input type="date" data-field="${field.key}" value="${val}">`;
+        }
+        if (field.type === 'dynamicSelect') {
+            const opts = categories.map(c => `<option value="${c.key}" ${c.key===val?'selected':''}>${c.label}</option>`).join('');
+            return `<select data-field="${field.key}">${opts}</select>`;
+        }
+        if (field.type === 'image') {
+            return `
+                <input type="file" accept="image/*" data-field="${field.key}" data-imginput onchange="handleImageFieldChange(this)">
+                <input type="hidden" data-field="${field.key}" data-imgvalue value="${val ? val.replace(/"/g,'&quot;') : ''}">
+                <div class="image-field-preview" data-imgpreview>
+                    ${val ? `<img src="${val}"><span class="upload-badge"><i class="fas fa-check-circle"></i> تم الرفع</span> <button type="button" class="btn-sm btn-sm-danger" onclick="clearImageField(this)"><i class="fas fa-times"></i> إزالة</button>` : ''}
+                </div>
+            `;
+        }
+        return `<input type="text" data-field="${field.key}" value="${(val+'').replace(/"/g,'&quot;')}">`;
+    }
+
+    window.handleImageFieldChange = async function(inputEl) {
+        const file = inputEl.files[0];
+        if (!file) return;
+        const wrapper = inputEl.closest('.form-group');
+        const preview = wrapper.querySelector('[data-imgpreview]');
+        preview.innerHTML = `<span class="text-muted"><i class="fas fa-spinner fa-spin"></i> جارٍ المعالجة...</span>`;
+        const base64 = await imageFileToBase64(file);
+        const hiddenInput = wrapper.querySelector('[data-imgvalue]');
+        hiddenInput.value = base64;
+        preview.innerHTML = `<img src="${base64}"><span class="upload-badge"><i class="fas fa-check-circle"></i> تم الرفع</span> <button type="button" class="btn-sm btn-sm-danger" onclick="clearImageField(this)"><i class="fas fa-times"></i> إزالة</button>`;
+    };
+
+    window.clearImageField = function(btn) {
+        const wrapper = btn.closest('.form-group');
+        wrapper.querySelector('[data-imgvalue]').value = '';
+        wrapper.querySelector('[data-imgpreview]').innerHTML = '';
+    };
+
+    function openResourceModal(resKey, item) {
+        const cfg = RESOURCES[resKey];
+        const isEdit = !!item;
+        const modalBox = document.getElementById('resourceModalBox');
+        modalBox.innerHTML = `
+            <h3>${isEdit ? 'تعديل' : 'إضافة'} ${cfg.label}</h3>
+            <div class="form-grid" id="resourceModalFields">
+                ${cfg.fields.map(f => `
+                    <div class="form-group ${f.type==='textarea'||f.type==='image'?'full':''}">
+                        <label>${f.label}</label>
+                        ${fieldInputHtml(f, item ? item[f.key] : '')}
+                    </div>
+                `).join('')}
+            </div>
+            <div class="modal-actions">
+                <button class="btn-sm" style="background:#e2e8f0;" onclick="closeResourceModal()">إلغاء</button>
+                <button class="btn-sm btn-sm-primary" onclick="submitResourceModal('${resKey}', ${isEdit ? `'${item._key}'` : 'null'})"><i class="fas fa-save"></i> حفظ</button>
+            </div>
+        `;
+        document.getElementById('resourceModal').classList.add('active');
+    }
+
+    window.closeResourceModal = function() {
+        document.getElementById('resourceModal').classList.remove('active');
+    };
+
+    window.submitResourceModal = async function(resKey, key) {
+        const cfg = RESOURCES[resKey];
+        const container = document.getElementById('resourceModalFields');
+        const data = {};
+        let missingRequired = false;
+        cfg.fields.forEach(f => {
+            let el;
+            if (f.type === 'image') el = container.querySelector(`[data-field="${f.key}"][data-imgvalue]`);
+            else el = container.querySelector(`[data-field="${f.key}"]:not([data-imginput])`);
+            const val = el ? el.value : '';
+            if (f.required && !val) missingRequired = true;
+            data[f.key] = val;
+        });
+        if (missingRequired) { alert('❌ الرجاء تعبئة كل الحقول المطلوبة'); return; }
+
+        if (key) await fbUpdate(`${cfg.path}/${key}`, data);
+        else await fbPush(cfg.path, data);
+
+        closeResourceModal();
+        renderGenericResourcePage(resKey);
+    };
+
+    async function deleteResourceItem(resKey, key) {
+        if (!confirm('هل أنت متأكد من الحذف؟')) return;
+        await fbDelete(`${RESOURCES[resKey].path}/${key}`);
+        renderGenericResourcePage(resKey);
+    }
+    window.deleteResourceItem = deleteResourceItem;
+    window.openResourceModal = openResourceModal;
+
+    async function renderGenericResourcePage(resKey) {
+        const cfg = RESOURCES[resKey];
+        setActiveNav(resKey);
+        const items = await loadKeyedList(cfg.path);
+        resourceCache[resKey] = items;
+        const displayFields = cfg.fields.filter(f => f.type !== 'image' && f.type !== 'textarea').slice(0, 4);
+        document.getElementById('mainContent').innerHTML = `
+            <h2 class="page-title"><i class="fas ${cfg.icon}"></i> ${cfg.label}</h2>
+            <p class="page-sub">إدارة ${cfg.label} — إضافة، تعديل، حذف</p>
+            <button class="btn-sm btn-sm-primary" style="margin-bottom:16px;" onclick="openResourceModal('${resKey}')"><i class="fas fa-plus"></i> إضافة جديد</button>
+            <div class="table-wrap">
+                <table>
+                    <thead><tr><th>#</th>${displayFields.map(f=>`<th>${f.label}</th>`).join('')}<th>إجراءات</th></tr></thead>
+                    <tbody>
+                        ${items.length === 0 ? `<tr><td colspan="${displayFields.length+2}" style="padding:20px; color:var(--text-muted);">لا توجد عناصر بعد</td></tr>` : items.map((it, idx) => `
+                            <tr>
+                                <td>${idx+1}</td>
+                                ${displayFields.map(f => `<td>${f.type==='dynamicSelect' ? (categories.find(c=>c.key===it[f.key])?.label || it[f.key] || '—') : (it[f.key] || '—')}</td>`).join('')}
+                                <td>
+                                    <button class="btn-sm btn-sm-warning" onclick='openResourceModal("${resKey}", ${JSON.stringify(it).replace(/'/g,"&apos;")})'><i class="fas fa-edit"></i></button>
+                                    <button class="btn-sm btn-sm-danger" onclick="deleteResourceItem('${resKey}','${it._key}')"><i class="fas fa-times"></i></button>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </div>
+        `;
+    }
+
+    // ================================================================
+    // الصفحة الرئيسية (نظرة عامة)
+    // ================================================================
+    async function showDashHome() {
+        setActiveNav('home');
+        const [players, registrations, coaches, matches] = await Promise.all([
+            fbGet('academyData/players'), fbGet('registrationRequests'), fbGet('academyData/coaches'), fbGet('academyData/matches')
+        ]);
+        const playersCount = players ? (Array.isArray(players) ? players.length : Object.keys(players).length) : 0;
+        const pendingCount = registrations ? Object.values(registrations).filter(r => r.status === 'pending').length : 0;
+        const coachesCount = coaches ? (Array.isArray(coaches) ? coaches.length : Object.keys(coaches).length) : 0;
+        const matchesCount = matches ? (Array.isArray(matches) ? matches.length : Object.keys(matches).length) : 0;
+        document.getElementById('mainContent').innerHTML = `
+            <h2 class="page-title">📊 نظرة عامة</h2>
+            <p class="page-sub">مرحباً بك في لوحة تحكم أكاديمية تيكنو</p>
+            <div class="stats-row">
+                <div class="stat-box"><div class="num">${playersCount}</div><div class="label">اللاعبون المعتمدون</div></div>
+                <div class="stat-box"><div class="num">${pendingCount}</div><div class="label">طلبات بانتظار المراجعة</div></div>
+                <div class="stat-box"><div class="num">${coachesCount}</div><div class="label">المدربون</div></div>
+                <div class="stat-box"><div class="num">${matchesCount}</div><div class="label">المباريات الودية</div></div>
+            </div>
+            <div class="form-card">
+                <h3>📌 هذه المرحلة (المرحلة 2)</h3>
+                <p style="color:var(--text-muted); font-size:0.9rem; line-height:1.8;">
+                    الأقسام التالية جاهزة وتعمل بالكامل: المعرض، الفيديوهات، الأطقم، المباريات الودية، جدول التدريبات، والمدربون.<br>
+                    أقسام "طلبات التسجيل"، "اللاعبون"، "الحضور والغياب"، "الدفعات"، "إدارة الفئات"، "الإعدادات العامة"، و"الأمان" ستُبنى في المرحلتين 3 و4 القادمتين.
+                </p>
+            </div>
+        `;
+    }
+
+    function showPlaceholder(title, sub) {
+        document.getElementById('mainContent').innerHTML = `
+            <h2 class="page-title">${title}</h2>
+            <p class="page-sub">${sub}</p>
+            <div class="placeholder-box">
+                <i class="fas fa-tools"></i>
+                <p>هذا القسم قيد الإنشاء وسيُضاف في المرحلة القادمة</p>
+            </div>
+        `;
+    }
+
+    // ================================================================
+    // الشريط الجانبي حسب الدور
+    // ================================================================
+    const ADMIN_NAV = [
+        { key:'home', label:'نظرة عامة', icon:'fa-chart-pie', fn:'showDashHome' },
+        { key:'registrations', label:'طلبات التسجيل', icon:'fa-clipboard-list', fn:"()=>showPlaceholder('📋 طلبات التسجيل','مراجعة واعتماد طلبات التسجيل الجديدة')" },
+        { key:'players', label:'اللاعبون', icon:'fa-users', fn:"()=>showPlaceholder('👥 اللاعبون','ملفات الفئات العمرية وسجلات اللاعبين')" },
+        { key:'attendance', label:'الحضور والغياب', icon:'fa-calendar-check', fn:"()=>showPlaceholder('✅ الحضور والغياب','تسجيل حضور اللاعبين حسب الفئة والتاريخ')" },
+        { key:'payments', label:'الدفعات الشهرية', icon:'fa-money-bill-wave', fn:"()=>showPlaceholder('💵 الدفعات الشهرية','متابعة اشتراكات اللاعبين شهرياً')" },
+        { key:'coaches', label:'المدربون', icon:'fa-chalkboard-teacher', fn:"()=>renderGenericResourcePage('coaches')" },
+        { key:'gallery', label:'المعرض', icon:'fa-images', fn:"()=>renderGenericResourcePage('gallery')" },
+        { key:'videos', label:'الفيديوهات', icon:'fa-video', fn:"()=>renderGenericResourcePage('videos')" },
+        { key:'kits', label:'الأطقم', icon:'fa-tshirt', fn:"()=>renderGenericResourcePage('kits')" },
+        { key:'schedule', label:'جدول التدريبات', icon:'fa-calendar-alt', fn:"()=>renderGenericResourcePage('schedule')" },
+        { key:'matches', label:'المباريات الودية', icon:'fa-futbol', fn:"()=>renderGenericResourcePage('matches')" },
+        { key:'categories', label:'إدارة الفئات', icon:'fa-layer-group', fn:"()=>showPlaceholder('🏷️ إدارة الفئات','إضافة/تعديل/حذف الفئات العمرية')" },
+        { key:'settings', label:'الإعدادات العامة', icon:'fa-cog', fn:"()=>showPlaceholder('⚙️ الإعدادات العامة','تعديل نصوص الصفحة الرئيسية ومعلومات التواصل')" },
+        { key:'security', label:'الأمان', icon:'fa-key', fn:"()=>showPlaceholder('🔑 الأمان','تغيير كود دخول المدير')" }
+    ];
+    const COACH_NAV = [
+        { key:'coachHome', label:'الرئيسية', icon:'fa-tachometer-alt', fn:"()=>showPlaceholder('🧑‍🏫 لوحة المدرب','عرض لاعبي فئتك — سيُفعّل بالمرحلة 3')" },
+        { key:'coachAttendance', label:'حضور فئتي', icon:'fa-calendar-check', fn:"()=>showPlaceholder('✅ حضور فئتي','سيُفعّل بالمرحلة 3')" }
+    ];
+    const PARENT_NAV = [
+        { key:'parentHome', label:'حالة ابني', icon:'fa-user', fn:"()=>showPlaceholder('👨‍👦 ملف ابني','سجل الحضور والدفعات — سيُفعّل بالمرحلة 3')" }
+    ];
+
+    let navFnMap = {};
+
+    function buildNav() {
+        const navEl = document.getElementById('navItems');
+        const brandEl = document.getElementById('sidebarBrand');
+        let items;
+        if (session.role === 'admin') { items = ADMIN_NAV; brandEl.innerHTML = `<i class="fas fa-shield-alt"></i> لوحة المدير`; }
+        else if (session.role === 'coach') { items = COACH_NAV; brandEl.innerHTML = `<i class="fas fa-chalkboard-teacher"></i> ${session.data?.name || 'المدرب'}`; }
+        else { items = PARENT_NAV; brandEl.innerHTML = `<i class="fas fa-user-friends"></i> ولي الأمر`; }
+
+        navEl.innerHTML = items.map(it => `<div class="nav-item" data-key="${it.key}" id="nav-${it.key}"><i class="fas ${it.icon}"></i><span>${it.label}</span></div>`).join('');
+        items.forEach(it => {
+            const fn = typeof it.fn === 'string' && it.fn.startsWith('()=>') ? new Function('return ' + it.fn)() : window[it.fn];
+            navFnMap[it.key] = fn;
+            document.getElementById('nav-' + it.key).addEventListener('click', fn);
+        });
+    }
+
+    function setActiveNav(key) {
+        document.querySelectorAll('.nav-item').forEach(el => el.classList.toggle('active', el.dataset.key === key));
+    }
+
+    // ================================================================
+    // تهيئة اللوحة
+    // ================================================================
+    async function initDashboard() {
+        const catList = await fbGet('categoriesList');
+        categories = catList || defaultCategories;
+        buildNav();
+        if (session.role === 'admin') showDashHome();
+        else if (session.role === 'coach') navFnMap['coachHome']();
+        else navFnMap['parentHome']();
+    }
+
+    initDashboard();
+</script>
+</body>
+</html>
