@@ -124,6 +124,29 @@
     .info-card-item .ic-value { font-weight:700; color:var(--text-dark); }
     @media (max-width:600px) { .info-card-grid { grid-template-columns:1fr; } }
 
+    /* ===== ملف اللاعب الاحترافي ===== */
+    .record-header { display:flex; align-items:center; gap:16px; background:linear-gradient(135deg, var(--primary-blue-dark), var(--primary-blue)); color:#fff; padding:22px 26px; border-radius:16px 16px 0 0; margin:-24px -24px 20px; position:relative; overflow:hidden; }
+    .record-header::after { content:''; position:absolute; bottom:0; left:0; width:100%; height:4px; background:linear-gradient(90deg, var(--accent-red), var(--accent-red-hover), var(--accent-red)); }
+    .record-avatar { width:60px; height:60px; border-radius:50%; background:var(--accent-red); display:flex; align-items:center; justify-content:center; font-size:1.6rem; font-weight:900; flex-shrink:0; box-shadow:0 4px 14px rgba(217,30,46,0.4); }
+    .record-header h3 { color:#fff; margin:0; font-size:1.3rem; }
+    .record-sub { color:rgba(255,255,255,0.75); font-size:0.85rem; margin-top:3px; }
+
+    /* ===== نافذة تسجيل الحضور المخصصة ===== */
+    .att-modal-header { display:flex; align-items:center; gap:12px; background:linear-gradient(135deg, var(--primary-blue-dark), var(--primary-blue)); color:#fff; padding:18px 24px; border-radius:16px 16px 0 0; margin:-24px -24px 18px; font-weight:800; font-size:1.05rem; }
+    .att-modal-header i { font-size:1.5rem; color:#FF6B6B; }
+
+    /* ===== تاريخ الدفع ===== */
+    .pay-date { font-size:0.68rem; color:var(--text-muted); margin-top:6px; }
+    .pay-date i { color:var(--color-success); margin-left:3px; }
+
+    /* ===== وضوح الكتابة (نمط القنوات الرياضية الكبرى) ===== */
+    .form-group label { font-weight:800; letter-spacing:0.2px; border-right:3px solid var(--accent-red); padding-right:8px; font-size:0.86rem; }
+    .table-wrap th { letter-spacing:0.5px; font-size:0.82rem; font-weight:800; }
+    .table-wrap td { font-size:0.9rem; }
+    .page-title { letter-spacing:0.3px; }
+    .page-sub { font-weight:500; }
+    .form-card h3 { letter-spacing:0.2px; border-right:4px solid var(--accent-red); padding-right:10px; }
+
     /* ===== المرحلة 6: تصميم رياضي احترافي ===== */
     @keyframes fadeInUp { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:translateY(0); } }
     @keyframes glowPulse { 0%,100% { box-shadow:0 0 0 0 rgba(217,30,46,0.35); } 50% { box-shadow:0 0 0 8px rgba(217,30,46,0); } }
@@ -212,7 +235,7 @@
 </div>
 
 <div class="modal-overlay" id="playerRecordModal">
-    <div class="modal-box" id="playerRecordModalBox" style="max-width:640px;"></div>
+    <div class="modal-box" id="playerRecordModalBox" style="max-width:920px;"></div>
 </div>
 
 <div class="modal-overlay" id="matchDetailModal">
@@ -651,11 +674,17 @@
         currentProfilePlayer = p;
         const modalBox = document.getElementById('playerRecordModalBox');
         modalBox.innerHTML = `
-            <h3>${p.firstName} ${p.lastName}</h3>
+            <div class="record-header">
+                <div class="record-avatar">${(p.firstName||'؟').charAt(0)}</div>
+                <div>
+                    <h3>${p.firstName||''} ${p.lastName||''}</h3>
+                    <div class="record-sub">${categories.find(c=>c.key===p.category)?.label || p.category || ''} ${p.jerseyNumber ? '· رقم القميص #' + p.jerseyNumber : ''}</div>
+                </div>
+            </div>
             <div class="profile-tabs">
-                <button class="profile-tab-btn active" data-tab="info" onclick="switchRecordTab('info')">البيانات</button>
-                <button class="profile-tab-btn" data-tab="attendance" onclick="switchRecordTab('attendance')">سجل الحضور</button>
-                <button class="profile-tab-btn" data-tab="payments" onclick="switchRecordTab('payments')">سجل الدفعات</button>
+                <button class="profile-tab-btn active" data-tab="info" onclick="switchRecordTab('info')"><i class="fas fa-id-card"></i> البيانات</button>
+                <button class="profile-tab-btn" data-tab="attendance" onclick="switchRecordTab('attendance')"><i class="fas fa-clipboard-check"></i> سجل الحضور</button>
+                <button class="profile-tab-btn" data-tab="payments" onclick="switchRecordTab('payments')"><i class="fas fa-money-bill-wave"></i> سجل الدفعات</button>
             </div>
             <div class="profile-tab-content active" id="recordTab-info"></div>
             <div class="profile-tab-content" id="recordTab-attendance"></div>
@@ -757,6 +786,7 @@
                 <div class="pay-month-box ${status}">
                     <div class="m-label">${arabicMonths[m-1]}</div>
                     <button onclick="togglePlayerPayment('${key}', '${status === 'paid' ? 'unpaid' : 'paid'}')">${status === 'paid' ? '✔ مدفوع' : 'غير مدفوع'}</button>
+                    ${status === 'paid' && rec?.date ? `<div class="pay-date"><i class="fas fa-calendar-check"></i> ${rec.date}</div>` : ''}
                 </div>`;
         }
         html += `</div>`;
@@ -901,16 +931,12 @@
         const coachesList = await loadKeyedList('academyData/coaches');
         window._coachesCache = coachesList;
         document.getElementById('mainContent').innerHTML = `
-            <h2 class="page-title">📅 الحصص التدريبية</h2>
-            <p class="page-sub">إدارة الحصص الفردية لكل فئة</p>
+            <h2 class="page-title"><i class="fas fa-calendar-alt"></i> الحصص التدريبية</h2>
+            <p class="page-sub">إدارة الحصص الفردية لكل فئة — لا يمكن وضع حصة "منتهية" قبل تسجيل حضور كل لاعبيها</p>
             <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px;">
                 <select id="sessCatFilter" onchange="renderSessionsTable()" style="padding:9px 14px; border-radius:10px; border:1.5px solid var(--border-card);">
                     <option value="">كل الفئات</option>
                     ${categories.map(c => `<option value="${c.key}">${c.label}</option>`).join('')}
-                </select>
-                <select id="sessStatusFilter" onchange="renderSessionsTable()" style="padding:9px 14px; border-radius:10px; border:1.5px solid var(--border-card);">
-                    <option value="">كل الحالات</option>
-                    ${SESSION_STATUSES.map(s => `<option value="${s.key}">${s.label}</option>`).join('')}
                 </select>
                 <button class="btn-sm btn-sm-primary" onclick="openSessionModal(null)"><i class="fas fa-plus"></i> إضافة حصة</button>
             </div>
@@ -920,22 +946,22 @@
                     <tbody id="sessTbody"></tbody>
                 </table>
             </div>
+            <details class="archive-details" style="margin-top:20px; background:#fff; border:1px dashed var(--border-card); border-radius:14px; padding:16px 20px;">
+                <summary style="cursor:pointer; font-weight:800; color:var(--primary-blue-dark);"><i class="fas fa-folder"></i> أرشيف الحصص (منتهية/ملغاة)</summary>
+                <div class="table-wrap" style="margin-top:14px;">
+                    <table>
+                        <thead><tr><th>#</th><th>الفئة</th><th>العنوان</th><th>التاريخ</th><th>الحالة</th><th>حذف</th></tr></thead>
+                        <tbody id="sessArchiveTbody"></tbody>
+                    </table>
+                </div>
+            </details>
         `;
         renderSessionsTable();
     }
     window.showDashSessions = showDashSessions;
 
-    async function renderSessionsTable() {
-        const list = await loadKeyedList('academyData/trainingSessions');
-        window._sessionsCache = list;
-        const catF = document.getElementById('sessCatFilter')?.value || '';
-        const statF = document.getElementById('sessStatusFilter')?.value || '';
-        const filtered = list.filter(s => (!catF || s.category === catF) && (!statF || s.status === statF))
-                              .sort((a,b) => (b.date||'').localeCompare(a.date||''));
-        const tbody = document.getElementById('sessTbody');
-        if (!tbody) return;
-        if (!filtered.length) { tbody.innerHTML = `<tr><td colspan="10" style="padding:20px; color:var(--text-muted);">لا توجد حصص بعد</td></tr>`; return; }
-        tbody.innerHTML = filtered.map((s, idx) => `
+    function sessionRowHtml(s, idx) {
+        return `
             <tr>
                 <td>${idx+1}</td>
                 <td>${categories.find(c=>c.key===s.category)?.label || s.category || '—'}</td>
@@ -947,41 +973,51 @@
                 <td>${s.sessionType || '—'}</td>
                 <td>${statusBadge(s.status)}</td>
                 <td>
+                    <button class="btn-sm btn-sm-info" onclick='openSessionAttendanceModal(${JSON.stringify(s).replace(/'/g,"&apos;")})' title="تسجيل الحضور"><i class="fas fa-clipboard-check"></i></button>
                     <button class="btn-sm btn-sm-warning" onclick='openSessionModal(${JSON.stringify(s).replace(/'/g,"&apos;")})'><i class="fas fa-edit"></i></button>
                     <button class="btn-sm btn-sm-danger" onclick="deleteSession('${s._key}')"><i class="fas fa-times"></i></button>
                 </td>
-            </tr>
-        `).join('');
+            </tr>`;
+    }
+
+    async function renderSessionsTable() {
+        const list = await loadKeyedList('academyData/trainingSessions');
+        window._sessionsCache = list;
+        const catF = document.getElementById('sessCatFilter')?.value || '';
+        const active = list.filter(s => (s.status==='scheduled'||s.status==='ongoing') && (!catF || s.category===catF))
+                           .sort((a,b) => (a.date||'').localeCompare(b.date||''));
+        const archived = list.filter(s => (s.status==='finished'||s.status==='cancelled') && (!catF || s.category===catF))
+                              .sort((a,b) => (b.date||'').localeCompare(a.date||''));
+
+        const tbody = document.getElementById('sessTbody');
+        if (tbody) {
+            tbody.innerHTML = active.length ? active.map((s,idx) => sessionRowHtml(s, idx)).join('') : `<tr><td colspan="10" style="padding:20px; color:var(--text-muted);">لا توجد حصص نشطة حالياً</td></tr>`;
+        }
+        const archTbody = document.getElementById('sessArchiveTbody');
+        if (archTbody) {
+            archTbody.innerHTML = archived.length ? archived.map((s,idx) => `
+                <tr>
+                    <td>${idx+1}</td>
+                    <td>${categories.find(c=>c.key===s.category)?.label || s.category || '—'}</td>
+                    <td>${s.title||'—'}</td>
+                    <td>${s.date||'—'}</td>
+                    <td>${statusBadge(s.status)}</td>
+                    <td><button class="btn-sm btn-sm-danger" onclick="deleteSession('${s._key}')"><i class="fas fa-trash"></i></button></td>
+                </tr>
+            `).join('') : `<tr><td colspan="6" style="padding:14px; color:var(--text-muted);">لا يوجد أرشيف بعد</td></tr>`;
+        }
     }
     window.renderSessionsTable = renderSessionsTable;
 
-    function openSessionModal(session) {
-        const isEdit = !!session;
-        const coachOptions = (window._coachesCache || []).map(c => `<option value="${c.name}" ${session?.coachName===c.name?'selected':''}>${c.name}</option>`).join('');
-        const modalBox = document.getElementById('resourceModalBox');
-        modalBox.innerHTML = `
-            <h3>${isEdit ? 'تعديل حصة' : 'إضافة حصة تدريبية'}</h3>
-            <div class="form-grid">
-                <div class="form-group"><label>الفئة</label><select id="smCategory">${categories.map(c => `<option value="${c.key}" ${session?.category===c.key?'selected':''}>${c.label}</option>`).join('')}</select></div>
-                <div class="form-group"><label>عنوان الحصة</label><input type="text" id="smTitle" value="${session?.title || ''}"></div>
-                <div class="form-group"><label>التاريخ</label><input type="date" id="smDate" value="${session?.date || ''}"></div>
-                <div class="form-group"><label>الملعب</label><input type="text" id="smField" value="${session?.field || ''}"></div>
-                <div class="form-group"><label>وقت البداية</label><input type="time" id="smStart" value="${session?.startTime || ''}"></div>
-                <div class="form-group"><label>وقت النهاية</label><input type="time" id="smEnd" value="${session?.endTime || ''}"></div>
-                <div class="form-group"><label>المدرب</label><select id="smCoach"><option value="">— اختر —</option>${coachOptions}</select></div>
-                <div class="form-group"><label>نوع الحصة</label><select id="smType">${SESSION_TYPES.map(t => `<option value="${t}" ${session?.sessionType===t?'selected':''}>${t}</option>`).join('')}</select></div>
-                <div class="form-group full"><label>الحالة</label><select id="smStatus">${SESSION_STATUSES.map(s => `<option value="${s.key}" ${session?.status===s.key?'selected':''}>${s.label}</option>`).join('')}</select></div>
-                <div class="form-group full"><label>أهداف الحصة</label><textarea id="smGoals">${session?.goals || ''}</textarea></div>
-                <div class="form-group full"><label>ملاحظات المدرب (اختياري)</label><textarea id="smNotes">${session?.notes || ''}</textarea></div>
-            </div>
-            <div class="modal-actions">
-                <button class="btn-sm" style="background:#e2e8f0;" onclick="closeResourceModal()">إلغاء</button>
-                <button class="btn-sm btn-sm-primary" onclick='saveSessionModal(${isEdit ? `"${session._key}"` : 'null'})'><i class="fas fa-save"></i> حفظ</button>
-            </div>
-        `;
-        document.getElementById('resourceModal').classList.add('active');
+    async function isAttendanceCompleteForSession(sessionKey, category) {
+        const [players, attendance] = await Promise.all([
+            loadKeyedList('academyData/players'),
+            loadKeyedList('academyData/attendance')
+        ]);
+        const catPlayers = players.filter(p => p.category === category);
+        if (!catPlayers.length) return true;
+        return catPlayers.every(p => attendance.some(a => a.sessionId === sessionKey && a.playerId === p.id));
     }
-    window.openSessionModal = openSessionModal;
 
     async function saveSessionModal(key) {
         const data = {
@@ -998,12 +1034,77 @@
             notes: document.getElementById('smNotes').value.trim()
         };
         if (!data.title || !data.date) { alert('❌ الرجاء إدخال عنوان الحصة والتاريخ على الأقل'); return; }
+
+        if (data.status === 'finished') {
+            if (!key) { alert('❌ لا يمكن إنشاء حصة جديدة بحالة "منتهية" مباشرة — أنشئها كـ"مجدولة" أولاً، ثم سجّل الحضور، ثم غيّر حالتها.'); return; }
+            const complete = await isAttendanceCompleteForSession(key, data.category);
+            if (!complete) { alert('❌ لا يمكن وضع هذه الحصة كـ"منتهية" قبل تسجيل حضور كل لاعبي الفئة. استخدم أيقونة "تسجيل الحضور" 📋 في جدول الحصص أولاً.'); return; }
+        }
+
         if (key) await fbUpdate(`academyData/trainingSessions/${key}`, data);
         else await fbPush('academyData/trainingSessions', data);
         closeResourceModal();
         renderSessionsTable();
     }
     window.saveSessionModal = saveSessionModal;
+
+    // ===== نافذة تسجيل حضور مخصصة لكل حصة (حفظ فوري لكل ضغطة) =====
+    async function openSessionAttendanceModal(session) {
+        const [players, attendance] = await Promise.all([
+            loadKeyedList('academyData/players'),
+            loadKeyedList('academyData/attendance')
+        ]);
+        window._sessAttPlayers = players.filter(p => p.category === session.category);
+        window._sessAttRecords = attendance;
+        window._sessAttSession = session;
+        renderSessionAttendanceModalBody();
+        document.getElementById('matchDetailModal').classList.add('active');
+    }
+    window.openSessionAttendanceModal = openSessionAttendanceModal;
+
+    function renderSessionAttendanceModalBody() {
+        const session = window._sessAttSession;
+        const players = window._sessAttPlayers;
+        const records = window._sessAttRecords;
+        const catLabel = categories.find(c=>c.key===session.category)?.label || session.category || '';
+        const modalBox = document.getElementById('matchDetailModalBox');
+        modalBox.innerHTML = `
+            <div class="att-modal-header">
+                <i class="fas fa-clipboard-check"></i>
+                <div>تسجيل الحضور لحصة: <strong>${session.title || 'حصة تدريبية'}</strong></div>
+            </div>
+            <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:16px;">${session.date||''} · ${catLabel}</p>
+            <div class="attendance-list">
+                ${players.length ? players.map(p => {
+                    const r = records.find(a => a.sessionId === session._key && a.playerId === p.id);
+                    const status = r?.status || null;
+                    return `
+                    <div class="attendance-row">
+                        <div><span class="p-name">${p.firstName||''} ${p.lastName||''}</span></div>
+                        <div class="att-toggle">
+                            <button class="present-btn ${status==='present'?'selected':''}" onclick="setSessionAttendanceLive(${p.id},'present')">حاضر</button>
+                            <button class="absent-btn ${status==='absent'?'selected':''}" onclick="setSessionAttendanceLive(${p.id},'absent')">غائب</button>
+                        </div>
+                    </div>`;
+                }).join('') : `<p style="color:var(--text-muted); padding:14px;">لا يوجد لاعبون في هذه الفئة بعد.</p>`}
+            </div>
+            <div class="modal-actions"><button class="btn-sm" style="background:#e2e8f0;" onclick="closeMatchDetailModal(); renderSessionsTable();">إغلاق</button></div>
+        `;
+    }
+
+    window.setSessionAttendanceLive = async function(playerId, status) {
+        const session = window._sessAttSession;
+        const records = window._sessAttRecords;
+        const existing = records.find(a => a.sessionId === session._key && a.playerId === playerId);
+        if (existing) {
+            await fbUpdate(`academyData/attendance/${existing._key}`, { status });
+            existing.status = status;
+        } else {
+            const res = await fbPush('academyData/attendance', { playerId, sessionId: session._key, status });
+            if (res && res.name) records.push({ _key: res.name, playerId, sessionId: session._key, status });
+        }
+        renderSessionAttendanceModalBody();
+    };
 
     async function deleteSession(key) {
         if (!confirm('حذف هذه الحصة نهائياً؟')) return;
@@ -1759,8 +1860,6 @@
         { key:'home', label:'نظرة عامة', icon:'fa-chart-pie', fn:'showDashHome' },
         { key:'registrations', label:'طلبات التسجيل', icon:'fa-clipboard-list', fn:'showDashRegistrations' },
         { key:'players', label:'اللاعبون', icon:'fa-users', fn:'showDashPlayers' },
-        { key:'attendance', label:'الحضور والغياب', icon:'fa-calendar-check', fn:"()=>showPlaceholder('✅ الحضور والغياب','تسجيل حضور اللاعبين حسب الفئة والتاريخ')" },
-        { key:'payments', label:'الدفعات الشهرية', icon:'fa-money-bill-wave', fn:"()=>showPlaceholder('💵 الدفعات الشهرية','متابعة اشتراكات اللاعبين شهرياً')" },
         { key:'coaches', label:'المدربون', icon:'fa-chalkboard-teacher', fn:"()=>renderGenericResourcePage('coaches')" },
         { key:'gallery', label:'المعرض', icon:'fa-images', fn:"()=>renderGenericResourcePage('gallery')" },
         { key:'videos', label:'الفيديوهات', icon:'fa-video', fn:"()=>renderGenericResourcePage('videos')" },
