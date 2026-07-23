@@ -8,82 +8,143 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 <style>
     :root {
-        --primary-blue:#0B2A6F; --primary-blue-dark:#081F4D;
+        --primary-blue:#0B2A6F; --primary-blue-dark:#081F4D; --primary-blue-light:#1E3F8F;
         --accent-red:#D91E2E; --accent-red-hover:#B51725;
+        --color-success:#22C55E; --color-warning:#F59E0B; --color-danger:#DC2626;
         --text-dark:#1E293B; --text-muted:#64748B;
         --cream:#F8FAFC; --border-card:rgba(11,42,111,0.10);
-        --shadow:0 20px 45px rgba(11,42,111,0.10); --shadow-gold:0 15px 35px rgba(217,30,46,0.18);
-        --radius:16px; --transition:0.3s cubic-bezier(0.22,0.9,0.35,1);
+        --shadow:0 20px 45px rgba(11,42,111,0.10);
     }
     * { margin:0; padding:0; box-sizing:border-box; }
     body { font-family:'IBM Plex Sans Arabic','Cairo',sans-serif; background:var(--cream); color:var(--text-dark); line-height:1.7; }
     .container { max-width:1200px; margin:0 auto; padding:0 20px; }
-    header.topbar {
-        background:linear-gradient(135deg, var(--primary-blue-dark), var(--primary-blue));
-        padding:26px 20px; text-align:center; position:relative;
-    }
-    header.topbar .logo-row { display:flex; align-items:center; justify-content:center; gap:10px; margin-bottom:10px; }
-    header.topbar img { height:44px; }
-    header.topbar .logo-row span { color:#fff; font-weight:800; font-size:1.15rem; font-family:'Cairo',sans-serif; }
-    header.topbar .logo-row span .accent { color:#FF6B6B; }
-    header.topbar h1 { color:#fff; font-size:1.6rem; font-family:'Cairo',sans-serif; font-weight:800; }
-    .back-link {
-        position:absolute; top:26px; right:20px; color:rgba(255,255,255,0.85); text-decoration:none;
-        font-size:0.85rem; display:flex; align-items:center; gap:6px; background:rgba(255,255,255,0.1);
-        padding:8px 16px; border-radius:30px; transition:0.2s;
-    }
+
+    @keyframes pulseDot { 0%,100% { box-shadow:0 0 0 0 rgba(34,197,94,0.5); } 50% { box-shadow:0 0 0 8px rgba(34,197,94,0); } }
+    @keyframes straighten { to { transform:rotate(0deg); } }
+
+    /* ===== البانر ===== */
+    .cat-banner { background:linear-gradient(135deg, var(--primary-blue-dark), var(--primary-blue)); padding:40px 20px 55px; text-align:center; position:relative; overflow:hidden; }
+    .cat-banner::after { content:''; position:absolute; bottom:-1px; left:0; width:100%; height:6px; background:linear-gradient(90deg, var(--accent-red), var(--accent-red-hover), var(--accent-red)); }
+    .back-link { position:absolute; top:20px; right:20px; color:rgba(255,255,255,0.85); text-decoration:none; font-size:0.85rem; display:flex; align-items:center; gap:6px; background:rgba(255,255,255,0.1); padding:8px 16px; border-radius:30px; z-index:2; }
     .back-link:hover { background:#fff; color:var(--primary-blue); }
+    .cat-banner img.logo { height:52px; margin-bottom:10px; }
+    .cat-banner h1 { color:#fff; font-family:'Cairo',sans-serif; font-weight:900; font-size:2.4rem; }
+    .cat-banner .cat-tag { color:rgba(255,255,255,0.7); font-size:0.9rem; margin-top:6px; }
+    .cat-selector { display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-top:20px; position:relative; z-index:2; }
+    .cat-selector a { text-decoration:none; padding:7px 18px; border-radius:30px; font-weight:600; font-size:0.82rem; background:rgba(255,255,255,0.12); color:#fff; border:1px solid rgba(255,255,255,0.25); transition:0.2s; }
+    .cat-selector a:hover, .cat-selector a.active { background:var(--accent-red); border-color:var(--accent-red); }
 
-    main { padding:40px 0 60px; }
-    .cat-selector { display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-bottom:34px; }
-    .cat-selector a {
-        text-decoration:none; padding:8px 20px; border-radius:30px; font-weight:600; font-size:0.88rem;
-        background:#fff; color:var(--text-dark); border:1.5px solid var(--border-card); transition:0.2s;
-    }
-    .cat-selector a:hover { border-color:var(--accent-red); color:var(--accent-red); }
-    .cat-selector a.active { background:var(--accent-red); color:#fff; border-color:var(--accent-red); }
+    main { padding:50px 0 70px; }
 
-    .players-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(220px,1fr)); gap:20px; }
-    .player-card {
-        background:#fff; border-radius:var(--radius); padding:26px 20px; text-align:center;
-        border:1px solid var(--border-card); transition:var(--transition); text-decoration:none; color:inherit; display:block;
-    }
-    .player-card:hover { transform:translateY(-6px); border-color:var(--accent-red); box-shadow:var(--shadow-gold); }
-    .player-card .avatar {
-        width:70px; height:70px; border-radius:50%; background:linear-gradient(135deg, var(--primary-blue), var(--accent-red));
-        display:flex; align-items:center; justify-content:center; margin:0 auto 14px; color:#fff; font-size:1.6rem; font-weight:800;
-    }
-    .player-card .p-name { font-weight:700; font-size:1.05rem; margin-bottom:4px; }
-    .player-card .p-loc { color:var(--text-muted); font-size:0.82rem; }
+    /* ===== فاصل منقط ===== */
+    .dotted-divider { border:none; border-top:3px dotted var(--accent-red); opacity:0.3; margin:50px 0; }
 
-    .empty-state { text-align:center; padding:50px 20px; color:var(--text-muted); }
-    .empty-state i { font-size:2.6rem; color:var(--accent-red); opacity:0.4; margin-bottom:12px; display:block; }
+    /* ===== قسم عام ===== */
+    .section-block { position:relative; padding:30px 26px; border-radius:20px; margin-bottom:10px; overflow:hidden; }
+    .section-deco-num { position:absolute; top:-10px; left:20px; font-size:6rem; font-weight:900; opacity:0.06; font-family:'Cairo',sans-serif; line-height:1; pointer-events:none; }
+    .section-header { display:flex; align-items:center; gap:14px; margin-bottom:22px; position:relative; z-index:1; }
+    .section-header .icon-box { width:52px; height:52px; border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:1.4rem; color:#fff; transform:rotate(-8deg); transition:transform 0.3s ease; flex-shrink:0; }
+    .section-block:hover .icon-box { transform:rotate(0deg); }
+    .section-header h2 { font-family:'Cairo',sans-serif; font-weight:800; font-size:1.5rem; }
+
+    .sess-section { background:#EEF3FF; border-top:4px solid var(--primary-blue); }
+    .sess-section .icon-box { background:var(--primary-blue); }
+    .match-section { background:#FFF1F2; border-top:4px solid var(--accent-red); }
+    .match-section .icon-box { background:var(--accent-red); }
+    .tourn-section { background:#FFF8E8; border-top:4px solid var(--color-warning); }
+    .tourn-section .icon-box { background:var(--color-warning); }
+    .msg-section { background:linear-gradient(135deg, var(--primary-blue-dark), #0A1E4A); border-top:4px solid var(--accent-red); color:#fff; }
+    .msg-section .icon-box { background:var(--accent-red); }
+    .msg-section .section-header h2 { color:#fff; }
+
+    /* ===== Timeline ===== */
+    .timeline-featured-wrap { margin-bottom:22px; }
+    .featured-label { font-size:0.78rem; font-weight:800; color:var(--accent-red); margin-bottom:8px; display:flex; align-items:center; gap:6px; }
+    .event-card { background:#fff; border-radius:16px; padding:18px 20px; border:1px solid var(--border-card); transition:0.3s; cursor:pointer; }
+    .event-card:hover { transform:translateY(-4px); box-shadow:0 14px 30px rgba(11,42,111,0.15); }
+    .event-card.featured-card { border:2px solid var(--accent-red); box-shadow:0 14px 34px rgba(217,30,46,0.2); }
+    .timeline-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(260px,1fr)); gap:16px; margin-bottom:16px; }
+
+    .status-pill { display:inline-flex; align-items:center; gap:6px; padding:4px 14px; border-radius:20px; font-size:0.72rem; font-weight:800; }
+    .status-pill.dot-live { position:relative; }
+    .status-pill.dot-live::before { content:''; width:7px; height:7px; border-radius:50%; background:#fff; animation:pulseDot 1.2s infinite; }
+
+    .sess-title { font-weight:800; font-size:1rem; margin-bottom:4px; }
+    .sess-meta { display:flex; flex-wrap:wrap; gap:10px; color:var(--text-muted); font-size:0.8rem; margin-top:8px; }
+    .sess-meta span { display:flex; align-items:center; gap:4px; }
+
+    .match-row { display:flex; align-items:center; justify-content:space-between; gap:14px; }
+    .match-side { display:flex; flex-direction:column; align-items:center; gap:6px; flex:1; }
+    .match-side img, .match-side .logo-placeholder { width:52px; height:52px; border-radius:50%; object-fit:cover; background:var(--off-white); display:flex; align-items:center; justify-content:center; color:var(--text-muted); }
+    .match-side .team-label { font-size:0.78rem; font-weight:700; text-align:center; }
+    .match-score { font-size:1.6rem; font-weight:900; color:var(--primary-blue-dark); text-align:center; min-width:70px; }
+    .match-meta { display:flex; flex-wrap:wrap; gap:10px; color:var(--text-muted); font-size:0.78rem; margin-top:12px; justify-content:center; }
+
+    .tourn-row { display:flex; align-items:center; gap:14px; }
+    .tourn-row img, .tourn-row .logo-placeholder { width:50px; height:50px; border-radius:12px; object-fit:cover; background:var(--off-white); }
+
+    details.archive-details { background:rgba(255,255,255,0.6); border-radius:14px; padding:14px 18px; border:1px dashed var(--border-card); }
+    details.archive-details summary { cursor:pointer; font-weight:700; color:var(--primary-blue-dark); display:flex; align-items:center; gap:8px; }
+    details.archive-details .timeline-grid { margin-top:14px; }
+
+    /* ===== الرسائل ===== */
+    .msg-list { display:flex; flex-direction:column; gap:12px; position:relative; z-index:1; }
+    .msg-item { background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); border-radius:14px; padding:14px 18px; display:flex; gap:14px; align-items:flex-start; }
+    .msg-item .msg-icon { width:38px; height:38px; border-radius:50%; background:var(--accent-red); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .msg-item .msg-text { font-size:0.92rem; line-height:1.7; }
+    .msg-item .msg-date { font-size:0.72rem; color:rgba(255,255,255,0.5); margin-top:4px; }
+
+    .empty-note { text-align:center; padding:30px; color:var(--text-muted); font-size:0.9rem; }
+
+    /* ===== Modal ===== */
+    .modal-overlay { display:none; position:fixed; inset:0; background:rgba(8,31,77,0.6); backdrop-filter:blur(6px); z-index:9999; justify-content:center; align-items:flex-start; padding:30px 15px; overflow-y:auto; }
+    .modal-overlay.active { display:flex; }
+    .modal-box { background:#fff; border-radius:20px; max-width:640px; width:100%; padding:24px; margin-top:20px; }
+    .modal-box h3 { margin-bottom:14px; color:var(--primary-blue-dark); }
+    .modal-close-btn { background:#e2e8f0; border:none; padding:8px 20px; border-radius:30px; font-weight:600; cursor:pointer; margin-top:16px; }
+    .modal-scoreboard { display:flex; align-items:center; justify-content:center; gap:24px; margin-bottom:18px; }
+    .modal-scoreboard img, .modal-scoreboard .logo-placeholder { width:70px; height:70px; border-radius:50%; object-fit:cover; background:var(--off-white); }
+    .modal-scoreboard .score { font-size:2.2rem; font-weight:900; color:var(--primary-blue-dark); }
+    .mini-table { width:100%; border-collapse:collapse; font-size:0.88rem; margin-bottom:14px; }
+    .mini-table th { background:var(--primary-blue-dark); color:#fff; padding:8px; }
+    .mini-table td { padding:8px; text-align:center; border-bottom:1px solid var(--border-card); }
+
+    @media (max-width:600px) { .section-deco-num { font-size:4rem; } .cat-banner h1 { font-size:1.8rem; } }
 </style>
 </head>
 <body>
 
-<header class="topbar">
+<header class="cat-banner">
     <a href="index.html" class="back-link"><i class="fas fa-arrow-right"></i> الرئيسية</a>
-    <div class="logo-row">
-        <img src="https://github.com/darkonovic51-hash/Academy-Tecnho-football-/raw/42aaf4132007f328e33d2aeaa0b05670a9e3f332/1000015229-removebg-preview.png" alt="شعار">
-        <span>تيكنو <span class="accent">Academy</span></span>
-    </div>
+    <img class="logo" src="https://github.com/darkonovic51-hash/Academy-Tecnho-football-/raw/42aaf4132007f328e33d2aeaa0b05670a9e3f332/1000015229-removebg-preview.png" alt="شعار">
     <h1 id="catTitle">فئة اللاعبين</h1>
+    <p class="cat-tag" id="catTag">أكاديمية تيكنو لكرة القدم</p>
+    <div class="cat-selector" id="catSelector"></div>
 </header>
 
 <main>
-    <div class="container">
-        <div class="cat-selector" id="catSelector"></div>
-        <div class="players-grid" id="playersGrid"></div>
+    <div class="container" id="mainContainer">
+        <p style="text-align:center; color:var(--text-muted);">جارٍ التحميل...</p>
     </div>
 </main>
+
+<div class="modal-overlay" id="detailModal">
+    <div class="modal-box" id="detailModalBox"></div>
+</div>
 
 <script>
     const DB_URL = "https://techno-new-a2ff4-default-rtdb.firebaseio.com";
 
     async function fbGet(path) {
-        try { const res = await fetch(`${DB_URL}/${path}.json`); if (!res.ok) throw 0; return await res.json(); }
-        catch (e) { return null; }
+        const res = await fetch(`${DB_URL}/${path}.json`);
+        if (!res.ok) throw new Error('fbGet failed');
+        return await res.json();
+    }
+
+    function normalizeKeyedArray(val) {
+        if (!val) return [];
+        if (Array.isArray(val)) return val.map((v,i)=>({ _key:String(i), ...v }));
+        return Object.entries(val).map(([k,v]) => ({ _key:k, ...v }));
     }
 
     const defaultCategories = [
@@ -93,52 +154,278 @@
         { key:'U17', label:'تحت 17 سنة (U17)' }
     ];
 
-    function getParam(name) {
-        return new URLSearchParams(window.location.search).get(name);
+    const SESSION_STATUSES = { scheduled:{label:'مجدولة',color:'#0B2A6F'}, ongoing:{label:'جارية الآن',color:'#22C55E'}, finished:{label:'منتهية',color:'#64748B'}, cancelled:{label:'ملغاة',color:'#DC2626'} };
+    const MATCH_STATUSES = { upcoming:{label:'قادمة',color:'#0B2A6F'}, ongoing:{label:'جارية الآن',color:'#22C55E'}, finished:{label:'انتهت',color:'#64748B'}, cancelled:{label:'ملغاة',color:'#DC2626'} };
+    const MESSAGE_ICONS = { announcement:'fa-bullhorn', alert:'fa-exclamation-triangle', meeting:'fa-users', notice:'fa-bell', congrats:'fa-gift', comment:'fa-comment' };
+
+    function getParam(name) { return new URLSearchParams(window.location.search).get(name); }
+    function calcDuration(start, end) {
+        if (!start || !end) return '—';
+        const [sh, sm] = start.split(':').map(Number);
+        const [eh, em] = end.split(':').map(Number);
+        let mins = (eh*60+em) - (sh*60+sm);
+        if (mins < 0) mins += 24*60;
+        const h = Math.floor(mins/60), m = mins%60;
+        return h>0 ? `${h}س ${m}د` : `${m}د`;
+    }
+    function pillHtml(statusMap, key) {
+        const s = statusMap[key] || Object.values(statusMap)[0];
+        const isLive = key === 'ongoing';
+        return `<span class="status-pill ${isLive?'dot-live':''}" style="background:${s.color}22; color:${s.color};">${s.label}</span>`;
     }
 
-    function initialsOf(name) {
-        return (name || '؟').trim().charAt(0);
-    }
+    let allData = {};
 
     async function init() {
-        const [catList, playersRaw] = await Promise.all([
-            fbGet('categoriesList'),
-            fbGet('academyData/players')
+        const [catRes, sessRes, matchRes, tournRes, msgRes, playersRes] = await Promise.all([
+            fbGet('categoriesList').catch(()=>null),
+            fbGet('academyData/trainingSessions').catch(()=>null),
+            fbGet('academyData/matches').catch(()=>null),
+            fbGet('academyData/tournaments').catch(()=>null),
+            fbGet('academyData/academyMessages').catch(()=>null),
+            fbGet('academyData/players').catch(()=>null)
         ]);
-        const categories = catList || defaultCategories;
-        const players = playersRaw ? (Array.isArray(playersRaw) ? playersRaw : Object.values(playersRaw)) : [];
+        const categories = catRes || defaultCategories;
+        allData.sessions = normalizeKeyedArray(sessRes);
+        allData.matches = normalizeKeyedArray(matchRes);
+        allData.tournaments = normalizeKeyedArray(tournRes);
+        allData.messages = normalizeKeyedArray(msgRes);
+        allData.players = normalizeKeyedArray(playersRes);
+        allData.categories = categories;
 
         let currentCat = getParam('cat') || (categories[0] && categories[0].key);
-
-        const selector = document.getElementById('catSelector');
-        selector.innerHTML = categories.map(c => `
-            <a href="category.html?cat=${encodeURIComponent(c.key)}" class="${c.key === currentCat ? 'active' : ''}">${c.label}</a>
-        `).join('');
-
         const catObj = categories.find(c => c.key === currentCat);
+
         document.getElementById('catTitle').textContent = catObj ? catObj.label : 'فئة اللاعبين';
+        document.getElementById('catSelector').innerHTML = categories.map(c => `<a href="category.html?cat=${encodeURIComponent(c.key)}" class="${c.key===currentCat?'active':''}">${c.label}</a>`).join('');
 
-        const grid = document.getElementById('playersGrid');
-        const filtered = players.filter(p => p.category === currentCat);
-
-        if (!filtered.length) {
-            grid.innerHTML = `
-                <div class="empty-state" style="grid-column:1/-1;">
-                    <i class="fas fa-users"></i>
-                    <p>لا يوجد لاعبون مسجلون في هذه الفئة حالياً.</p>
-                </div>`;
-            return;
-        }
-
-        grid.innerHTML = filtered.map(p => `
-            <a class="player-card" href="player.html?id=${encodeURIComponent(p.id)}">
-                <div class="avatar">${initialsOf(p.firstName)}</div>
-                <div class="p-name">${p.firstName || ''} ${p.lastName || ''}</div>
-                <div class="p-loc">${p.location || ''}</div>
-            </a>
-        `).join('');
+        renderPage(currentCat);
     }
+
+    function playerName(key) {
+        const p = allData.players.find(pl => pl._key === key);
+        return p ? `${p.firstName||''} ${p.lastName||''}` : 'لاعب غير معروف';
+    }
+
+    function renderPage(currentCat) {
+        const container = document.getElementById('mainContainer');
+        const sessions = allData.sessions.filter(s => s.category === currentCat);
+        const matches = allData.matches.filter(m => m.category === currentCat);
+        const calledPlayerKeys = allData.players.filter(p => p.category === currentCat).map(p => p._key);
+        const tournaments = allData.tournaments.filter(t => (t.callUps||[]).some(k => calledPlayerKeys.includes(k)));
+        const messages = allData.messages.filter(m => m.targetCategory === 'all' || m.targetCategory === currentCat)
+                                          .sort((a,b) => (b.date||'').localeCompare(a.date||''));
+
+        container.innerHTML = `
+            <section class="section-block sess-section">
+                <div class="section-deco-num" style="color:var(--primary-blue);">01</div>
+                <div class="section-header"><div class="icon-box"><i class="fas fa-calendar-alt"></i></div><h2>الحصص التدريبية</h2></div>
+                <div id="sessionsArea"></div>
+            </section>
+
+            <hr class="dotted-divider">
+
+            <section class="section-block match-section">
+                <div class="section-deco-num" style="color:var(--accent-red);">02</div>
+                <div class="section-header"><div class="icon-box"><i class="fas fa-futbol"></i></div><h2>المباريات</h2></div>
+                <div id="matchesArea"></div>
+            </section>
+
+            <hr class="dotted-divider">
+
+            <section class="section-block tourn-section">
+                <div class="section-deco-num" style="color:var(--color-warning);">03</div>
+                <div class="section-header"><div class="icon-box"><i class="fas fa-trophy"></i></div><h2>البطولات</h2></div>
+                <div id="tournamentsArea"></div>
+            </section>
+
+            <hr class="dotted-divider">
+
+            <section class="section-block msg-section">
+                <div class="section-deco-num" style="color:#fff;">04</div>
+                <div class="section-header"><div class="icon-box"><i class="fas fa-bullhorn"></i></div><h2>رسائل الأكاديمية</h2></div>
+                <div id="messagesArea"></div>
+            </section>
+        `;
+
+        renderSessionsArea(sessions);
+        renderMatchesArea(matches);
+        renderTournamentsArea(tournaments);
+        renderMessagesArea(messages);
+    }
+
+    // ===== الحصص =====
+    function renderSessionsArea(sessions) {
+        const el = document.getElementById('sessionsArea');
+        if (!sessions.length) { el.innerHTML = `<p class="empty-note">لا توجد حصص مجدولة حالياً.</p>`; return; }
+        const featured = sessions.find(s => s.status === 'ongoing') || sessions.filter(s => s.status === 'scheduled').sort((a,b)=> (a.date||'').localeCompare(b.date||''))[0];
+        const upcoming = sessions.filter(s => s !== featured && (s.status === 'scheduled' || s.status === 'ongoing'));
+        const archived = sessions.filter(s => s.status === 'finished' || s.status === 'cancelled');
+
+        let html = '';
+        if (featured) html += `<div class="timeline-featured-wrap"><div class="featured-label"><i class="fas fa-star"></i> الحصة القادمة/الجارية</div>${sessionCard(featured, true)}</div>`;
+        if (upcoming.length) html += `<div class="timeline-grid">${upcoming.map(s => sessionCard(s, false)).join('')}</div>`;
+        if (archived.length) {
+            html += `<details class="archive-details"><summary><i class="fas fa-folder"></i> أرشيف الحصص (${archived.length})</summary><div class="timeline-grid">${archived.map(s => sessionCard(s, false)).join('')}</div></details>`;
+        }
+        el.innerHTML = html || `<p class="empty-note">لا توجد حصص أخرى.</p>`;
+    }
+
+    function sessionCard(s, isFeatured) {
+        return `
+            <div class="event-card ${isFeatured?'featured-card':''}" onclick='openSessionDetail(${JSON.stringify(s).replace(/'/g,"&apos;")})'>
+                <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                    <div class="sess-title">${s.title||'حصة تدريبية'}</div>
+                    ${pillHtml(SESSION_STATUSES, s.status)}
+                </div>
+                <div class="sess-meta">
+                    <span><i class="fas fa-calendar"></i> ${s.date||'—'}</span>
+                    <span><i class="fas fa-clock"></i> ${s.startTime||'—'} - ${s.endTime||'—'}</span>
+                    <span><i class="fas fa-hourglass-half"></i> ${calcDuration(s.startTime,s.endTime)}</span>
+                    <span><i class="fas fa-user-tie"></i> ${s.coachName||'—'}</span>
+                    <span><i class="fas fa-map-marker-alt"></i> ${s.field||'—'}</span>
+                </div>
+            </div>`;
+    }
+
+    window.openSessionDetail = function(s) {
+        document.getElementById('detailModalBox').innerHTML = `
+            <h3>${s.title||'حصة تدريبية'}</h3>
+            ${pillHtml(SESSION_STATUSES, s.status)}
+            <p style="margin-top:14px;"><strong>النوع:</strong> ${s.sessionType||'—'}</p>
+            <p><strong>المدرب:</strong> ${s.coachName||'—'} | <strong>الملعب:</strong> ${s.field||'—'}</p>
+            <p><strong>التاريخ:</strong> ${s.date||'—'} | <strong>الوقت:</strong> ${s.startTime||'—'} - ${s.endTime||'—'} (${calcDuration(s.startTime,s.endTime)})</p>
+            <p style="margin-top:10px;"><strong>أهداف الحصة:</strong><br>${s.goals||'—'}</p>
+            ${s.notes ? `<p style="margin-top:10px;"><strong>ملاحظات المدرب:</strong><br>${s.notes}</p>` : ''}
+            <button class="modal-close-btn" onclick="closeDetailModal()">إغلاق</button>
+        `;
+        document.getElementById('detailModal').classList.add('active');
+    };
+
+    // ===== المباريات =====
+    function renderMatchesArea(matches) {
+        const el = document.getElementById('matchesArea');
+        if (!matches.length) { el.innerHTML = `<p class="empty-note">لا توجد مباريات حالياً.</p>`; return; }
+        const featured = matches.find(m => m.status === 'ongoing') || matches.filter(m => m.status === 'upcoming').sort((a,b)=> (a.date||'').localeCompare(b.date||''))[0];
+        const upcoming = matches.filter(m => m !== featured && (m.status === 'upcoming' || m.status === 'ongoing'));
+        const archived = matches.filter(m => m.status === 'finished' || m.status === 'cancelled');
+
+        let html = '';
+        if (featured) html += `<div class="timeline-featured-wrap"><div class="featured-label"><i class="fas fa-star"></i> المباراة القادمة/الجارية</div>${matchCard(featured, true)}</div>`;
+        if (upcoming.length) html += `<div class="timeline-grid">${upcoming.map(m => matchCard(m, false)).join('')}</div>`;
+        if (archived.length) {
+            html += `<details class="archive-details"><summary><i class="fas fa-folder"></i> أرشيف المباريات (${archived.length})</summary><div class="timeline-grid">${archived.map(m => matchCard(m, false)).join('')}</div></details>`;
+        }
+        el.innerHTML = html || `<p class="empty-note">لا توجد مباريات أخرى.</p>`;
+    }
+
+    function matchCard(m, isFeatured) {
+        return `
+            <div class="event-card ${isFeatured?'featured-card':''}" onclick='openMatchDetailPublic(${JSON.stringify(m).replace(/'/g,"&apos;")})'>
+                <div style="display:flex; justify-content:center; margin-bottom:10px;">${pillHtml(MATCH_STATUSES, m.status || 'upcoming')}</div>
+                <div class="match-row">
+                    <div class="match-side">
+                        <img src="https://github.com/darkonovic51-hash/Academy-Tecnho-football-/raw/42aaf4132007f328e33d2aeaa0b05670a9e3f332/1000015229-removebg-preview.png">
+                        <span class="team-label">تيكنو</span>
+                    </div>
+                    <div class="match-score">${m.homeScore ?? '-'} : ${m.awayScore ?? '-'}</div>
+                    <div class="match-side">
+                        ${m.opponentLogo ? `<img src="${m.opponentLogo}">` : `<div class="logo-placeholder"><i class="fas fa-shield-alt"></i></div>`}
+                        <span class="team-label">${m.opponentName||'الخصم'}</span>
+                    </div>
+                </div>
+                <div class="match-meta">
+                    <span><i class="fas fa-calendar"></i> ${m.date||'—'}</span>
+                    ${m.competition ? `<span><i class="fas fa-trophy"></i> ${m.competition}</span>` : ''}
+                    <span><i class="fas fa-map-marker-alt"></i> ${m.field||'—'}</span>
+                </div>
+            </div>`;
+    }
+
+    window.openMatchDetailPublic = function(m) {
+        const goals = m.goals || [];
+        const lineup = m.lineup || [];
+        const callUps = m.callUps || [];
+        document.getElementById('detailModalBox').innerHTML = `
+            <h3>${m.opponentName||''} — ${m.date||''}</h3>
+            <div class="modal-scoreboard">
+                <img src="https://github.com/darkonovic51-hash/Academy-Tecnho-football-/raw/42aaf4132007f328e33d2aeaa0b05670a9e3f332/1000015229-removebg-preview.png">
+                <div class="score">${m.homeScore ?? '-'} : ${m.awayScore ?? '-'}</div>
+                ${m.opponentLogo ? `<img src="${m.opponentLogo}">` : `<div class="logo-placeholder"><i class="fas fa-shield-alt"></i></div>`}
+            </div>
+            <h4 style="margin-bottom:8px;">⚽ الأهداف</h4>
+            <table class="mini-table"><thead><tr><th>الهداف</th><th>الدقيقة</th><th>الفريق</th></tr></thead><tbody>
+                ${goals.length ? goals.map(g => `<tr><td>${g.scorer||'—'}</td><td>${g.minute||'—'}</td><td>${g.team==='home'?'تيكنو':(m.opponentName||'الخصم')}</td></tr>`).join('') : `<tr><td colspan="3" style="color:var(--text-muted);">لا أهداف مسجّلة</td></tr>`}
+            </tbody></table>
+            <h4 style="margin:14px 0 8px;">👕 التشكيلة الأساسية</h4>
+            <table class="mini-table"><thead><tr><th>المركز</th><th>اللاعب</th></tr></thead><tbody>
+                ${lineup.length ? lineup.map(p => `<tr><td>${p.position||'—'}</td><td>${p.playerName||'—'}</td></tr>`).join('') : `<tr><td colspan="2" style="color:var(--text-muted);">لم تُحدد التشكيلة بعد</td></tr>`}
+            </tbody></table>
+            ${callUps.length ? `<h4 style="margin:14px 0 8px;">📋 قائمة الاستدعاء</h4><p style="font-size:0.88rem; line-height:1.9;">${callUps.map(k => playerName(k)).join(' — ')}</p>` : ''}
+            <button class="modal-close-btn" onclick="closeDetailModal()">إغلاق</button>
+        `;
+        document.getElementById('detailModal').classList.add('active');
+    };
+
+    // ===== البطولات =====
+    function renderTournamentsArea(tournaments) {
+        const el = document.getElementById('tournamentsArea');
+        if (!tournaments.length) { el.innerHTML = `<p class="empty-note">لا توجد بطولات مرتبطة بهذه الفئة حالياً.</p>`; return; }
+        const sorted = [...tournaments].sort((a,b) => (a.dateStart||'').localeCompare(b.dateStart||''));
+        const featured = sorted[0];
+        const rest = sorted.slice(1);
+        let html = `<div class="timeline-featured-wrap"><div class="featured-label"><i class="fas fa-star"></i> البطولة القادمة</div>${tournCard(featured, true)}</div>`;
+        if (rest.length) html += `<div class="timeline-grid">${rest.map(t => tournCard(t, false)).join('')}</div>`;
+        el.innerHTML = html;
+    }
+
+    function tournCard(t, isFeatured) {
+        return `
+            <div class="event-card ${isFeatured?'featured-card':''}" onclick='openTournDetailPublic(${JSON.stringify(t).replace(/'/g,"&apos;")})'>
+                <div class="tourn-row">
+                    ${t.logo ? `<img src="${t.logo}">` : `<div class="logo-placeholder"><i class="fas fa-trophy"></i></div>`}
+                    <div>
+                        <div class="sess-title">${t.name||''}</div>
+                        <div style="color:var(--text-muted); font-size:0.8rem;">${t.organizer||''}</div>
+                    </div>
+                </div>
+                <div class="sess-meta" style="margin-top:12px;">
+                    <span><i class="fas fa-calendar"></i> ${t.dateStart||'—'} - ${t.dateEnd||'—'}</span>
+                    <span><i class="fas fa-map-marker-alt"></i> ${t.location||'—'}</span>
+                    <span><i class="fas fa-users"></i> ${t.teamsCount||'—'} فرق</span>
+                </div>
+            </div>`;
+    }
+
+    window.openTournDetailPublic = function(t) {
+        const callUps = t.callUps || [];
+        document.getElementById('detailModalBox').innerHTML = `
+            <h3>${t.name||''}</h3>
+            <p><strong>المنظم:</strong> ${t.organizer||'—'} | <strong>المكان:</strong> ${t.location||'—'}</p>
+            <p><strong>الفترة:</strong> ${t.dateStart||'—'} إلى ${t.dateEnd||'—'} | <strong>عدد الفرق:</strong> ${t.teamsCount||'—'}</p>
+            ${t.groupStanding ? `<p style="margin-top:10px;"><strong>ترتيب المجموعة:</strong><br>${t.groupStanding}</p>` : ''}
+            ${callUps.length ? `<h4 style="margin:14px 0 8px;">📋 قائمة الاستدعاء</h4><p style="font-size:0.88rem; line-height:1.9;">${callUps.map(k => playerName(k)).join(' — ')}</p>` : ''}
+            <button class="modal-close-btn" onclick="closeDetailModal()">إغلاق</button>
+        `;
+        document.getElementById('detailModal').classList.add('active');
+    };
+
+    // ===== الرسائل =====
+    function renderMessagesArea(messages) {
+        const el = document.getElementById('messagesArea');
+        if (!messages.length) { el.innerHTML = `<p class="empty-note" style="color:rgba(255,255,255,0.6);">لا توجد رسائل حالياً.</p>`; return; }
+        el.innerHTML = `<div class="msg-list">${messages.map(m => `
+            <div class="msg-item">
+                <div class="msg-icon"><i class="fas ${MESSAGE_ICONS[m.type]||'fa-bullhorn'}"></i></div>
+                <div>
+                    <div class="msg-text">${m.text||''}</div>
+                    <div class="msg-date">${m.date||''}</div>
+                </div>
+            </div>
+        `).join('')}</div>`;
+    }
+
+    window.closeDetailModal = function() { document.getElementById('detailModal').classList.remove('active'); };
 
     document.addEventListener('DOMContentLoaded', init);
 </script>
