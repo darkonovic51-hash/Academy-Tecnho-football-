@@ -185,6 +185,19 @@
         .kits-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(260px,1fr)); gap:26px; }
         .kits-grid .media-frame { aspect-ratio:1/1; }
 
+        .categories-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(230px,1fr)); gap:22px; max-width:1100px; margin:0 auto; }
+        .cat-folder-card { background:linear-gradient(150deg, var(--primary-blue-dark), var(--primary-blue)); border-radius:20px; padding:30px 20px; text-align:center; text-decoration:none; color:#fff; position:relative; overflow:hidden; transition:var(--transition); border:2px solid transparent; }
+        .cat-folder-card::before { content:''; position:absolute; inset:0; background:radial-gradient(circle at top left, rgba(217,30,46,0.18), transparent 60%); opacity:0; transition:var(--transition); }
+        .cat-folder-card:hover { transform:translateY(-8px); border-color:var(--accent-red); box-shadow:var(--shadow-gold); }
+        .cat-folder-card:hover::before { opacity:1; }
+        .cat-folder-card .folder-icon { width:64px; height:64px; border-radius:50%; background:rgba(255,255,255,0.12); display:flex; align-items:center; justify-content:center; margin:0 auto 14px; font-size:1.7rem; color:#FF6B6B; position:relative; z-index:1; transition:var(--transition); }
+        .cat-folder-card:hover .folder-icon { transform:scale(1.1) rotate(-6deg); background:var(--accent-red); color:#fff; }
+        .cat-folder-card .cat-folder-label { font-family:'Cairo',sans-serif; font-weight:800; font-size:1.15rem; position:relative; z-index:1; }
+        .cat-folder-card .cat-folder-stats { display:flex; justify-content:center; gap:16px; margin-top:14px; position:relative; z-index:1; }
+        .cat-folder-card .cat-folder-stats span { display:flex; align-items:center; gap:5px; font-size:0.78rem; color:rgba(255,255,255,0.75); }
+        .cat-folder-card .cat-folder-stats i { color:#FF6B6B; }
+        .cat-folder-card .cat-folder-arrow { margin-top:14px; font-size:0.8rem; color:rgba(255,255,255,0.6); position:relative; z-index:1; }
+
         .contact-grid { display:grid; grid-template-columns:1fr 1fr; gap:35px; }
         .contact-info p { margin:14px 0; display:flex; align-items:center; gap:14px; color:var(--text-muted); }
         .contact-info i { color:var(--accent-red); width:22px; }
@@ -294,6 +307,10 @@
             .article-card.featured { flex-direction:column; }
             .article-card.featured .article-img { width:100%; aspect-ratio:16/9; }
             .article-card.featured .article-body { width:100%; }
+            .categories-grid { grid-template-columns:repeat(auto-fit, minmax(180px,1fr)); gap:16px; }
+            .cat-folder-card { padding:22px 16px; }
+            .cat-folder-card .folder-icon { width:50px; height:50px; font-size:1.3rem; }
+            .cat-folder-card .cat-folder-label { font-size:1rem; }
         }
         @media (max-width:480px) {
             .hero h1 { font-size:1.7rem; }
@@ -308,6 +325,8 @@
             .kits-grid { grid-template-columns:1fr; }
             .team-grid { grid-template-columns:1fr; }
             .articles-grid { grid-template-columns:1fr; }
+            .categories-grid { grid-template-columns:1fr; gap:14px; }
+            .cat-folder-card { padding:18px 14px; }
             .reg-brand-header { padding:18px 14px 28px; }
             .reg-brand-header img { height:40px; }
             .reg-brand-title { font-size:0.95rem; }
@@ -328,6 +347,7 @@
     <ul class="nav-links" id="navLinks">
         <li><a href="#home">الرئيسية</a></li>
         <li><a href="#articles">المقالات</a></li>
+        <li><a href="#categories">الفئات العمرية</a></li>
         <li><a href="#about">عن الأكاديمية</a></li>
         <li><a href="#coach">الطاقم الفني</a></li>
         <li><a href="#gallery">المعرض</a></li>
@@ -371,6 +391,18 @@
         <h2 class="section-title">📰 مقالات <span>الأكاديمية</span></h2>
         <p class="section-subtitle">آخر أخبار وتحديثات أكاديمية تيكنو.</p>
         <div class="articles-grid reveal-stagger" id="articlesGrid"></div>
+    </div>
+</section>
+
+<!-- ===== DIVIDER ===== -->
+<div class="section-divider"></div>
+
+<!-- ===== CATEGORIES (ملفات الفئات) ===== -->
+<section id="categories" class="section-light reveal">
+    <div class="container">
+        <h2 class="section-title">استكشف <span>فئاتنا العمرية</span></h2>
+        <p class="section-subtitle">كل فئة تحتوي على حصصها التدريبية، مبارياتها، وبطولاتها الخاصة.</p>
+        <div class="categories-grid reveal-stagger" id="categoryFoldersGrid"></div>
     </div>
 </section>
 
@@ -525,7 +557,7 @@
             </div>
             <p style="opacity:0.6; font-size:0.9rem;">أكاديمية كرة القدم الرائدة في الجزائر، نصنع النجوم ونبني المستقبل.</p>
         </div>
-        <div class="footer-col"><h4>روابط سريعة</h4><a href="#home">الرئيسية</a><a href="#articles">المقالات</a><a href="#about">عن الأكاديمية</a><a href="#registration">التسجيل</a><a href="#contact">اتصل بنا</a></div>
+        <div class="footer-col"><h4>روابط سريعة</h4><a href="#home">الرئيسية</a><a href="#articles">المقالات</a><a href="#categories">الفئات العمرية</a><a href="#about">عن الأكاديمية</a><a href="#registration">التسجيل</a><a href="#contact">اتصل بنا</a></div>
         <div class="footer-col"><h4>تواصل معنا</h4><p id="footerPhone">📞 05.52.47.41.40</p><p id="footerEmail">📧 info@technoacademy.dz</p><p>📍 برج الكيفان، الجزائر</p>
             <div class="footer-social">
                 <a href="https://www.facebook.com/profile.php?id=100063920144998" target="_blank"><i class="fab fa-facebook"></i></a>
@@ -668,8 +700,7 @@
     }
 
     // ================================================================
-    // 5. تطبيق إعدادات الموقع (siteSettings) على الصفحة
-    // ================================================================
+    // 5. تطبيق إعدادات الموقع (siteSettings) على الصفحة    // ================================================================
     function applySiteSettings() {
         const s = appData.siteSettings;
         document.getElementById('heroTitle').innerHTML = s.heroTitle;
@@ -799,6 +830,38 @@
         container.innerHTML = html;
     }
 
+    function normalizeKeyedArray(val) {
+        if (!val) return [];
+        if (Array.isArray(val)) return val;
+        return Object.values(val);
+    }
+
+    async function loadAndRenderCategoryFolders() {
+        const container = document.getElementById('categoryFoldersGrid');
+        if (!container) return;
+        const [sessRes, matchRes] = await Promise.all([
+            safeGet('academyData/trainingSessions'),
+            safeGet('academyData/matches')
+        ]);
+        const sessions = normalizeKeyedArray(sessRes.ok ? sessRes.value : null);
+        const matches = normalizeKeyedArray(matchRes.ok ? matchRes.value : null);
+
+        container.innerHTML = appData.categories.map(cat => {
+            const sessCount = sessions.filter(s => s.category === cat.key && (s.status === 'scheduled' || s.status === 'ongoing')).length;
+            const matchCount = matches.filter(m => m.category === cat.key && (m.status === 'upcoming' || m.status === 'ongoing')).length;
+            return `
+                <a href="category.html?cat=${encodeURIComponent(cat.key)}" class="cat-folder-card">
+                    <div class="folder-icon"><i class="fas fa-folder-open"></i></div>
+                    <div class="cat-folder-label">${cat.label}</div>
+                    <div class="cat-folder-stats">
+                        <span><i class="fas fa-calendar-alt"></i> ${sessCount} حصة</span>
+                        <span><i class="fas fa-futbol"></i> ${matchCount} مباراة</span>
+                    </div>
+                    <div class="cat-folder-arrow">عرض التفاصيل <i class="fas fa-arrow-left"></i></div>
+                </a>`;
+        }).join('');
+    }
+
     function renderRegistrationSelects() {
         const catSelect = document.getElementById('regCategory');
         if (catSelect) {
@@ -917,6 +980,7 @@
             renderTeam();
             renderArticles();
             renderRegistrationSelects();
+            loadAndRenderCategoryFolders();
             console.log('✅ Website initialized successfully');
         } catch (error) {
             console.error('❌ Initialization error:', error);
