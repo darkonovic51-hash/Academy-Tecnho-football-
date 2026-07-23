@@ -64,6 +64,7 @@
     .btn-sm-success { background:var(--color-success); color:#fff; }
     .btn-sm-danger { background:var(--color-danger); color:#fff; }
     .btn-sm-warning { background:var(--color-warning); color:#212529; }
+    .btn-sm-info { background:var(--primary-blue-light); color:#fff; }
 
     .image-field-preview { display:flex; align-items:center; gap:10px; margin-top:6px; flex-wrap:wrap; }
     .image-field-preview img { width:56px; height:56px; object-fit:cover; border-radius:10px; border:1px solid var(--border-card); }
@@ -107,6 +108,9 @@
     .badge-status.approved { background:rgba(34,197,94,0.15); color:#15803D; }
     .badge-status.rejected { background:rgba(220,38,38,0.15); color:#B91C1C; }
     .badge-status.edit_requested { background:rgba(11,42,111,0.12); color:var(--primary-blue); }
+    .callup-row { display:flex; align-items:center; justify-content:space-between; background:#F1F5F9; border-radius:10px; padding:8px 14px; margin-bottom:6px; flex-wrap:wrap; gap:8px; }
+    .callup-row .cp-name { font-weight:600; }
+    .callup-row .cp-cat { color:var(--text-muted); font-size:0.78rem; margin-right:6px; }
 
     /* ===== المرحلة 6: تصميم رياضي احترافي ===== */
     @keyframes fadeInUp { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:translateY(0); } }
@@ -140,6 +144,7 @@
     .btn-sm-danger { background:linear-gradient(135deg, var(--color-danger), #B91C1C); }
     .btn-sm-success { background:linear-gradient(135deg, var(--color-success), #16A34A); }
     .btn-sm-warning { background:linear-gradient(135deg, var(--color-warning), #D97706); }
+    .btn-sm-info { background:linear-gradient(135deg, var(--primary-blue-light), #3B5FA0); }
 
     .modal-overlay.active .modal-box { animation:fadeInUp 0.3s ease; }
     .modal-box { border-top:5px solid var(--accent-red); box-shadow:0 25px 60px rgba(8,31,77,0.35); }
@@ -196,6 +201,10 @@
 
 <div class="modal-overlay" id="playerRecordModal">
     <div class="modal-box" id="playerRecordModalBox" style="max-width:640px;"></div>
+</div>
+
+<div class="modal-overlay" id="matchDetailModal">
+    <div class="modal-box" id="matchDetailModalBox" style="max-width:780px;"></div>
 </div>
 
 <script>
@@ -315,16 +324,11 @@
             { key:'title', label:'العنوان', type:'text', required:true },
             { key:'url', label:'الصورة', type:'image', required:true }
         ]},
-        matches: { path:'academyData/matches', label:'المباريات الودية', icon:'fa-futbol', fields:[
-            { key:'opponent', label:'الخصم', type:'text', required:true },
-            { key:'date', label:'التاريخ', type:'date' },
-            { key:'location', label:'المكان', type:'text' }
-        ]},
-        schedule: { path:'academyData/schedule', label:'جدول التدريبات', icon:'fa-calendar-alt', fields:[
-            { key:'category', label:'الفئة', type:'dynamicSelect', required:true },
-            { key:'days', label:'الأيام', type:'text' },
-            { key:'time', label:'الوقت', type:'text' },
-            { key:'field', label:'الملعب', type:'text' }
+        articles: { path:'academyData/articles', label:'المقالات', icon:'fa-newspaper', fields:[
+            { key:'title', label:'عنوان المقال', type:'text', required:true },
+            { key:'image', label:'صورة المقال', type:'image', required:true },
+            { key:'summary', label:'ملخص قصير (يظهر بالبطاقة)', type:'textarea', required:true },
+            { key:'content', label:'نص المقال الكامل', type:'textarea', required:true }
         ]},
         coaches: { path:'academyData/coaches', label:'المدربون / الطاقم الفني', icon:'fa-chalkboard-teacher', fields:[
             { key:'name', label:'الاسم الكامل', type:'text', required:true },
@@ -809,6 +813,657 @@
     };
 
     // ================================================================
+    // الحصص التدريبية (نظام فردي يحل محل الجدول الأسبوعي الثابت)
+    // ================================================================
+    const SESSION_TYPES = ['تقنية','تكتيكية','بدنية','مباراة تدريبية','لياقة'];
+    const SESSION_STATUSES = [
+        { key:'scheduled', label:'مجدولة', color:'#0B2A6F' },
+        { key:'ongoing', label:'جارية الآن', color:'#22C55E' },
+        { key:'finished', label:'منتهية', color:'#64748B' },
+        { key:'cancelled', label:'ملغاة', color:'#DC2626' }
+    ];
+
+    function calcDuration(start, end) {
+        if (!start || !end) return '—';
+        const [sh, sm] = start.split(':').map(Number);
+        const [eh, em] = end.split(':').map(Number);
+        let mins = (eh * 60 + em) - (sh * 60 + sm);
+        if (mins < 0) mins += 24 * 60;
+        const h = Math.floor(mins / 60), m = mins % 60;
+        return h > 0 ? `${h}س ${m}د` : `${m}د`;
+    }
+
+    function statusBadge(statusKey) {
+        const s = SESSION_STATUSES.find(x => x.key === statusKey) || SESSION_STATUSES[0];
+        return `<span style="display:inline-block; padding:4px 12px; border-radius:20px; font-size:0.72rem; font-weight:700; background:${s.color}22; color:${s.color};">${s.label}</span>`;
+    }
+
+    async function showDashSessions() {
+        setActiveNav('sessions');
+        const coachesList = await loadKeyedList('academyData/coaches');
+        window._coachesCache = coachesList;
+        document.getElementById('mainContent').innerHTML = `
+            <h2 class="page-title">📅 الحصص التدريبية</h2>
+            <p class="page-sub">إدارة الحصص الفردية لكل فئة</p>
+            <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px;">
+                <select id="sessCatFilter" onchange="renderSessionsTable()" style="padding:9px 14px; border-radius:10px; border:1.5px solid var(--border-card);">
+                    <option value="">كل الفئات</option>
+                    ${categories.map(c => `<option value="${c.key}">${c.label}</option>`).join('')}
+                </select>
+                <select id="sessStatusFilter" onchange="renderSessionsTable()" style="padding:9px 14px; border-radius:10px; border:1.5px solid var(--border-card);">
+                    <option value="">كل الحالات</option>
+                    ${SESSION_STATUSES.map(s => `<option value="${s.key}">${s.label}</option>`).join('')}
+                </select>
+                <button class="btn-sm btn-sm-primary" onclick="openSessionModal(null)"><i class="fas fa-plus"></i> إضافة حصة</button>
+            </div>
+            <div class="table-wrap">
+                <table>
+                    <thead><tr><th>#</th><th>الفئة</th><th>العنوان</th><th>التاريخ</th><th>الوقت</th><th>المدة</th><th>المدرب</th><th>النوع</th><th>الحالة</th><th>إجراءات</th></tr></thead>
+                    <tbody id="sessTbody"></tbody>
+                </table>
+            </div>
+        `;
+        renderSessionsTable();
+    }
+    window.showDashSessions = showDashSessions;
+
+    async function renderSessionsTable() {
+        const list = await loadKeyedList('academyData/trainingSessions');
+        window._sessionsCache = list;
+        const catF = document.getElementById('sessCatFilter')?.value || '';
+        const statF = document.getElementById('sessStatusFilter')?.value || '';
+        const filtered = list.filter(s => (!catF || s.category === catF) && (!statF || s.status === statF))
+                              .sort((a,b) => (b.date||'').localeCompare(a.date||''));
+        const tbody = document.getElementById('sessTbody');
+        if (!tbody) return;
+        if (!filtered.length) { tbody.innerHTML = `<tr><td colspan="10" style="padding:20px; color:var(--text-muted);">لا توجد حصص بعد</td></tr>`; return; }
+        tbody.innerHTML = filtered.map((s, idx) => `
+            <tr>
+                <td>${idx+1}</td>
+                <td>${categories.find(c=>c.key===s.category)?.label || s.category || '—'}</td>
+                <td style="font-weight:700;">${s.title || '—'}</td>
+                <td>${s.date || '—'}</td>
+                <td>${s.startTime || '—'} - ${s.endTime || '—'}</td>
+                <td>${calcDuration(s.startTime, s.endTime)}</td>
+                <td>${s.coachName || '—'}</td>
+                <td>${s.sessionType || '—'}</td>
+                <td>${statusBadge(s.status)}</td>
+                <td>
+                    <button class="btn-sm btn-sm-warning" onclick='openSessionModal(${JSON.stringify(s).replace(/'/g,"&apos;")})'><i class="fas fa-edit"></i></button>
+                    <button class="btn-sm btn-sm-danger" onclick="deleteSession('${s._key}')"><i class="fas fa-times"></i></button>
+                </td>
+            </tr>
+        `).join('');
+    }
+    window.renderSessionsTable = renderSessionsTable;
+
+    function openSessionModal(session) {
+        const isEdit = !!session;
+        const coachOptions = (window._coachesCache || []).map(c => `<option value="${c.name}" ${session?.coachName===c.name?'selected':''}>${c.name}</option>`).join('');
+        const modalBox = document.getElementById('resourceModalBox');
+        modalBox.innerHTML = `
+            <h3>${isEdit ? 'تعديل حصة' : 'إضافة حصة تدريبية'}</h3>
+            <div class="form-grid">
+                <div class="form-group"><label>الفئة</label><select id="smCategory">${categories.map(c => `<option value="${c.key}" ${session?.category===c.key?'selected':''}>${c.label}</option>`).join('')}</select></div>
+                <div class="form-group"><label>عنوان الحصة</label><input type="text" id="smTitle" value="${session?.title || ''}"></div>
+                <div class="form-group"><label>التاريخ</label><input type="date" id="smDate" value="${session?.date || ''}"></div>
+                <div class="form-group"><label>الملعب</label><input type="text" id="smField" value="${session?.field || ''}"></div>
+                <div class="form-group"><label>وقت البداية</label><input type="time" id="smStart" value="${session?.startTime || ''}"></div>
+                <div class="form-group"><label>وقت النهاية</label><input type="time" id="smEnd" value="${session?.endTime || ''}"></div>
+                <div class="form-group"><label>المدرب</label><select id="smCoach"><option value="">— اختر —</option>${coachOptions}</select></div>
+                <div class="form-group"><label>نوع الحصة</label><select id="smType">${SESSION_TYPES.map(t => `<option value="${t}" ${session?.sessionType===t?'selected':''}>${t}</option>`).join('')}</select></div>
+                <div class="form-group full"><label>الحالة</label><select id="smStatus">${SESSION_STATUSES.map(s => `<option value="${s.key}" ${session?.status===s.key?'selected':''}>${s.label}</option>`).join('')}</select></div>
+                <div class="form-group full"><label>أهداف الحصة</label><textarea id="smGoals">${session?.goals || ''}</textarea></div>
+                <div class="form-group full"><label>ملاحظات المدرب (اختياري)</label><textarea id="smNotes">${session?.notes || ''}</textarea></div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-sm" style="background:#e2e8f0;" onclick="closeResourceModal()">إلغاء</button>
+                <button class="btn-sm btn-sm-primary" onclick='saveSessionModal(${isEdit ? `"${session._key}"` : 'null'})'><i class="fas fa-save"></i> حفظ</button>
+            </div>
+        `;
+        document.getElementById('resourceModal').classList.add('active');
+    }
+    window.openSessionModal = openSessionModal;
+
+    async function saveSessionModal(key) {
+        const data = {
+            category: document.getElementById('smCategory').value,
+            title: document.getElementById('smTitle').value.trim(),
+            date: document.getElementById('smDate').value,
+            field: document.getElementById('smField').value.trim(),
+            startTime: document.getElementById('smStart').value,
+            endTime: document.getElementById('smEnd').value,
+            coachName: document.getElementById('smCoach').value,
+            sessionType: document.getElementById('smType').value,
+            status: document.getElementById('smStatus').value,
+            goals: document.getElementById('smGoals').value.trim(),
+            notes: document.getElementById('smNotes').value.trim()
+        };
+        if (!data.title || !data.date) { alert('❌ الرجاء إدخال عنوان الحصة والتاريخ على الأقل'); return; }
+        if (key) await fbUpdate(`academyData/trainingSessions/${key}`, data);
+        else await fbPush('academyData/trainingSessions', data);
+        closeResourceModal();
+        renderSessionsTable();
+    }
+    window.saveSessionModal = saveSessionModal;
+
+    async function deleteSession(key) {
+        if (!confirm('حذف هذه الحصة نهائياً؟')) return;
+        await fbDelete(`academyData/trainingSessions/${key}`);
+        renderSessionsTable();
+    }
+    window.deleteSession = deleteSession;
+
+    // ================================================================
+    // المباريات (Event Card + أهداف + تشكيلة + استدعاء متعدد الفئات)
+    // ================================================================
+    const MATCH_STATUSES = [
+        { key:'upcoming', label:'قادمة', color:'#0B2A6F' },
+        { key:'ongoing', label:'جارية الآن', color:'#22C55E' },
+        { key:'finished', label:'انتهت', color:'#64748B' },
+        { key:'cancelled', label:'ملغاة', color:'#DC2626' }
+    ];
+    const MATCH_TYPES = ['ودية','رسمية'];
+
+    function entityStatusBadge(list, statusKey) {
+        const s = list.find(x => x.key === statusKey) || list[0];
+        return `<span style="display:inline-block; padding:4px 12px; border-radius:20px; font-size:0.72rem; font-weight:700; background:${s.color}22; color:${s.color};">${s.label}</span>`;
+    }
+
+    async function showDashMatches() {
+        setActiveNav('matches');
+        document.getElementById('mainContent').innerHTML = `
+            <h2 class="page-title">⚽ المباريات</h2>
+            <p class="page-sub">إدارة مباريات الأكاديمية — النتائج، الأهداف، التشكيلة، والاستدعاء</p>
+            <button class="btn-sm btn-sm-primary" style="margin-bottom:16px;" onclick="openMatchModal(null)"><i class="fas fa-plus"></i> إضافة مباراة</button>
+            <div class="table-wrap">
+                <table>
+                    <thead><tr><th>#</th><th>الفئة</th><th>الخصم</th><th>التاريخ</th><th>النوع</th><th>الحالة</th><th>النتيجة</th><th>إجراءات</th></tr></thead>
+                    <tbody id="matchesTbody"></tbody>
+                </table>
+            </div>
+        `;
+        renderMatchesTable();
+    }
+    window.showDashMatches = showDashMatches;
+
+    async function renderMatchesTable() {
+        const list = await loadKeyedList('academyData/matches');
+        window._matchesCache = list;
+        list.sort((a,b) => (b.date||'').localeCompare(a.date||''));
+        const tbody = document.getElementById('matchesTbody');
+        if (!tbody) return;
+        if (!list.length) { tbody.innerHTML = `<tr><td colspan="8" style="padding:20px; color:var(--text-muted);">لا توجد مباريات بعد</td></tr>`; return; }
+        tbody.innerHTML = list.map((m, idx) => `
+            <tr>
+                <td>${idx+1}</td>
+                <td>${categories.find(c=>c.key===m.category)?.label || m.category || '—'}</td>
+                <td style="font-weight:700;">${m.opponentName || '—'}</td>
+                <td>${m.date || '—'}</td>
+                <td>${m.matchType || '—'}</td>
+                <td>${entityStatusBadge(MATCH_STATUSES, m.status || 'upcoming')}</td>
+                <td>${(m.homeScore ?? '-')} - ${(m.awayScore ?? '-')}</td>
+                <td>
+                    <button class="btn-sm btn-sm-warning" onclick='openMatchModal(${JSON.stringify(m).replace(/'/g,"&apos;")})'><i class="fas fa-edit"></i></button>
+                    <button class="btn-sm btn-sm-info" onclick="openMatchDetail('${m._key}')"><i class="fas fa-list"></i> التفاصيل</button>
+                    <button class="btn-sm btn-sm-danger" onclick="deleteMatch('${m._key}')"><i class="fas fa-times"></i></button>
+                </td>
+            </tr>
+        `).join('');
+    }
+    window.renderMatchesTable = renderMatchesTable;
+
+    function openMatchModal(match) {
+        const isEdit = !!match;
+        const modalBox = document.getElementById('resourceModalBox');
+        modalBox.innerHTML = `
+            <h3>${isEdit ? 'تعديل مباراة' : 'إضافة مباراة جديدة'}</h3>
+            <div class="form-grid">
+                <div class="form-group"><label>الفئة</label><select id="mmCategory">${categories.map(c => `<option value="${c.key}" ${match?.category===c.key?'selected':''}>${c.label}</option>`).join('')}</select></div>
+                <div class="form-group"><label>اسم الخصم</label><input type="text" id="mmOpponent" value="${match?.opponentName || ''}"></div>
+                <div class="form-group full"><label>شعار الخصم</label>
+                    <input type="file" accept="image/*" onchange="handleMatchLogoChange(this)">
+                    <input type="hidden" id="mmOpponentLogo" value="${match?.opponentLogo ? match.opponentLogo.replace(/"/g,'&quot;') : ''}">
+                    <div class="image-field-preview" id="mmLogoPreview">${match?.opponentLogo ? `<img src="${match.opponentLogo}"><span class="upload-badge"><i class="fas fa-check-circle"></i> تم الرفع</span>` : ''}</div>
+                </div>
+                <div class="form-group"><label>البطولة/المسابقة</label><input type="text" id="mmCompetition" value="${match?.competition || ''}"></div>
+                <div class="form-group"><label>الجولة</label><input type="text" id="mmRound" value="${match?.round || ''}"></div>
+                <div class="form-group"><label>التاريخ</label><input type="date" id="mmDate" value="${match?.date || ''}"></div>
+                <div class="form-group"><label>التوقيت</label><input type="time" id="mmTime" value="${match?.time || ''}"></div>
+                <div class="form-group"><label>الملعب</label><input type="text" id="mmField" value="${match?.field || ''}"></div>
+                <div class="form-group"><label>نوع المباراة</label><select id="mmType">${MATCH_TYPES.map(t => `<option value="${t}" ${match?.matchType===t?'selected':''}>${t}</option>`).join('')}</select></div>
+                <div class="form-group full"><label>الحالة</label><select id="mmStatus">${MATCH_STATUSES.map(s => `<option value="${s.key}" ${match?.status===s.key?'selected':''}>${s.label}</option>`).join('')}</select></div>
+                <div class="form-group"><label>نتيجة الأكاديمية</label><input type="number" id="mmHomeScore" value="${match?.homeScore ?? ''}"></div>
+                <div class="form-group"><label>نتيجة الخصم</label><input type="number" id="mmAwayScore" value="${match?.awayScore ?? ''}"></div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-sm" style="background:#e2e8f0;" onclick="closeResourceModal()">إلغاء</button>
+                <button class="btn-sm btn-sm-primary" onclick='saveMatchModal(${isEdit ? `"${match._key}"` : 'null'})'><i class="fas fa-save"></i> حفظ</button>
+            </div>
+        `;
+        document.getElementById('resourceModal').classList.add('active');
+    }
+    window.openMatchModal = openMatchModal;
+
+    window.handleMatchLogoChange = async function(inputEl) {
+        const file = inputEl.files[0];
+        if (!file) return;
+        const preview = document.getElementById('mmLogoPreview');
+        preview.innerHTML = `<span class="text-muted"><i class="fas fa-spinner fa-spin"></i> جارٍ المعالجة...</span>`;
+        const base64 = await imageFileToBase64(file, 500, 0.8);
+        document.getElementById('mmOpponentLogo').value = base64;
+        preview.innerHTML = `<img src="${base64}"><span class="upload-badge"><i class="fas fa-check-circle"></i> تم الرفع</span>`;
+    };
+
+    async function saveMatchModal(key) {
+        const data = {
+            category: document.getElementById('mmCategory').value,
+            opponentName: document.getElementById('mmOpponent').value.trim(),
+            opponentLogo: document.getElementById('mmOpponentLogo').value,
+            competition: document.getElementById('mmCompetition').value.trim(),
+            round: document.getElementById('mmRound').value.trim(),
+            date: document.getElementById('mmDate').value,
+            time: document.getElementById('mmTime').value,
+            field: document.getElementById('mmField').value.trim(),
+            matchType: document.getElementById('mmType').value,
+            status: document.getElementById('mmStatus').value,
+            homeScore: document.getElementById('mmHomeScore').value !== '' ? Number(document.getElementById('mmHomeScore').value) : null,
+            awayScore: document.getElementById('mmAwayScore').value !== '' ? Number(document.getElementById('mmAwayScore').value) : null
+        };
+        if (!data.opponentName || !data.date) { alert('❌ الرجاء إدخال اسم الخصم والتاريخ على الأقل'); return; }
+        if (key) {
+            await fbUpdate(`academyData/matches/${key}`, data);
+        } else {
+            data.goals = []; data.lineup = []; data.callUps = [];
+            await fbPush('academyData/matches', data);
+        }
+        closeResourceModal();
+        renderMatchesTable();
+    }
+    window.saveMatchModal = saveMatchModal;
+
+    async function deleteMatch(key) {
+        if (!confirm('حذف هذه المباراة نهائياً؟')) return;
+        await fbDelete(`academyData/matches/${key}`);
+        renderMatchesTable();
+    }
+    window.deleteMatch = deleteMatch;
+
+    let currentMatchKey = null;
+
+    async function openMatchDetail(key) {
+        currentMatchKey = key;
+        const list = window._matchesCache || await loadKeyedList('academyData/matches');
+        const m = list.find(x => x._key === key);
+        if (!m) return;
+        const modalBox = document.getElementById('matchDetailModalBox');
+        modalBox.innerHTML = `
+            <h3>${m.opponentName || ''} — ${m.date || ''}</h3>
+            <div class="profile-tabs">
+                <button class="profile-tab-btn active" data-tab="goals" onclick="switchMatchTab('goals')">الأهداف</button>
+                <button class="profile-tab-btn" data-tab="lineup" onclick="switchMatchTab('lineup')">التشكيلة</button>
+                <button class="profile-tab-btn" data-tab="callups" onclick="switchMatchTab('callups')">قائمة الاستدعاء</button>
+            </div>
+            <div class="profile-tab-content active" id="matchTab-goals"></div>
+            <div class="profile-tab-content" id="matchTab-lineup"></div>
+            <div class="profile-tab-content" id="matchTab-callups"></div>
+            <div class="modal-actions"><button class="btn-sm" style="background:#e2e8f0;" onclick="closeMatchDetailModal()">إغلاق</button></div>
+        `;
+        renderGoalsTab(m);
+        renderLineupTab(m);
+        renderCallUpsTab('matches', m);
+        document.getElementById('matchDetailModal').classList.add('active');
+    }
+    window.openMatchDetail = openMatchDetail;
+
+    window.closeMatchDetailModal = function() { document.getElementById('matchDetailModal').classList.remove('active'); };
+    window.switchMatchTab = function(tab) {
+        document.querySelectorAll('#matchDetailModalBox .profile-tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+        document.querySelectorAll('#matchDetailModalBox .profile-tab-content').forEach(c => c.classList.remove('active'));
+        document.getElementById('matchTab-' + tab).classList.add('active');
+    };
+
+    function renderGoalsTab(m) {
+        const goals = m.goals || [];
+        window._goalsDraft = JSON.parse(JSON.stringify(goals));
+        renderGoalsRows();
+    }
+    function renderGoalsRows() {
+        let html = `<div id="goalsRows">`;
+        window._goalsDraft.forEach((g, i) => {
+            html += `
+                <div class="dyn-row" data-idx="${i}">
+                    <input placeholder="اسم الهداف" value="${g.scorer||''}" onchange="updateGoalDraft(${i},'scorer',this.value)">
+                    <input placeholder="الدقيقة" type="number" value="${g.minute||''}" style="max-width:80px;" onchange="updateGoalDraft(${i},'minute',this.value)">
+                    <select onchange="updateGoalDraft(${i},'team',this.value)">
+                        <option value="home" ${g.team==='home'?'selected':''}>الأكاديمية</option>
+                        <option value="away" ${g.team==='away'?'selected':''}>الخصم</option>
+                    </select>
+                    <button class="btn-sm btn-sm-danger" onclick="removeGoalRow(${i})"><i class="fas fa-times"></i></button>
+                </div>`;
+        });
+        html += `</div>
+            <button class="btn-sm btn-sm-primary" onclick="addGoalRow()"><i class="fas fa-plus"></i> إضافة هدف</button>
+            <div style="margin-top:14px;"><button class="btn-sm btn-sm-success" onclick="saveGoals()"><i class="fas fa-save"></i> حفظ الأهداف</button></div>`;
+        document.getElementById('matchTab-goals').innerHTML = html;
+    }
+    window.updateGoalDraft = function(i, field, val) { window._goalsDraft[i][field] = field==='minute' ? Number(val) : val; };
+    window.addGoalRow = function() { window._goalsDraft.push({ scorer:'', minute:'', team:'home' }); renderGoalsRows(); };
+    window.removeGoalRow = function(i) { window._goalsDraft.splice(i,1); renderGoalsRows(); };
+    window.saveGoals = async function() {
+        await fbUpdate(`academyData/matches/${currentMatchKey}`, { goals: window._goalsDraft });
+        alert('✅ تم حفظ الأهداف');
+        renderMatchesTable();
+    };
+
+    function renderLineupTab(m) {
+        window._lineupDraft = JSON.parse(JSON.stringify(m.lineup || []));
+        renderLineupRows();
+    }
+    function renderLineupRows() {
+        let html = `<div id="lineupRows">`;
+        window._lineupDraft.forEach((p, i) => {
+            html += `
+                <div class="dyn-row" data-idx="${i}">
+                    <input placeholder="المركز (مثال: حارس مرمى)" value="${p.position||''}" onchange="updateLineupDraft(${i},'position',this.value)">
+                    <input placeholder="اسم اللاعب" value="${p.playerName||''}" onchange="updateLineupDraft(${i},'playerName',this.value)">
+                    <button class="btn-sm btn-sm-danger" onclick="removeLineupRow(${i})"><i class="fas fa-times"></i></button>
+                </div>`;
+        });
+        html += `</div>
+            <button class="btn-sm btn-sm-primary" onclick="addLineupRow()"><i class="fas fa-plus"></i> إضافة لاعب للتشكيلة</button>
+            <div style="margin-top:14px;"><button class="btn-sm btn-sm-success" onclick="saveLineup()"><i class="fas fa-save"></i> حفظ التشكيلة</button></div>`;
+        document.getElementById('matchTab-lineup').innerHTML = html;
+    }
+    window.updateLineupDraft = function(i, field, val) { window._lineupDraft[i][field] = val; };
+    window.addLineupRow = function() { window._lineupDraft.push({ position:'', playerName:'' }); renderLineupRows(); };
+    window.removeLineupRow = function(i) { window._lineupDraft.splice(i,1); renderLineupRows(); };
+    window.saveLineup = async function() {
+        await fbUpdate(`academyData/matches/${currentMatchKey}`, { lineup: window._lineupDraft });
+        alert('✅ تم حفظ التشكيلة');
+        renderMatchesTable();
+    };
+
+    // ===== قائمة الاستدعاء (مشتركة بين المباريات والبطولات — أي فئة عمرية) =====
+    async function renderCallUpsTab(entityType, entity) {
+        const containerId = entityType === 'matches' ? 'matchTab-callups' : 'tournTab-callups';
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        const allPlayers = await loadKeyedList('academyData/players');
+        window._callUpAllPlayers = allPlayers;
+        window._callUpDraft = [...(entity.callUps || [])];
+        window._callUpEntityType = entityType;
+        window._callUpEntityKey = entity._key;
+        container.innerHTML = `
+            <div style="display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap;">
+                <select id="callUpCatFilter" onchange="renderCallUpList()" style="padding:8px 12px; border-radius:10px; border:1.5px solid var(--border-card);">
+                    <option value="">كل الفئات</option>
+                    ${categories.map(c => `<option value="${c.key}">${c.label}</option>`).join('')}
+                </select>
+                <input type="text" id="callUpSearch" placeholder="🔍 بحث بالاسم..." oninput="renderCallUpList()" style="flex:1; min-width:160px; padding:8px 12px; border-radius:10px; border:1.5px solid var(--border-card);">
+            </div>
+            <div id="callUpListContainer"></div>
+            <div style="margin-top:14px;"><button class="btn-sm btn-sm-success" onclick="saveCallUps()"><i class="fas fa-save"></i> حفظ قائمة الاستدعاء</button></div>
+        `;
+        renderCallUpList();
+    }
+    window.renderCallUpsTab = renderCallUpsTab;
+
+    window.renderCallUpList = function() {
+        const catF = document.getElementById('callUpCatFilter')?.value || '';
+        const term = document.getElementById('callUpSearch')?.value.trim().toLowerCase() || '';
+        const filtered = window._callUpAllPlayers.filter(p => {
+            const name = `${p.firstName||''} ${p.lastName||''}`.toLowerCase();
+            return (!catF || p.category === catF) && (!term || name.includes(term));
+        });
+        const listEl = document.getElementById('callUpListContainer');
+        if (!filtered.length) { listEl.innerHTML = `<p style="color:var(--text-muted); padding:10px;">لا يوجد لاعبون مطابقون</p>`; return; }
+        listEl.innerHTML = filtered.map(p => {
+            const isCalled = window._callUpDraft.includes(p._key);
+            return `
+                <div class="callup-row">
+                    <div><span class="cp-name">${p.firstName||''} ${p.lastName||''}</span><span class="cp-cat">${categories.find(c=>c.key===p.category)?.label || p.category || ''}</span></div>
+                    <button class="btn-sm ${isCalled ? 'btn-sm-danger' : 'btn-sm-success'}" onclick="toggleCallUp('${p._key}')">${isCalled ? '✕ إزالة' : '✔ استدعاء'}</button>
+                </div>`;
+        }).join('');
+    };
+    window.toggleCallUp = function(playerKey) {
+        const idx = window._callUpDraft.indexOf(playerKey);
+        if (idx >= 0) window._callUpDraft.splice(idx, 1);
+        else window._callUpDraft.push(playerKey);
+        renderCallUpList();
+    };
+    window.saveCallUps = async function() {
+        await fbUpdate(`academyData/${window._callUpEntityType}/${window._callUpEntityKey}`, { callUps: window._callUpDraft });
+        alert('✅ تم حفظ قائمة الاستدعاء');
+        if (window._callUpEntityType === 'matches') renderMatchesTable(); else renderTournamentsTable();
+    };
+
+    // ================================================================
+    // البطولات
+    // ================================================================
+    async function showDashTournaments() {
+        setActiveNav('tournaments');
+        document.getElementById('mainContent').innerHTML = `
+            <h2 class="page-title">🏆 البطولات</h2>
+            <p class="page-sub">إدارة البطولات التي تشارك بها الأكاديمية</p>
+            <button class="btn-sm btn-sm-primary" style="margin-bottom:16px;" onclick="openTournamentModal(null)"><i class="fas fa-plus"></i> إضافة بطولة</button>
+            <div class="table-wrap">
+                <table>
+                    <thead><tr><th>#</th><th>الشعار</th><th>الاسم</th><th>المنظم</th><th>الفترة</th><th>عدد الفرق</th><th>إجراءات</th></tr></thead>
+                    <tbody id="tournTbody"></tbody>
+                </table>
+            </div>
+        `;
+        renderTournamentsTable();
+    }
+    window.showDashTournaments = showDashTournaments;
+
+    async function renderTournamentsTable() {
+        const list = await loadKeyedList('academyData/tournaments');
+        window._tournamentsCache = list;
+        const tbody = document.getElementById('tournTbody');
+        if (!tbody) return;
+        if (!list.length) { tbody.innerHTML = `<tr><td colspan="7" style="padding:20px; color:var(--text-muted);">لا توجد بطولات بعد</td></tr>`; return; }
+        tbody.innerHTML = list.map((t, idx) => `
+            <tr>
+                <td>${idx+1}</td>
+                <td>${t.logo ? `<img src="${t.logo}" style="width:36px;height:36px;object-fit:cover;border-radius:8px;">` : '—'}</td>
+                <td style="font-weight:700;">${t.name || '—'}</td>
+                <td>${t.organizer || '—'}</td>
+                <td>${t.dateStart || '—'} إلى ${t.dateEnd || '—'}</td>
+                <td>${t.teamsCount || '—'}</td>
+                <td>
+                    <button class="btn-sm btn-sm-warning" onclick='openTournamentModal(${JSON.stringify(t).replace(/'/g,"&apos;")})'><i class="fas fa-edit"></i></button>
+                    <button class="btn-sm btn-sm-info" onclick="openTournamentDetail('${t._key}')"><i class="fas fa-users"></i> الاستدعاء</button>
+                    <button class="btn-sm btn-sm-danger" onclick="deleteTournament('${t._key}')"><i class="fas fa-times"></i></button>
+                </td>
+            </tr>
+        `).join('');
+    }
+    window.renderTournamentsTable = renderTournamentsTable;
+
+    function openTournamentModal(t) {
+        const isEdit = !!t;
+        const modalBox = document.getElementById('resourceModalBox');
+        modalBox.innerHTML = `
+            <h3>${isEdit ? 'تعديل بطولة' : 'إضافة بطولة جديدة'}</h3>
+            <div class="form-grid">
+                <div class="form-group full"><label>شعار البطولة</label>
+                    <input type="file" accept="image/*" onchange="handleTournLogoChange(this)">
+                    <input type="hidden" id="tmLogo" value="${t?.logo ? t.logo.replace(/"/g,'&quot;') : ''}">
+                    <div class="image-field-preview" id="tmLogoPreview">${t?.logo ? `<img src="${t.logo}"><span class="upload-badge"><i class="fas fa-check-circle"></i> تم الرفع</span>` : ''}</div>
+                </div>
+                <div class="form-group"><label>اسم البطولة</label><input type="text" id="tmName" value="${t?.name || ''}"></div>
+                <div class="form-group"><label>المنظم</label><input type="text" id="tmOrganizer" value="${t?.organizer || ''}"></div>
+                <div class="form-group"><label>المكان</label><input type="text" id="tmLocation" value="${t?.location || ''}"></div>
+                <div class="form-group"><label>عدد الفرق</label><input type="number" id="tmTeamsCount" value="${t?.teamsCount || ''}"></div>
+                <div class="form-group"><label>تاريخ البداية</label><input type="date" id="tmDateStart" value="${t?.dateStart || ''}"></div>
+                <div class="form-group"><label>تاريخ النهاية</label><input type="date" id="tmDateEnd" value="${t?.dateEnd || ''}"></div>
+                <div class="form-group full"><label>ترتيب المجموعة</label><textarea id="tmStanding">${t?.groupStanding || ''}</textarea></div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-sm" style="background:#e2e8f0;" onclick="closeResourceModal()">إلغاء</button>
+                <button class="btn-sm btn-sm-primary" onclick='saveTournamentModal(${isEdit ? `"${t._key}"` : 'null'})'><i class="fas fa-save"></i> حفظ</button>
+            </div>
+        `;
+        document.getElementById('resourceModal').classList.add('active');
+    }
+    window.openTournamentModal = openTournamentModal;
+
+    window.handleTournLogoChange = async function(inputEl) {
+        const file = inputEl.files[0];
+        if (!file) return;
+        const preview = document.getElementById('tmLogoPreview');
+        preview.innerHTML = `<span class="text-muted"><i class="fas fa-spinner fa-spin"></i> جارٍ المعالجة...</span>`;
+        const base64 = await imageFileToBase64(file, 500, 0.8);
+        document.getElementById('tmLogo').value = base64;
+        preview.innerHTML = `<img src="${base64}"><span class="upload-badge"><i class="fas fa-check-circle"></i> تم الرفع</span>`;
+    };
+
+    async function saveTournamentModal(key) {
+        const data = {
+            logo: document.getElementById('tmLogo').value,
+            name: document.getElementById('tmName').value.trim(),
+            organizer: document.getElementById('tmOrganizer').value.trim(),
+            location: document.getElementById('tmLocation').value.trim(),
+            teamsCount: document.getElementById('tmTeamsCount').value,
+            dateStart: document.getElementById('tmDateStart').value,
+            dateEnd: document.getElementById('tmDateEnd').value,
+            groupStanding: document.getElementById('tmStanding').value.trim()
+        };
+        if (!data.name) { alert('❌ الرجاء إدخال اسم البطولة'); return; }
+        if (key) await fbUpdate(`academyData/tournaments/${key}`, data);
+        else { data.callUps = []; await fbPush('academyData/tournaments', data); }
+        closeResourceModal();
+        renderTournamentsTable();
+    }
+    window.saveTournamentModal = saveTournamentModal;
+
+    async function deleteTournament(key) {
+        if (!confirm('حذف هذه البطولة نهائياً؟')) return;
+        await fbDelete(`academyData/tournaments/${key}`);
+        renderTournamentsTable();
+    }
+    window.deleteTournament = deleteTournament;
+
+    async function openTournamentDetail(key) {
+        const list = window._tournamentsCache || await loadKeyedList('academyData/tournaments');
+        const t = list.find(x => x._key === key);
+        if (!t) return;
+        const modalBox = document.getElementById('matchDetailModalBox');
+        modalBox.innerHTML = `
+            <h3>${t.name || ''} — قائمة الاستدعاء</h3>
+            <div id="tournTab-callups"></div>
+            <div class="modal-actions"><button class="btn-sm" style="background:#e2e8f0;" onclick="closeMatchDetailModal()">إغلاق</button></div>
+        `;
+        renderCallUpsTab('tournaments', t);
+        document.getElementById('matchDetailModal').classList.add('active');
+    }
+    window.openTournamentDetail = openTournamentDetail;
+
+    // ================================================================
+    // رسائل الأكاديمية
+    // ================================================================
+    const MESSAGE_TYPES = [
+        { key:'announcement', label:'إعلان', icon:'fa-bullhorn' },
+        { key:'alert', label:'تنبيه', icon:'fa-exclamation-triangle' },
+        { key:'meeting', label:'اجتماع', icon:'fa-users' },
+        { key:'notice', label:'إشعار', icon:'fa-bell' },
+        { key:'congrats', label:'تهنئة', icon:'fa-gift' },
+        { key:'comment', label:'تعليق', icon:'fa-comment' }
+    ];
+
+    async function showDashMessages() {
+        setActiveNav('messages');
+        document.getElementById('mainContent').innerHTML = `
+            <h2 class="page-title">📢 رسائل الأكاديمية</h2>
+            <p class="page-sub">رسائل تظهر في صفحة الفئة المستهدفة (أو لكل الفئات)</p>
+            <button class="btn-sm btn-sm-primary" style="margin-bottom:16px;" onclick="openMessageModal(null)"><i class="fas fa-plus"></i> إضافة رسالة</button>
+            <div class="table-wrap">
+                <table>
+                    <thead><tr><th>#</th><th>النوع</th><th>الفئة المستهدفة</th><th>النص</th><th>التاريخ</th><th>إجراءات</th></tr></thead>
+                    <tbody id="msgTbody"></tbody>
+                </table>
+            </div>
+        `;
+        renderMessagesTable();
+    }
+    window.showDashMessages = showDashMessages;
+
+    async function renderMessagesTable() {
+        const list = await loadKeyedList('academyData/academyMessages');
+        list.sort((a,b) => (b.date||'').localeCompare(a.date||''));
+        const tbody = document.getElementById('msgTbody');
+        if (!tbody) return;
+        if (!list.length) { tbody.innerHTML = `<tr><td colspan="6" style="padding:20px; color:var(--text-muted);">لا توجد رسائل بعد</td></tr>`; return; }
+        tbody.innerHTML = list.map((m, idx) => {
+            const t = MESSAGE_TYPES.find(x => x.key === m.type) || MESSAGE_TYPES[0];
+            const catLabel = m.targetCategory === 'all' ? 'كل الفئات' : (categories.find(c=>c.key===m.targetCategory)?.label || m.targetCategory);
+            return `
+            <tr>
+                <td>${idx+1}</td>
+                <td><i class="fas ${t.icon}"></i> ${t.label}</td>
+                <td>${catLabel}</td>
+                <td style="max-width:260px; text-align:right; white-space:normal;">${(m.text||'').slice(0,80)}${(m.text||'').length>80?'...':''}</td>
+                <td>${m.date || '—'}</td>
+                <td>
+                    <button class="btn-sm btn-sm-warning" onclick='openMessageModal(${JSON.stringify(m).replace(/'/g,"&apos;")})'><i class="fas fa-edit"></i></button>
+                    <button class="btn-sm btn-sm-danger" onclick="deleteMessage('${m._key}')"><i class="fas fa-times"></i></button>
+                </td>
+            </tr>`;
+        }).join('');
+    }
+    window.renderMessagesTable = renderMessagesTable;
+
+    function openMessageModal(msg) {
+        const isEdit = !!msg;
+        const modalBox = document.getElementById('resourceModalBox');
+        modalBox.innerHTML = `
+            <h3>${isEdit ? 'تعديل رسالة' : 'إضافة رسالة جديدة'}</h3>
+            <div class="form-grid">
+                <div class="form-group"><label>النوع</label><select id="msgType">${MESSAGE_TYPES.map(t => `<option value="${t.key}" ${msg?.type===t.key?'selected':''}>${t.label}</option>`).join('')}</select></div>
+                <div class="form-group"><label>الفئة المستهدفة</label>
+                    <select id="msgTargetCat">
+                        <option value="all" ${msg?.targetCategory==='all'?'selected':''}>كل الفئات</option>
+                        ${categories.map(c => `<option value="${c.key}" ${msg?.targetCategory===c.key?'selected':''}>${c.label}</option>`).join('')}
+                    </select>
+                </div>
+                <div class="form-group full"><label>نص الرسالة</label><textarea id="msgText">${msg?.text || ''}</textarea></div>
+                <div class="form-group"><label>التاريخ</label><input type="date" id="msgDate" value="${msg?.date || new Date().toISOString().split('T')[0]}"></div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-sm" style="background:#e2e8f0;" onclick="closeResourceModal()">إلغاء</button>
+                <button class="btn-sm btn-sm-primary" onclick='saveMessageModal(${isEdit ? `"${msg._key}"` : 'null'})'><i class="fas fa-save"></i> حفظ</button>
+            </div>
+        `;
+        document.getElementById('resourceModal').classList.add('active');
+    }
+    window.openMessageModal = openMessageModal;
+
+    async function saveMessageModal(key) {
+        const data = {
+            type: document.getElementById('msgType').value,
+            targetCategory: document.getElementById('msgTargetCat').value,
+            text: document.getElementById('msgText').value.trim(),
+            date: document.getElementById('msgDate').value
+        };
+        if (!data.text) { alert('❌ الرجاء إدخال نص الرسالة'); return; }
+        if (key) await fbUpdate(`academyData/academyMessages/${key}`, data);
+        else await fbPush('academyData/academyMessages', data);
+        closeResourceModal();
+        renderMessagesTable();
+    }
+    window.saveMessageModal = saveMessageModal;
+
+    async function deleteMessage(key) {
+        if (!confirm('حذف هذه الرسالة نهائياً؟')) return;
+        await fbDelete(`academyData/academyMessages/${key}`);
+        renderMessagesTable();
+    }
+    window.deleteMessage = deleteMessage;
+
+    // ================================================================
     // إدارة الفئات الديناميكية
     // ================================================================
     async function showDashCategories() {
@@ -1018,11 +1673,11 @@
             <div class="form-card">
                 <h3>📌 لوحة التحكم — جميع الأقسام مفعلة</h3>
                 <p style="color:var(--text-muted); font-size:0.9rem; line-height:1.8;">
-                    ✅ المعرض، الفيديوهات، الأطقم، المباريات الودية، جدول التدريبات، المدربون<br>
+                    ✅ المعرض، الفيديوهات، الأطقم، المقالات، المدربون<br>
                     ✅ اللاعبون (مع سجل الحضور والدفعات)<br>
                     ✅ طلبات التسجيل (اعتماد، رفض، طلب تعديل)<br>
-                    ✅ إدارة الفئات الديناميكية<br>
-                    ✅ الإعدادات العامة والأمان (تغيير كود المدير)
+                    ✅ الحصص التدريبية، المباريات، البطولات<br>
+                    ✅ رسائل الأكاديمية، إدارة الفئات، الإعدادات العامة والأمان
                 </p>
             </div>
         `;
@@ -1052,8 +1707,11 @@
         { key:'gallery', label:'المعرض', icon:'fa-images', fn:"()=>renderGenericResourcePage('gallery')" },
         { key:'videos', label:'الفيديوهات', icon:'fa-video', fn:"()=>renderGenericResourcePage('videos')" },
         { key:'kits', label:'الأطقم', icon:'fa-tshirt', fn:"()=>renderGenericResourcePage('kits')" },
-        { key:'schedule', label:'جدول التدريبات', icon:'fa-calendar-alt', fn:"()=>renderGenericResourcePage('schedule')" },
-        { key:'matches', label:'المباريات الودية', icon:'fa-futbol', fn:"()=>renderGenericResourcePage('matches')" },
+        { key:'articles', label:'المقالات', icon:'fa-newspaper', fn:"()=>renderGenericResourcePage('articles')" },
+        { key:'sessions', label:'الحصص التدريبية', icon:'fa-calendar-alt', fn:'showDashSessions' },
+        { key:'matches', label:'المباريات', icon:'fa-futbol', fn:'showDashMatches' },
+        { key:'tournaments', label:'البطولات', icon:'fa-trophy', fn:'showDashTournaments' },
+        { key:'messages', label:'رسائل الأكاديمية', icon:'fa-bullhorn', fn:'showDashMessages' },
         { key:'categories', label:'إدارة الفئات', icon:'fa-layer-group', fn:'showDashCategories' },
         { key:'settings', label:'الإعدادات العامة', icon:'fa-cog', fn:'showDashSettings' },
         { key:'security', label:'الأمان', icon:'fa-key', fn:'showDashSettings' }
