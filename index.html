@@ -218,6 +218,24 @@
         @keyframes modalPop { 0%{ transform:scale(0.6); opacity:0; } 100%{ transform:scale(1); opacity:1; } }
         @keyframes wiggle { 0%,100%{ transform:rotate(-1.5deg) scale(1); } 50%{ transform:rotate(1.5deg) scale(1.02); } }
 
+        /* ===== ARTICLES ===== */
+        .articles-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(260px,1fr)); gap:26px; }
+        .article-card { background:#fff; border-radius:18px; overflow:hidden; border:1px solid var(--border-card); text-decoration:none; color:inherit; transition:0.35s; display:flex; flex-direction:column; box-shadow:0 10px 26px rgba(11,42,111,0.08); }
+        .article-card:hover { transform:translateY(-6px); box-shadow:0 20px 40px rgba(217,30,46,0.18); border-color:rgba(217,30,46,0.3); }
+        .article-card .article-img { width:100%; aspect-ratio:16/9; overflow:hidden; background:var(--off-white); }
+        .article-card .article-img img { width:100%; height:100%; object-fit:cover; transition:0.5s; }
+        .article-card:hover .article-img img { transform:scale(1.08); }
+        .article-card .article-body { padding:18px 20px 20px; flex:1; display:flex; flex-direction:column; }
+        .article-card h3 { font-family:'Cairo',sans-serif; font-weight:800; font-size:1.1rem; color:var(--primary-blue-dark); margin-bottom:8px; }
+        .article-card p { color:var(--text-muted); font-size:0.88rem; line-height:1.7; margin-bottom:12px; flex:1; }
+        .article-card .read-more { color:var(--accent-red); font-weight:700; font-size:0.85rem; display:inline-flex; align-items:center; gap:6px; }
+        .article-card.featured { grid-column:1/-1; flex-direction:row; border:2px solid var(--accent-red); }
+        .article-card.featured .article-img { width:45%; aspect-ratio:auto; }
+        .article-card.featured .article-body { width:55%; justify-content:center; }
+        .article-card.featured h3 { font-size:1.5rem; }
+        .article-card.featured .featured-badge { display:inline-block; background:var(--accent-red); color:#fff; font-size:0.7rem; font-weight:800; padding:4px 14px; border-radius:20px; margin-bottom:10px; width:fit-content; }
+        @media (max-width:700px) { .article-card.featured { flex-direction:column; } .article-card.featured .article-img, .article-card.featured .article-body { width:100%; } }
+
         /* Admin toggle button responsive */
         .admin-toggle {
             position:fixed;
@@ -272,6 +290,10 @@
             .videos-grid { grid-template-columns:1fr; gap:18px; }
             .kits-grid { grid-template-columns:repeat(auto-fit, minmax(200px,1fr)); gap:18px; }
             .team-grid { grid-template-columns:repeat(auto-fit, minmax(200px,1fr)); gap:18px; }
+            .articles-grid { grid-template-columns:1fr; gap:18px; }
+            .article-card.featured { flex-direction:column; }
+            .article-card.featured .article-img { width:100%; aspect-ratio:16/9; }
+            .article-card.featured .article-body { width:100%; }
         }
         @media (max-width:480px) {
             .hero h1 { font-size:1.7rem; }
@@ -285,6 +307,7 @@
             .videos-grid { grid-template-columns:1fr; }
             .kits-grid { grid-template-columns:1fr; }
             .team-grid { grid-template-columns:1fr; }
+            .articles-grid { grid-template-columns:1fr; }
             .reg-brand-header { padding:18px 14px 28px; }
             .reg-brand-header img { height:40px; }
             .reg-brand-title { font-size:0.95rem; }
@@ -304,6 +327,7 @@
     <div class="menu-btn" id="menuBtn"><i class="fas fa-bars"></i></div>
     <ul class="nav-links" id="navLinks">
         <li><a href="#home">الرئيسية</a></li>
+        <li><a href="#articles">المقالات</a></li>
         <li><a href="#about">عن الأكاديمية</a></li>
         <li><a href="#coach">الطاقم الفني</a></li>
         <li><a href="#gallery">المعرض</a></li>
@@ -338,8 +362,22 @@
     </div>
 </section>
 
+<!-- ===== DIVIDER ===== -->
 <div class="section-divider"></div>
 
+<!-- ===== ARTICLES ===== -->
+<section id="articles" class="section-light reveal">
+    <div class="container">
+        <h2 class="section-title">📰 مقالات <span>الأكاديمية</span></h2>
+        <p class="section-subtitle">آخر أخبار وتحديثات أكاديمية تيكنو.</p>
+        <div class="articles-grid reveal-stagger" id="articlesGrid"></div>
+    </div>
+</section>
+
+<!-- ===== DIVIDER ===== -->
+<div class="section-divider"></div>
+
+<!-- ===== ABOUT ===== -->
 <section id="about" class="section-dark reveal">
     <div class="container">
         <h2 class="section-title">عن <span>الأكاديمية</span></h2>
@@ -487,7 +525,7 @@
             </div>
             <p style="opacity:0.6; font-size:0.9rem;">أكاديمية كرة القدم الرائدة في الجزائر، نصنع النجوم ونبني المستقبل.</p>
         </div>
-        <div class="footer-col"><h4>روابط سريعة</h4><a href="#home">الرئيسية</a><a href="#about">عن الأكاديمية</a><a href="#registration">التسجيل</a><a href="#contact">اتصل بنا</a></div>
+        <div class="footer-col"><h4>روابط سريعة</h4><a href="#home">الرئيسية</a><a href="#articles">المقالات</a><a href="#about">عن الأكاديمية</a><a href="#registration">التسجيل</a><a href="#contact">اتصل بنا</a></div>
         <div class="footer-col"><h4>تواصل معنا</h4><p id="footerPhone">📞 05.52.47.41.40</p><p id="footerEmail">📧 info@technoacademy.dz</p><p>📍 برج الكيفان، الجزائر</p>
             <div class="footer-social">
                 <a href="https://www.facebook.com/profile.php?id=100063920144998" target="_blank"><i class="fab fa-facebook"></i></a>
@@ -586,7 +624,7 @@
     // ================================================================
     // 3. الحالة العامة
     // ================================================================
-    let appData = { gallery: [], videos: [], kits: [], coaches: [], categories: [], siteSettings: {} };
+    let appData = { gallery: [], videos: [], kits: [], coaches: [], categories: [], siteSettings: {}, articles: [] };
 
     // ================================================================
     // 4. تحميل جميع البيانات (مع بذر تلقائي عند أول تشغيل)
@@ -597,14 +635,21 @@
         return [];
     }
 
+    function normalizeKeyedArray(val) {
+        if (!val) return [];
+        if (Array.isArray(val)) return val.map((v,i)=>({ _key:String(i), ...v }));
+        return Object.entries(val).map(([k,v]) => ({ _key:k, ...v }));
+    }
+
     async function loadAllData() {
-        const [galleryRes, videosRes, kitsRes, coachesRes, catRes, settingsRes] = await Promise.all([
+        const [galleryRes, videosRes, kitsRes, coachesRes, catRes, settingsRes, articlesRes] = await Promise.all([
             safeGet('academyData/gallery'),
             safeGet('academyData/videos'),
             safeGet('academyData/kits'),
             safeGet('academyData/coaches'),
             safeGet('categoriesList'),
-            safeGet('siteSettings')
+            safeGet('siteSettings'),
+            safeGet('academyData/articles')
         ]);
 
         appData.gallery = normalizeToArray((galleryRes.ok && galleryRes.value) || defaultGallery);
@@ -613,8 +658,8 @@
         appData.coaches = normalizeToArray((coachesRes.ok && coachesRes.value) || []);
         appData.categories = (catRes.ok && catRes.value) || defaultCategories;
         appData.siteSettings = (settingsRes.ok && settingsRes.value) || defaultSiteSettings;
+        appData.articles = normalizeKeyedArray(articlesRes.ok ? articlesRes.value : null);
 
-        // نبذر الافتراضي فقط إذا نجحت القراءة وتأكدنا أن العقدة فارغة فعلاً — أبداً عند فشل الشبكة
         if (galleryRes.ok && !galleryRes.value) fbSet('academyData/gallery', defaultGallery);
         if (videosRes.ok && !videosRes.value) fbSet('academyData/videos', defaultVideos);
         if (kitsRes.ok && !kitsRes.value) fbSet('academyData/kits', defaultKits);
@@ -718,6 +763,40 @@
                 </div>`;
             container.appendChild(div);
         });
+    }
+
+    function renderArticles() {
+        const container = document.getElementById('articlesGrid');
+        if (!container) return;
+        container.innerHTML = '';
+        if (!appData.articles.length) { container.innerHTML = '<p style="text-align:center; color:var(--text-muted);">لا توجد مقالات بعد.</p>'; return; }
+        const sorted = [...appData.articles].sort((a,b) => b._key.localeCompare(a._key));
+        const [featured, ...rest] = sorted;
+        let html = '';
+        if (featured) {
+            html += `
+            <a href="article.html?id=${encodeURIComponent(featured._key)}" class="article-card featured">
+                <div class="article-img"><img src="${featured.image}" alt="${featured.title||''}"></div>
+                <div class="article-body">
+                    <span class="featured-badge">⭐ مقال مميز</span>
+                    <h3>${featured.title||''}</h3>
+                    <p>${featured.summary||''}</p>
+                    <span class="read-more">اقرأ المزيد <i class="fas fa-arrow-left"></i></span>
+                </div>
+            </a>`;
+        }
+        rest.forEach(a => {
+            html += `
+            <a href="article.html?id=${encodeURIComponent(a._key)}" class="article-card">
+                <div class="article-img"><img src="${a.image}" alt="${a.title||''}"></div>
+                <div class="article-body">
+                    <h3>${a.title||''}</h3>
+                    <p>${a.summary||''}</p>
+                    <span class="read-more">اقرأ المزيد <i class="fas fa-arrow-left"></i></span>
+                </div>
+            </a>`;
+        });
+        container.innerHTML = html;
     }
 
     function renderRegistrationSelects() {
@@ -836,6 +915,7 @@
             renderVideos();
             renderKits();
             renderTeam();
+            renderArticles();
             renderRegistrationSelects();
             console.log('✅ Website initialized successfully');
         } catch (error) {
