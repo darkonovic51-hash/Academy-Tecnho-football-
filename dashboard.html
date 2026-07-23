@@ -112,6 +112,18 @@
     .callup-row .cp-name { font-weight:600; }
     .callup-row .cp-cat { color:var(--text-muted); font-size:0.78rem; margin-right:6px; }
 
+    .player-avatar-mini { width:32px; height:32px; border-radius:50%; background:linear-gradient(135deg, var(--primary-blue), var(--accent-red)); color:#fff; display:inline-flex; align-items:center; justify-content:center; font-weight:800; font-size:0.85rem; flex-shrink:0; }
+    .btn-file-record { border:none; background:linear-gradient(135deg, var(--primary-blue-dark), var(--primary-blue)); color:#fff; padding:7px 16px; border-radius:20px; font-weight:700; font-size:0.8rem; cursor:pointer; display:inline-flex; align-items:center; gap:6px; transition:0.25s; box-shadow:0 3px 10px rgba(11,42,111,0.2); }
+    .btn-file-record:hover { transform:translateY(-2px); background:linear-gradient(135deg, var(--accent-red), var(--accent-red-hover)); box-shadow:0 6px 16px rgba(217,30,46,0.3); }
+
+    .info-card-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    .info-card-item { background:linear-gradient(135deg, #F1F5F9, #E8EDF5); border-radius:14px; padding:14px 16px; display:flex; align-items:center; gap:12px; border-right:3px solid var(--accent-red); }
+    .info-card-item.full { grid-column:1/-1; }
+    .info-card-item i { font-size:1.3rem; color:var(--primary-blue); width:32px; text-align:center; flex-shrink:0; }
+    .info-card-item .ic-label { font-size:0.72rem; color:var(--text-muted); margin-bottom:2px; }
+    .info-card-item .ic-value { font-weight:700; color:var(--text-dark); }
+    @media (max-width:600px) { .info-card-grid { grid-template-columns:1fr; } }
+
     /* ===== المرحلة 6: تصميم رياضي احترافي ===== */
     @keyframes fadeInUp { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:translateY(0); } }
     @keyframes glowPulse { 0%,100% { box-shadow:0 0 0 0 rgba(217,30,46,0.35); } 50% { box-shadow:0 0 0 8px rgba(217,30,46,0); } }
@@ -510,50 +522,69 @@
         const catLabel = categories.find(c => c.key === catKey)?.label || catKey;
         document.getElementById('mainContent').innerHTML = `
             <div class="back-link" onclick="showDashPlayers()"><i class="fas fa-arrow-right"></i> رجوع لكل الفئات</div>
-            <h2 class="page-title">👥 ${catLabel}</h2>
+            <h2 class="page-title"><i class="fas fa-folder-open"></i> ${catLabel}</h2>
             <p class="page-sub">لاعبو هذه الفئة</p>
             <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px;">
-                <input type="text" id="catPlayerSearch" placeholder="🔍 بحث بالاسم..." style="flex:1; min-width:200px; padding:9px 14px; border-radius:10px; border:1.5px solid var(--border-card); font-family:inherit;" oninput="renderCategoryPlayersTable()">
-                <button class="btn-sm btn-sm-primary" onclick="openPlayerModal(null, '${catKey}')"><i class="fas fa-plus"></i> إضافة لاعب</button>
+                <input type="text" id="catPlayerSearch" placeholder="🔍 بحث بالاسم..." style="flex:1; min-width:200px; padding:9px 14px; border-radius:10px; border:1.5px solid var(--border-card); font-family:inherit;" oninput="filterCategoryPlayersLocal()">
+                <button class="btn-sm btn-sm-primary" onclick="openPlayerModal(null, '${catKey}')"><i class="fas fa-user-plus"></i> إضافة لاعب</button>
             </div>
             <div class="table-wrap">
                 <table>
-                    <thead><tr><th>#</th><th>الاسم</th><th>اللقب</th><th>الهاتف</th><th>المكان</th><th>إجراءات</th></tr></thead>
+                    <thead><tr><th><i class="fas fa-user"></i> الاسم الكامل</th><th><i class="fas fa-phone"></i> الهاتف</th><th><i class="fas fa-birthday-cake"></i> سنة الميلاد</th><th><i class="fas fa-folder"></i> الملف</th><th><i class="fas fa-cog"></i> إجراءات</th></tr></thead>
                     <tbody id="catPlayersTbody"></tbody>
                 </table>
             </div>
         `;
-        await renderCategoryPlayersTable();
+        await refreshCategoryPlayers();
     }
     window.openCategoryFolder = openCategoryFolder;
 
-    async function renderCategoryPlayersTable() {
+    // نجلب من Firebase مرة واحدة فقط عند فتح الفئة أو بعد إضافة/تعديل/حذف — وليس مع كل حرف بحث
+    async function refreshCategoryPlayers() {
         const players = await loadKeyedList('academyData/players');
         window._playersCache = players;
+        window._categoryPlayersCache = players.filter(p => p.category === currentCategoryKey);
+        filterCategoryPlayersLocal();
+    }
+    window.refreshCategoryPlayers = refreshCategoryPlayers;
+
+    // الفلترة هنا محلية بالكامل (بدون أي اتصال بالشبكة) — هذا ما يجعل الكتابة بالبحث سلسة وسريعة
+    window.filterCategoryPlayersLocal = function() {
         const term = document.getElementById('catPlayerSearch')?.value.trim().toLowerCase() || '';
-        const filtered = players.filter(p => p.category === currentCategoryKey && (!term || `${p.firstName||''} ${p.lastName||''}`.toLowerCase().includes(term)));
+        const filtered = (window._categoryPlayersCache || []).filter(p => !term || `${p.firstName||''} ${p.lastName||''}`.toLowerCase().includes(term));
+        renderCatPlayersRows(filtered);
+    };
+
+    function birthYearOf(p) {
+        if (p.birthDate) { const y = p.birthDate.split('-')[0]; return y || '—'; }
+        return '—';
+    }
+
+    function renderCatPlayersRows(filtered) {
         const tbody = document.getElementById('catPlayersTbody');
         if (!tbody) return;
         if (!filtered.length) {
-            tbody.innerHTML = `<tr><td colspan="6" style="padding:20px; color:var(--text-muted);">لا يوجد لاعبون في هذه الفئة بعد</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="5" style="padding:20px; color:var(--text-muted);">لا يوجد لاعبون في هذه الفئة بعد</td></tr>`;
             return;
         }
-        tbody.innerHTML = filtered.map((p, idx) => `
+        tbody.innerHTML = filtered.map(p => `
             <tr>
-                <td>${idx+1}</td>
-                <td style="font-weight:700;">${p.firstName || ''}</td>
-                <td>${p.lastName || ''}</td>
+                <td style="font-weight:700;">
+                    <div style="display:flex; align-items:center; gap:10px; justify-content:center;">
+                        <span class="player-avatar-mini">${(p.firstName||'؟').charAt(0)}</span>
+                        ${p.firstName || ''} ${p.lastName || ''}
+                    </div>
+                </td>
                 <td>${p.phone || '—'}</td>
-                <td>${p.location || '—'}</td>
+                <td>${birthYearOf(p)}</td>
+                <td><button class="btn-file-record" onclick='openPlayerRecord("${p._key}")'><i class="fas fa-folder-open"></i> ملف اللاعب</button></td>
                 <td>
-                    <button class="btn-sm btn-sm-warning" onclick='openPlayerRecord("${p._key}")'><i class="fas fa-id-card"></i> سجل اللاعب</button>
                     <button class="btn-sm btn-sm-primary" onclick='openPlayerModal(${JSON.stringify(p).replace(/'/g,"&apos;")}, "${currentCategoryKey}")'><i class="fas fa-edit"></i></button>
                     <button class="btn-sm btn-sm-danger" onclick="deletePlayer('${p._key}')"><i class="fas fa-times"></i></button>
                 </td>
             </tr>
         `).join('');
     }
-    window.renderCategoryPlayersTable = renderCategoryPlayersTable;
 
     function openPlayerModal(player, presetCategory) {
         const isEdit = !!player;
@@ -567,6 +598,8 @@
                 <div class="form-group"><label>الفئة</label>
                     <select id="pmCategory">${categories.map(c => `<option value="${c.key}" ${((player?.category)||presetCategory)===c.key?'selected':''}>${c.label}</option>`).join('')}</select>
                 </div>
+                <div class="form-group"><label>تاريخ الميلاد</label><input type="date" id="pmBirthDate" value="${player?.birthDate || ''}"></div>
+                <div class="form-group"><label>رقم القميص</label><input type="number" id="pmJersey" value="${player?.jerseyNumber || ''}"></div>
                 <div class="form-group full"><label>المكان</label><input type="text" id="pmLocation" value="${player?.location || ''}"></div>
                 ${isEdit ? `<div class="form-group full"><label>كود ولي الأمر</label><input type="text" value="${player.parentCode || ''}" disabled style="background:#f1f5f9;"></div>` : ''}
             </div>
@@ -585,16 +618,18 @@
         const phone = document.getElementById('pmPhone').value.trim();
         const category = document.getElementById('pmCategory').value;
         const location = document.getElementById('pmLocation').value.trim();
+        const birthDate = document.getElementById('pmBirthDate').value;
+        const jerseyNumber = document.getElementById('pmJersey').value;
         if (!firstName || !lastName) { alert('❌ الرجاء إدخال الاسم واللقب'); return; }
         if (key) {
-            await fbUpdate(`academyData/players/${key}`, { firstName, lastName, phone, category, location });
+            await fbUpdate(`academyData/players/${key}`, { firstName, lastName, phone, category, location, birthDate, jerseyNumber });
         } else {
             const id = Date.now();
             const parentCode = generateParentCode(firstName, lastName);
-            await fbPush('academyData/players', { id, firstName, lastName, phone, category, location, parentCode });
+            await fbPush('academyData/players', { id, firstName, lastName, phone, category, location, birthDate, jerseyNumber, parentCode });
         }
         closeResourceModal();
-        if (currentCategoryKey) renderCategoryPlayersTable();
+        if (currentCategoryKey) refreshCategoryPlayers();
         else showDashPlayers();
     }
     window.savePlayerModal = savePlayerModal;
@@ -602,7 +637,7 @@
     async function deletePlayer(key) {
         if (!confirm('هل أنت متأكد من حذف هذا اللاعب نهائياً؟')) return;
         await fbDelete(`academyData/players/${key}`);
-        renderCategoryPlayersTable();
+        refreshCategoryPlayers();
     }
     window.deletePlayer = deletePlayer;
 
@@ -646,44 +681,67 @@
 
     function renderRecordInfo(p) {
         document.getElementById('recordTab-info').innerHTML = `
-            <div class="form-grid">
-                <div class="form-group"><label>الاسم الكامل</label><input value="${p.firstName} ${p.lastName}" disabled style="background:#f1f5f9;"></div>
-                <div class="form-group"><label>الفئة</label><input value="${categories.find(c=>c.key===p.category)?.label || p.category || '—'}" disabled style="background:#f1f5f9;"></div>
-                <div class="form-group"><label>الهاتف</label><input value="${p.phone || '—'}" disabled style="background:#f1f5f9;"></div>
-                <div class="form-group"><label>المكان</label><input value="${p.location || '—'}" disabled style="background:#f1f5f9;"></div>
-                <div class="form-group full"><label>كود ولي الأمر</label><input value="${p.parentCode || '—'}" disabled style="background:#f1f5f9; color:var(--accent-red); font-weight:700;"></div>
+            <div class="info-card-grid">
+                <div class="info-card-item"><i class="fas fa-id-badge"></i><div><div class="ic-label">الاسم الكامل</div><div class="ic-value">${p.firstName||''} ${p.lastName||''}</div></div></div>
+                <div class="info-card-item"><i class="fas fa-layer-group"></i><div><div class="ic-label">الفئة</div><div class="ic-value">${categories.find(c=>c.key===p.category)?.label || p.category || '—'}</div></div></div>
+                <div class="info-card-item"><i class="fas fa-phone"></i><div><div class="ic-label">الهاتف</div><div class="ic-value">${p.phone || '—'}</div></div></div>
+                <div class="info-card-item"><i class="fas fa-map-marker-alt"></i><div><div class="ic-label">المكان</div><div class="ic-value">${p.location || '—'}</div></div></div>
+                <div class="info-card-item"><i class="fas fa-birthday-cake"></i><div><div class="ic-label">تاريخ الميلاد</div><div class="ic-value">${p.birthDate || '—'}</div></div></div>
+                <div class="info-card-item"><i class="fas fa-tshirt"></i><div><div class="ic-label">رقم القميص</div><div class="ic-value">${p.jerseyNumber || '—'}</div></div></div>
+                <div class="info-card-item full"><i class="fas fa-key"></i><div><div class="ic-label">كود ولي الأمر</div><div class="ic-value" style="color:var(--accent-red);">${p.parentCode || '—'}</div></div></div>
             </div>
+            <button class="btn-sm btn-sm-primary" style="margin-top:16px;" onclick='editFromRecord(${JSON.stringify(p).replace(/'/g,"&apos;")})'><i class="fas fa-edit"></i> تعديل بيانات اللاعب</button>
         `;
     }
+
+    window.editFromRecord = function(p) {
+        closePlayerRecordModal();
+        openPlayerModal(p, p.category);
+    };
 
     async function renderRecordAttendance(p) {
-        const records = await loadKeyedList('academyData/attendance');
-        const mine = records.filter(r => r.playerId === p.id).sort((a,b) => new Date(b.date) - new Date(a.date));
-        const presentCount = mine.filter(r => r.status === 'present').length;
-        const absentCount = mine.filter(r => r.status === 'absent').length;
-        let html = `
-            <p style="margin-bottom:12px; color:var(--text-muted);">حاضر: <strong style="color:var(--color-success);">${presentCount}</strong> | غائب: <strong style="color:var(--color-danger);">${absentCount}</strong></p>
-            <div style="display:flex; gap:8px; margin-bottom:14px; flex-wrap:wrap; align-items:center;">
-                <input type="date" id="quickAttDate" style="padding:8px 12px; border-radius:10px; border:1.5px solid var(--border-card);">
-                <button class="btn-sm btn-sm-success" onclick="setPlayerAttendance('present')">تسجيل حاضر</button>
-                <button class="btn-sm btn-sm-danger" onclick="setPlayerAttendance('absent')">تسجيل غائب</button>
-            </div>
-            <table><thead><tr><th>التاريخ</th><th>الحالة</th></tr></thead><tbody>
-        `;
-        if (!mine.length) html += `<tr><td colspan="2" style="padding:12px; color:var(--text-muted);">لا يوجد سجل حضور بعد</td></tr>`;
-        mine.forEach(r => { html += `<tr><td>${r.date}</td><td>${r.status === 'present' ? '✔ حاضر' : '✕ غائب'}</td></tr>`; });
-        html += `</tbody></table>`;
+        const [sessions, attRecords] = await Promise.all([
+            loadKeyedList('academyData/trainingSessions'),
+            loadKeyedList('academyData/attendance')
+        ]);
+        const catSessions = sessions.filter(s => s.category === p.category && (s.status === 'finished' || s.status === 'ongoing'))
+                                     .sort((a,b) => (b.date||'').localeCompare(a.date||''));
+        window._attRecordsCache = attRecords;
+
+        let presentCount = 0, absentCount = 0;
+        catSessions.forEach(s => {
+            const r = attRecords.find(a => a.playerId === p.id && a.sessionId === s._key);
+            if (r?.status === 'present') presentCount++;
+            if (r?.status === 'absent') absentCount++;
+        });
+
+        let html = `<p style="margin-bottom:12px; color:var(--text-muted);">حاضر: <strong style="color:var(--color-success);">${presentCount}</strong> | غائب: <strong style="color:var(--color-danger);">${absentCount}</strong></p>`;
+        if (!catSessions.length) {
+            html += `<p style="color:var(--text-muted); padding:14px 0;">لا توجد حصص منتهية أو جارية مسجّلة لفئة هذا اللاعب بعد.</p>`;
+        } else {
+            html += `<div class="attendance-list">`;
+            catSessions.forEach(s => {
+                const r = attRecords.find(a => a.playerId === p.id && a.sessionId === s._key);
+                const status = r?.status || null;
+                html += `
+                    <div class="attendance-row">
+                        <div><span class="p-name">${s.title || 'حصة تدريبية'}</span> <span class="p-cat">${s.date||''}</span></div>
+                        <div class="att-toggle">
+                            <button class="present-btn ${status==='present'?'selected':''}" onclick="setSessionAttendance('${s._key}','present')">حاضر</button>
+                            <button class="absent-btn ${status==='absent'?'selected':''}" onclick="setSessionAttendance('${s._key}','absent')">غائب</button>
+                        </div>
+                    </div>`;
+            });
+            html += `</div>`;
+        }
         document.getElementById('recordTab-attendance').innerHTML = html;
-        const dateInput = document.getElementById('quickAttDate');
-        if (dateInput) dateInput.value = new Date().toISOString().split('T')[0];
     }
 
-    window.setPlayerAttendance = async function(status) {
-        const date = document.getElementById('quickAttDate').value || new Date().toISOString().split('T')[0];
-        const records = await loadKeyedList('academyData/attendance');
-        const existing = records.find(r => r.playerId === currentProfilePlayer.id && r.date === date);
+    window.setSessionAttendance = async function(sessionId, status) {
+        const records = window._attRecordsCache || await loadKeyedList('academyData/attendance');
+        const existing = records.find(r => r.playerId === currentProfilePlayer.id && r.sessionId === sessionId);
         if (existing) await fbUpdate(`academyData/attendance/${existing._key}`, { status });
-        else await fbPush('academyData/attendance', { playerId: currentProfilePlayer.id, date, status });
+        else await fbPush('academyData/attendance', { playerId: currentProfilePlayer.id, sessionId, status });
         renderRecordAttendance(currentProfilePlayer);
     };
 
