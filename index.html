@@ -700,7 +700,8 @@
     }
 
     // ================================================================
-    // 5. تطبيق إعدادات الموقع (siteSettings) على الصفحة    // ================================================================
+    // 5. تطبيق إعدادات الموقع (siteSettings) على الصفحة
+    // ================================================================
     function applySiteSettings() {
         const s = appData.siteSettings;
         document.getElementById('heroTitle').innerHTML = s.heroTitle;
@@ -828,12 +829,6 @@
             </a>`;
         });
         container.innerHTML = html;
-    }
-
-    function normalizeKeyedArray(val) {
-        if (!val) return [];
-        if (Array.isArray(val)) return val;
-        return Object.values(val);
     }
 
     async function loadAndRenderCategoryFolders() {
