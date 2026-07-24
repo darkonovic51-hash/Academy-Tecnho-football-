@@ -475,6 +475,11 @@
     window.deleteResourceItem = deleteResourceItem;
     window.openResourceModal = openResourceModal;
 
+    window.openResourceModalByKey = function(resKey, key) {
+        const item = (resourceCache[resKey] || []).find(it => it._key === key);
+        openResourceModal(resKey, item);
+    };
+
     async function renderGenericResourcePage(resKey) {
         const cfg = RESOURCES[resKey];
         setActiveNav(resKey);
@@ -494,7 +499,7 @@
                                 <td>${idx+1}</td>
                                 ${displayFields.map(f => `<td>${f.type==='dynamicSelect' ? (categories.find(c=>c.key===it[f.key])?.label || it[f.key] || '—') : (it[f.key] || '—')}</td>`).join('')}
                                 <td>
-                                    <button class="btn-sm btn-sm-warning" onclick='openResourceModal("${resKey}", ${JSON.stringify(it).replace(/'/g,"&apos;")})'><i class="fas fa-edit"></i></button>
+                                    <button class="btn-sm btn-sm-warning" onclick="openResourceModalByKey('${resKey}','${it._key}')"><i class="fas fa-edit"></i></button>
                                     <button class="btn-sm btn-sm-danger" onclick="deleteResourceItem('${resKey}','${it._key}')"><i class="fas fa-times"></i></button>
                                 </td>
                             </tr>
@@ -602,7 +607,7 @@
                 <td>${birthYearOf(p)}</td>
                 <td><button class="btn-file-record" onclick='openPlayerRecord("${p._key}")'><i class="fas fa-folder-open"></i> ملف اللاعب</button></td>
                 <td>
-                    <button class="btn-sm btn-sm-primary" onclick='openPlayerModal(${JSON.stringify(p).replace(/'/g,"&apos;")}, "${currentCategoryKey}")'><i class="fas fa-edit"></i></button>
+                    <button class="btn-sm btn-sm-primary" onclick="openPlayerModalByKey('${p._key}')"><i class="fas fa-edit"></i></button>
                     <button class="btn-sm btn-sm-danger" onclick="deletePlayer('${p._key}')"><i class="fas fa-times"></i></button>
                 </td>
             </tr>
@@ -634,6 +639,11 @@
         document.getElementById('resourceModal').classList.add('active');
     }
     window.openPlayerModal = openPlayerModal;
+
+    window.openPlayerModalByKey = function(key) {
+        const p = (window._categoryPlayersCache || []).find(pl => pl._key === key);
+        openPlayerModal(p, currentCategoryKey);
+    };
 
     async function savePlayerModal(key) {
         const firstName = document.getElementById('pmFirstName').value.trim();
@@ -1009,6 +1019,34 @@
     }
     window.renderSessionsTable = renderSessionsTable;
 
+    function openSessionModal(session) {
+        const isEdit = !!session;
+        const coachOptions = (window._coachesCache || []).map(c => `<option value="${c.name}" ${session?.coachName===c.name?'selected':''}>${c.name}</option>`).join('');
+        const modalBox = document.getElementById('resourceModalBox');
+        modalBox.innerHTML = `
+            <h3>${isEdit ? 'تعديل حصة' : 'إضافة حصة تدريبية'}</h3>
+            <div class="form-grid">
+                <div class="form-group"><label>الفئة</label><select id="smCategory">${categories.map(c => `<option value="${c.key}" ${session?.category===c.key?'selected':''}>${c.label}</option>`).join('')}</select></div>
+                <div class="form-group"><label>عنوان الحصة</label><input type="text" id="smTitle" value="${session?.title || ''}"></div>
+                <div class="form-group"><label>التاريخ</label><input type="date" id="smDate" value="${session?.date || ''}"></div>
+                <div class="form-group"><label>الملعب</label><input type="text" id="smField" value="${session?.field || ''}"></div>
+                <div class="form-group"><label>وقت البداية</label><input type="time" id="smStart" value="${session?.startTime || ''}"></div>
+                <div class="form-group"><label>وقت النهاية</label><input type="time" id="smEnd" value="${session?.endTime || ''}"></div>
+                <div class="form-group"><label>المدرب</label><select id="smCoach"><option value="">— اختر —</option>${coachOptions}</select></div>
+                <div class="form-group"><label>نوع الحصة</label><select id="smType">${SESSION_TYPES.map(t => `<option value="${t}" ${session?.sessionType===t?'selected':''}>${t}</option>`).join('')}</select></div>
+                <div class="form-group full"><label>الحالة</label><select id="smStatus">${SESSION_STATUSES.map(s => `<option value="${s.key}" ${session?.status===s.key?'selected':''}>${s.label}</option>`).join('')}</select></div>
+                <div class="form-group full"><label>أهداف الحصة</label><textarea id="smGoals">${session?.goals || ''}</textarea></div>
+                <div class="form-group full"><label>ملاحظات المدرب (اختياري)</label><textarea id="smNotes">${session?.notes || ''}</textarea></div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-sm" style="background:#e2e8f0;" onclick="closeResourceModal()">إلغاء</button>
+                <button class="btn-sm btn-sm-primary" onclick='saveSessionModal(${isEdit ? `"${session._key}"` : 'null'})'><i class="fas fa-save"></i> حفظ</button>
+            </div>
+        `;
+        document.getElementById('resourceModal').classList.add('active');
+    }
+    window.openSessionModal = openSessionModal;
+
     async function isAttendanceCompleteForSession(sessionKey, category) {
         const [players, attendance] = await Promise.all([
             loadKeyedList('academyData/players'),
@@ -1163,7 +1201,7 @@
                 <td>${entityStatusBadge(MATCH_STATUSES, m.status || 'upcoming')}</td>
                 <td>${(m.homeScore ?? '-')} - ${(m.awayScore ?? '-')}</td>
                 <td>
-                    <button class="btn-sm btn-sm-warning" onclick='openMatchModal(${JSON.stringify(m).replace(/'/g,"&apos;")})'><i class="fas fa-edit"></i></button>
+                    <button class="btn-sm btn-sm-warning" onclick="openMatchModalByKey('${m._key}')"><i class="fas fa-edit"></i></button>
                     <button class="btn-sm btn-sm-info" onclick="openMatchDetail('${m._key}')"><i class="fas fa-list"></i> التفاصيل</button>
                     <button class="btn-sm btn-sm-danger" onclick="deleteMatch('${m._key}')"><i class="fas fa-times"></i></button>
                 </td>
@@ -1203,6 +1241,11 @@
         document.getElementById('resourceModal').classList.add('active');
     }
     window.openMatchModal = openMatchModal;
+
+    window.openMatchModalByKey = function(key) {
+        const m = (window._matchesCache || []).find(x => x._key === key);
+        openMatchModal(m);
+    };
 
     window.handleMatchLogoChange = async function(inputEl) {
         const file = inputEl.files[0];
@@ -1433,7 +1476,7 @@
                 <td>${t.dateStart || '—'} إلى ${t.dateEnd || '—'}</td>
                 <td>${t.teamsCount || '—'}</td>
                 <td>
-                    <button class="btn-sm btn-sm-warning" onclick='openTournamentModal(${JSON.stringify(t).replace(/'/g,"&apos;")})'><i class="fas fa-edit"></i></button>
+                    <button class="btn-sm btn-sm-warning" onclick="openTournamentModalByKey('${t._key}')"><i class="fas fa-edit"></i></button>
                     <button class="btn-sm btn-sm-info" onclick="openTournamentDetail('${t._key}')"><i class="fas fa-users"></i> الاستدعاء</button>
                     <button class="btn-sm btn-sm-danger" onclick="deleteTournament('${t._key}')"><i class="fas fa-times"></i></button>
                 </td>
@@ -1469,6 +1512,11 @@
         document.getElementById('resourceModal').classList.add('active');
     }
     window.openTournamentModal = openTournamentModal;
+
+    window.openTournamentModalByKey = function(key) {
+        const t = (window._tournamentsCache || []).find(x => x._key === key);
+        openTournamentModal(t);
+    };
 
     window.handleTournLogoChange = async function(inputEl) {
         const file = inputEl.files[0];
