@@ -139,6 +139,26 @@
     .pay-date { font-size:0.68rem; color:var(--text-muted); margin-top:6px; }
     .pay-date i { color:var(--color-success); margin-left:3px; }
 
+    /* ===== أقسام ملف اللاعب (بدون تبويبات) ===== */
+    .record-section { background:#fff; border-radius:14px; padding:18px 20px; margin-bottom:16px; border:1px solid var(--border-card); }
+    .record-section-title { display:flex; align-items:center; gap:8px; font-weight:800; color:var(--primary-blue-dark); margin-bottom:14px; font-size:1rem; border-bottom:2px solid var(--accent-red); padding-bottom:8px; }
+    .record-section-title i { color:var(--accent-red); }
+    .attendance-percent-badge { display:inline-block; background:rgba(255,255,255,0.15); padding:4px 14px; border-radius:20px; font-size:0.78rem; font-weight:700; margin-top:6px; }
+
+    .stat-mini-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(100px,1fr)); gap:10px; }
+    .stat-mini-box { background:linear-gradient(135deg,#F1F5F9,#E8EDF5); border-radius:12px; padding:12px; text-align:center; border-top:3px solid var(--primary-blue); }
+    .stat-mini-box .sm-num { font-size:1.4rem; font-weight:900; color:var(--primary-blue-dark); }
+    .stat-mini-box .sm-label { font-size:0.72rem; color:var(--text-muted); margin-top:4px; }
+
+    .pay-summary-row { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:16px; }
+    .pay-summary-box { text-align:center; border-radius:12px; padding:12px; font-size:0.8rem; color:var(--text-muted); }
+    .pay-summary-box.total { background:#EEF3FF; }
+    .pay-summary-box.unpaid { background:#FFF1F2; }
+    .pay-summary-box.paid { background:#EFFDF4; }
+    .pay-summary-box .ps-num { font-size:1.5rem; font-weight:900; display:block; margin-bottom:2px; }
+
+    .medical-record-item { background:#F8FAFC; border-right:3px solid var(--accent-red); border-radius:10px; padding:10px 14px; margin-bottom:8px; }
+
     /* ===== وضوح الكتابة (نمط القنوات الرياضية الكبرى) ===== */
     .form-group label { font-weight:800; letter-spacing:0.2px; border-right:3px solid var(--accent-red); padding-right:8px; font-size:0.86rem; }
     .table-wrap th { letter-spacing:0.5px; font-size:0.82rem; font-weight:800; }
@@ -513,11 +533,6 @@
     // ================================================================
     // اللاعبون كملفات فئات (Category Folders) + سجل اللاعب
     // ================================================================
-    function generateParentCode(firstName, lastName) {
-        const randomPart = Math.floor(1000 + Math.random() * 9000);
-        return `${firstName || ''}${lastName || ''}`.replace(/\s+/g, '') + randomPart;
-    }
-
     const arabicMonths = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
 
     async function showDashPlayers() {
@@ -622,14 +637,20 @@
             <div class="form-grid">
                 <div class="form-group"><label>الاسم الشخصي</label><input type="text" id="pmFirstName" value="${player?.firstName || ''}"></div>
                 <div class="form-group"><label>اللقب العائلي</label><input type="text" id="pmLastName" value="${player?.lastName || ''}"></div>
-                <div class="form-group"><label>الهاتف</label><input type="text" id="pmPhone" value="${player?.phone || ''}"></div>
+                <div class="form-group"><label>هاتف الولي</label><input type="text" id="pmPhone" value="${player?.phone || ''}"></div>
                 <div class="form-group"><label>الفئة</label>
                     <select id="pmCategory">${categories.map(c => `<option value="${c.key}" ${((player?.category)||presetCategory)===c.key?'selected':''}>${c.label}</option>`).join('')}</select>
                 </div>
                 <div class="form-group"><label>تاريخ الميلاد</label><input type="date" id="pmBirthDate" value="${player?.birthDate || ''}"></div>
+                <div class="form-group"><label>مكان الميلاد</label><input type="text" id="pmBirthPlace" value="${player?.birthPlace || ''}"></div>
                 <div class="form-group"><label>رقم القميص</label><input type="number" id="pmJersey" value="${player?.jerseyNumber || ''}"></div>
-                <div class="form-group full"><label>المكان</label><input type="text" id="pmLocation" value="${player?.location || ''}"></div>
-                ${isEdit ? `<div class="form-group full"><label>كود ولي الأمر</label><input type="text" value="${player.parentCode || ''}" disabled style="background:#f1f5f9;"></div>` : ''}
+                <div class="form-group"><label>المركز</label><input type="text" id="pmPosition" value="${player?.position || ''}" placeholder="مهاجم / مدافع / حارس..."></div>
+                <div class="form-group"><label>الزمرة الدموية</label><input type="text" id="pmBloodType" value="${player?.bloodType || ''}" placeholder="O+ / A- ..."></div>
+                <div class="form-group"><label>الحالة الصحية</label><input type="text" id="pmHealthStatus" value="${player?.healthStatus || ''}" placeholder="سليم / جيدة..."></div>
+                <div class="form-group"><label>المستوى الدراسي</label><input type="text" id="pmEducation" value="${player?.educationLevel || ''}"></div>
+                <div class="form-group"><label>المكان</label><input type="text" id="pmLocation" value="${player?.location || ''}"></div>
+                <div class="form-group"><label>التقييم (0-100)</label><input type="number" min="0" max="100" id="pmRating" value="${player?.rating || ''}"></div>
+                <div class="form-group full"><label>نسبة الجاهزية %</label><input type="number" min="0" max="100" id="pmReadiness" value="${player?.readinessPercent || ''}"></div>
             </div>
             <div class="modal-actions">
                 <button class="btn-sm" style="background:#e2e8f0;" onclick="closeResourceModal()">إلغاء</button>
@@ -653,13 +674,20 @@
         const location = document.getElementById('pmLocation').value.trim();
         const birthDate = document.getElementById('pmBirthDate').value;
         const jerseyNumber = document.getElementById('pmJersey').value;
+        const birthPlace = document.getElementById('pmBirthPlace').value.trim();
+        const position = document.getElementById('pmPosition').value.trim();
+        const bloodType = document.getElementById('pmBloodType').value.trim();
+        const healthStatus = document.getElementById('pmHealthStatus').value.trim();
+        const educationLevel = document.getElementById('pmEducation').value.trim();
+        const rating = document.getElementById('pmRating').value;
+        const readinessPercent = document.getElementById('pmReadiness').value;
         if (!firstName || !lastName) { alert('❌ الرجاء إدخال الاسم واللقب'); return; }
+        const extra = { birthPlace, position, bloodType, healthStatus, educationLevel, rating, readinessPercent };
         if (key) {
-            await fbUpdate(`academyData/players/${key}`, { firstName, lastName, phone, category, location, birthDate, jerseyNumber });
+            await fbUpdate(`academyData/players/${key}`, { firstName, lastName, phone, category, location, birthDate, jerseyNumber, ...extra });
         } else {
             const id = Date.now();
-            const parentCode = generateParentCode(firstName, lastName);
-            await fbPush('academyData/players', { id, firstName, lastName, phone, category, location, birthDate, jerseyNumber, parentCode });
+            await fbPush('academyData/players', { id, firstName, lastName, phone, category, location, birthDate, jerseyNumber, ...extra });
         }
         closeResourceModal();
         if (currentCategoryKey) refreshCategoryPlayers();
@@ -674,14 +702,29 @@
     }
     window.deletePlayer = deletePlayer;
 
-    // ===== سجل اللاعب (بيانات + حضور + دفعات) =====
+    // ===== سجل اللاعب (عرض شامل بدون تبويبات، بهوية الأكاديمية) =====
     let currentProfilePlayer = null;
+
+    async function computeAttendancePercent(p) {
+        const [sessions, attRecords] = await Promise.all([
+            loadKeyedList('academyData/trainingSessions'),
+            loadKeyedList('academyData/attendance')
+        ]);
+        const catSessions = sessions.filter(s => s.category === p.category && (s.status === 'finished' || s.status === 'ongoing'));
+        let present = 0, total = 0;
+        catSessions.forEach(s => {
+            const r = attRecords.find(a => a.playerId === p.id && a.sessionId === s._key);
+            if (r) { total++; if (r.status === 'present') present++; }
+        });
+        return total ? Math.round((present/total)*100) : 0;
+    }
 
     async function openPlayerRecord(key) {
         const players = window._playersCache || await loadKeyedList('academyData/players');
         const p = players.find(pl => pl._key === key);
         if (!p) return;
         currentProfilePlayer = p;
+        const attPercent = await computeAttendancePercent(p);
         const modalBox = document.getElementById('playerRecordModalBox');
         modalBox.innerHTML = `
             <div class="record-header">
@@ -689,21 +732,21 @@
                 <div>
                     <h3>${p.firstName||''} ${p.lastName||''}</h3>
                     <div class="record-sub">${categories.find(c=>c.key===p.category)?.label || p.category || ''} ${p.jerseyNumber ? '· رقم القميص #' + p.jerseyNumber : ''}</div>
+                    <div class="attendance-percent-badge"><i class="fas fa-chart-line"></i> نسبة الحضور: ${attPercent}%</div>
                 </div>
             </div>
-            <div class="profile-tabs">
-                <button class="profile-tab-btn active" data-tab="info" onclick="switchRecordTab('info')"><i class="fas fa-id-card"></i> البيانات</button>
-                <button class="profile-tab-btn" data-tab="attendance" onclick="switchRecordTab('attendance')"><i class="fas fa-clipboard-check"></i> سجل الحضور</button>
-                <button class="profile-tab-btn" data-tab="payments" onclick="switchRecordTab('payments')"><i class="fas fa-money-bill-wave"></i> سجل الدفعات</button>
-            </div>
-            <div class="profile-tab-content active" id="recordTab-info"></div>
-            <div class="profile-tab-content" id="recordTab-attendance"></div>
-            <div class="profile-tab-content" id="recordTab-payments"></div>
+            <div id="recordTab-info"></div>
+            <div id="recordTab-stats"></div>
+            <div id="recordTab-payments"></div>
+            <div id="recordTab-attendance"></div>
+            <div id="recordTab-medical"></div>
             <div class="modal-actions"><button class="btn-sm" style="background:#e2e8f0;" onclick="closePlayerRecordModal()">إغلاق</button></div>
         `;
         renderRecordInfo(p);
-        await renderRecordAttendance(p);
+        renderRecordStats(p);
         await renderRecordPayments(p);
+        await renderRecordAttendance(p);
+        renderRecordMedical(p);
         document.getElementById('playerRecordModal').classList.add('active');
     }
     window.openPlayerRecord = openPlayerRecord;
@@ -712,30 +755,86 @@
         document.getElementById('playerRecordModal').classList.remove('active');
     };
 
-    window.switchRecordTab = function(tab) {
-        document.querySelectorAll('.profile-tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
-        document.querySelectorAll('.profile-tab-content').forEach(c => c.classList.remove('active'));
-        document.getElementById('recordTab-' + tab).classList.add('active');
-    };
-
     function renderRecordInfo(p) {
         document.getElementById('recordTab-info').innerHTML = `
-            <div class="info-card-grid">
-                <div class="info-card-item"><i class="fas fa-id-badge"></i><div><div class="ic-label">الاسم الكامل</div><div class="ic-value">${p.firstName||''} ${p.lastName||''}</div></div></div>
-                <div class="info-card-item"><i class="fas fa-layer-group"></i><div><div class="ic-label">الفئة</div><div class="ic-value">${categories.find(c=>c.key===p.category)?.label || p.category || '—'}</div></div></div>
-                <div class="info-card-item"><i class="fas fa-phone"></i><div><div class="ic-label">الهاتف</div><div class="ic-value">${p.phone || '—'}</div></div></div>
-                <div class="info-card-item"><i class="fas fa-map-marker-alt"></i><div><div class="ic-label">المكان</div><div class="ic-value">${p.location || '—'}</div></div></div>
-                <div class="info-card-item"><i class="fas fa-birthday-cake"></i><div><div class="ic-label">تاريخ الميلاد</div><div class="ic-value">${p.birthDate || '—'}</div></div></div>
-                <div class="info-card-item"><i class="fas fa-tshirt"></i><div><div class="ic-label">رقم القميص</div><div class="ic-value">${p.jerseyNumber || '—'}</div></div></div>
-                <div class="info-card-item full"><i class="fas fa-key"></i><div><div class="ic-label">كود ولي الأمر</div><div class="ic-value" style="color:var(--accent-red);">${p.parentCode || '—'}</div></div></div>
+            <div class="record-section">
+                <div class="record-section-title"><i class="fas fa-id-card"></i> المعلومات الأساسية</div>
+                <div class="info-card-grid">
+                    <div class="info-card-item"><i class="fas fa-layer-group"></i><div><div class="ic-label">الفئة</div><div class="ic-value">${categories.find(c=>c.key===p.category)?.label || p.category || '—'}</div></div></div>
+                    <div class="info-card-item"><i class="fas fa-birthday-cake"></i><div><div class="ic-label">تاريخ الميلاد</div><div class="ic-value">${p.birthDate || '—'}</div></div></div>
+                    <div class="info-card-item"><i class="fas fa-map-pin"></i><div><div class="ic-label">مكان الميلاد</div><div class="ic-value">${p.birthPlace || '—'}</div></div></div>
+                    <div class="info-card-item"><i class="fas fa-tint"></i><div><div class="ic-label">الزمرة الدموية</div><div class="ic-value">${p.bloodType || '—'}</div></div></div>
+                    <div class="info-card-item"><i class="fas fa-notes-medical"></i><div><div class="ic-label">الحالة الصحية</div><div class="ic-value">${p.healthStatus || '—'}</div></div></div>
+                    <div class="info-card-item"><i class="fas fa-graduation-cap"></i><div><div class="ic-label">المستوى الدراسي</div><div class="ic-value">${p.educationLevel || '—'}</div></div></div>
+                    <div class="info-card-item"><i class="fas fa-phone"></i><div><div class="ic-label">هاتف الولي</div><div class="ic-value">${p.phone || '—'}</div></div></div>
+                    <div class="info-card-item"><i class="fas fa-map-marker-alt"></i><div><div class="ic-label">المكان</div><div class="ic-value">${p.location || '—'}</div></div></div>
+                    <div class="info-card-item"><i class="fas fa-running"></i><div><div class="ic-label">المركز</div><div class="ic-value">${p.position || '—'}</div></div></div>
+                    <div class="info-card-item"><i class="fas fa-tshirt"></i><div><div class="ic-label">رقم القميص</div><div class="ic-value">${p.jerseyNumber || '—'}</div></div></div>
+                    <div class="info-card-item"><i class="fas fa-star"></i><div><div class="ic-label">التقييم</div><div class="ic-value">${p.rating || '—'}</div></div></div>
+                    <div class="info-card-item"><i class="fas fa-bolt"></i><div><div class="ic-label">نسبة الجاهزية</div><div class="ic-value">${p.readinessPercent ? p.readinessPercent + '%' : '—'}</div></div></div>
+                </div>
+                <button class="btn-sm btn-sm-primary" style="margin-top:16px;" onclick='editFromRecord(${JSON.stringify(p).replace(/'/g,"&apos;")})'><i class="fas fa-edit"></i> تعديل المعلومات</button>
             </div>
-            <button class="btn-sm btn-sm-primary" style="margin-top:16px;" onclick='editFromRecord(${JSON.stringify(p).replace(/'/g,"&apos;")})'><i class="fas fa-edit"></i> تعديل بيانات اللاعب</button>
         `;
     }
 
     window.editFromRecord = function(p) {
         closePlayerRecordModal();
         openPlayerModal(p, p.category);
+    };
+
+    const PLAYER_STAT_FIELDS = [
+        { key:'redCards', label:'بطاقات حمراء', icon:'fa-square' },
+        { key:'yellowCards', label:'بطاقات صفراء', icon:'fa-square' },
+        { key:'assists', label:'تمريرات حاسمة', icon:'fa-shoe-prints' },
+        { key:'goals', label:'الأهداف', icon:'fa-futbol' },
+        { key:'penalties', label:'عقوبات', icon:'fa-exclamation-triangle' },
+        { key:'injuries', label:'إصابات', icon:'fa-band-aid' },
+        { key:'startingMatches', label:'مباريات أساسي', icon:'fa-play-circle' },
+        { key:'manOfMatch', label:'رجل المباراة', icon:'fa-trophy' }
+    ];
+
+    function renderRecordStats(p) {
+        const stats = p.stats || {};
+        document.getElementById('recordTab-stats').innerHTML = `
+            <div class="record-section">
+                <div class="record-section-title"><i class="fas fa-chart-bar"></i> إحصائيات اللاعب</div>
+                <div class="stat-mini-grid">
+                    ${PLAYER_STAT_FIELDS.map(f => `
+                        <div class="stat-mini-box"><div class="sm-num">${stats[f.key] || 0}</div><div class="sm-label"><i class="fas ${f.icon}"></i> ${f.label}</div></div>
+                    `).join('')}
+                </div>
+                <button class="btn-sm btn-sm-primary" style="margin-top:14px;" onclick="openPlayerStatsModal()"><i class="fas fa-edit"></i> تعديل الإحصائيات</button>
+            </div>
+        `;
+    }
+
+    window.openPlayerStatsModal = function() {
+        const p = currentProfilePlayer;
+        const stats = p.stats || {};
+        const modalBox = document.getElementById('resourceModalBox');
+        modalBox.innerHTML = `
+            <h3>إحصائيات ${p.firstName||''} ${p.lastName||''}</h3>
+            <div class="form-grid">
+                ${PLAYER_STAT_FIELDS.map(f => `
+                    <div class="form-group"><label>${f.label}</label><input type="number" min="0" id="stat_${f.key}" value="${stats[f.key] || 0}"></div>
+                `).join('')}
+            </div>
+            <div class="modal-actions">
+                <button class="btn-sm" style="background:#e2e8f0;" onclick="closeResourceModal()">إلغاء</button>
+                <button class="btn-sm btn-sm-primary" onclick="savePlayerStats()"><i class="fas fa-save"></i> حفظ</button>
+            </div>
+        `;
+        document.getElementById('resourceModal').classList.add('active');
+    };
+
+    window.savePlayerStats = async function() {
+        const stats = {};
+        PLAYER_STAT_FIELDS.forEach(f => { stats[f.key] = Number(document.getElementById('stat_' + f.key).value) || 0; });
+        await fbUpdate(`academyData/players/${currentProfilePlayer._key}`, { stats });
+        currentProfilePlayer.stats = stats;
+        closeResourceModal();
+        renderRecordStats(currentProfilePlayer);
     };
 
     async function renderRecordAttendance(p) {
@@ -754,9 +853,10 @@
             if (r?.status === 'absent') absentCount++;
         });
 
-        let html = `<p style="margin-bottom:12px; color:var(--text-muted);">حاضر: <strong style="color:var(--color-success);">${presentCount}</strong> | غائب: <strong style="color:var(--color-danger);">${absentCount}</strong></p>`;
+        let html = `<div class="record-section"><div class="record-section-title"><i class="fas fa-clipboard-check"></i> سجل الحضور</div>`;
+        html += `<p style="margin-bottom:12px; color:var(--text-muted);">حاضر: <strong style="color:var(--color-success);">${presentCount}</strong> | غائب: <strong style="color:var(--color-danger);">${absentCount}</strong></p>`;
         if (!catSessions.length) {
-            html += `<p style="color:var(--text-muted); padding:14px 0;">لا توجد حصص منتهية أو جارية مسجّلة لفئة هذا اللاعب بعد.</p>`;
+            html += `<p style="color:var(--text-muted); padding:10px 0;">لا توجد حصص منتهية أو جارية مسجّلة لفئة هذا اللاعب بعد.</p>`;
         } else {
             html += `<div class="attendance-list">`;
             catSessions.forEach(s => {
@@ -773,6 +873,7 @@
             });
             html += `</div>`;
         }
+        html += `</div>`;
         document.getElementById('recordTab-attendance').innerHTML = html;
     }
 
@@ -787,20 +888,31 @@
     async function renderRecordPayments(p) {
         const records = await loadKeyedList('academyData/payments');
         const year = new Date().getFullYear();
-        let html = `<div class="pay-grid">`;
+        let paidCount = 0, unpaidCount = 0;
+        let monthsHtml = '';
         for (let m = 1; m <= 12; m++) {
             const key = `${year}-${String(m).padStart(2,'0')}`;
             const rec = records.find(r => r.playerId === p.id && r.month === key);
             const status = rec?.status || 'unpaid';
-            html += `
+            if (status === 'paid') paidCount++; else unpaidCount++;
+            monthsHtml += `
                 <div class="pay-month-box ${status}">
                     <div class="m-label">${arabicMonths[m-1]}</div>
                     <button onclick="togglePlayerPayment('${key}', '${status === 'paid' ? 'unpaid' : 'paid'}')">${status === 'paid' ? '✔ مدفوع' : 'غير مدفوع'}</button>
                     ${status === 'paid' && rec?.date ? `<div class="pay-date"><i class="fas fa-calendar-check"></i> ${rec.date}</div>` : ''}
                 </div>`;
         }
-        html += `</div>`;
-        document.getElementById('recordTab-payments').innerHTML = html;
+        document.getElementById('recordTab-payments').innerHTML = `
+            <div class="record-section">
+                <div class="record-section-title"><i class="fas fa-money-bill-wave"></i> جدول الدفع الشهري (${year})</div>
+                <div class="pay-summary-row">
+                    <div class="pay-summary-box total"><div class="ps-num" style="color:var(--primary-blue);">12</div><div>أشهر السنة</div></div>
+                    <div class="pay-summary-box unpaid"><div class="ps-num" style="color:var(--color-danger);">${unpaidCount}</div><div>أشهر غير مدفوعة</div></div>
+                    <div class="pay-summary-box paid"><div class="ps-num" style="color:var(--color-success);">${paidCount}</div><div>أشهر مدفوعة</div></div>
+                </div>
+                <div class="pay-grid">${monthsHtml}</div>
+            </div>
+        `;
     }
 
     window.togglePlayerPayment = async function(monthKey, newStatus) {
@@ -809,6 +921,51 @@
         if (existing) await fbUpdate(`academyData/payments/${existing._key}`, { status: newStatus, date: new Date().toLocaleDateString('ar-EG') });
         else await fbPush('academyData/payments', { playerId: currentProfilePlayer.id, month: monthKey, status: newStatus, date: new Date().toLocaleDateString('ar-EG') });
         renderRecordPayments(currentProfilePlayer);
+    };
+
+    function renderRecordMedical(p) {
+        const records = p.medicalRecords || [];
+        document.getElementById('recordTab-medical').innerHTML = `
+            <div class="record-section">
+                <div class="record-section-title"><i class="fas fa-notes-medical"></i> السجل الطبي</div>
+                <div id="medicalRecordsList">
+                    ${records.length ? records.map((r, i) => `
+                        <div class="medical-record-item">
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <strong>${r.date || ''}</strong>
+                                <button class="btn-sm btn-sm-danger" onclick="deleteMedicalRecord(${i})"><i class="fas fa-times"></i></button>
+                            </div>
+                            <div style="margin-top:4px; color:var(--text-muted);">${r.note || ''}</div>
+                        </div>
+                    `).join('') : `<p style="color:var(--text-muted);">لا توجد سجلات طبية بعد.</p>`}
+                </div>
+                <div style="display:flex; gap:8px; margin-top:12px; flex-wrap:wrap;">
+                    <input type="date" id="newMedicalDate" style="padding:8px 12px; border-radius:10px; border:1.5px solid var(--border-card);">
+                    <input type="text" id="newMedicalNote" placeholder="وصف الحالة/الإصابة..." style="flex:1; min-width:180px; padding:8px 12px; border-radius:10px; border:1.5px solid var(--border-card);">
+                    <button class="btn-sm btn-sm-primary" onclick="addMedicalRecord()"><i class="fas fa-plus"></i> إضافة سجل طبي</button>
+                </div>
+            </div>
+        `;
+    }
+
+    window.addMedicalRecord = async function() {
+        const date = document.getElementById('newMedicalDate').value || new Date().toISOString().split('T')[0];
+        const note = document.getElementById('newMedicalNote').value.trim();
+        if (!note) { alert('❌ الرجاء كتابة وصف السجل الطبي'); return; }
+        const records = currentProfilePlayer.medicalRecords || [];
+        records.push({ date, note });
+        await fbUpdate(`academyData/players/${currentProfilePlayer._key}`, { medicalRecords: records });
+        currentProfilePlayer.medicalRecords = records;
+        renderRecordMedical(currentProfilePlayer);
+    };
+
+    window.deleteMedicalRecord = async function(idx) {
+        if (!confirm('حذف هذا السجل الطبي؟')) return;
+        const records = currentProfilePlayer.medicalRecords || [];
+        records.splice(idx, 1);
+        await fbUpdate(`academyData/players/${currentProfilePlayer._key}`, { medicalRecords: records });
+        currentProfilePlayer.medicalRecords = records;
+        renderRecordMedical(currentProfilePlayer);
     };
 
     // ================================================================
@@ -885,8 +1042,7 @@
         const r = list.find(x => x._key === key);
         if (!r) return;
         const id = Date.now();
-        const parentCode = generateParentCode(r.firstName, r.lastName);
-        await fbPush('academyData/players', { id, firstName:r.firstName, lastName:r.lastName, phone:r.phone, category:r.category, location:r.location, parentCode });
+        await fbPush('academyData/players', { id, firstName:r.firstName, lastName:r.lastName, phone:r.phone, category:r.category, location:r.location });
         await fbUpdate(`registrationRequests/${key}`, { status:'approved' });
         renderRegistrationsTable();
     };
@@ -1881,7 +2037,7 @@
                 <h3>📌 لوحة التحكم — جميع الأقسام مفعلة</h3>
                 <p style="color:var(--text-muted); font-size:0.9rem; line-height:1.8;">
                     ✅ المعرض، الفيديوهات، الأطقم، المقالات، المدربون<br>
-                    ✅ اللاعبون (مع سجل الحضور والدفعات)<br>
+                    ✅ اللاعبون (مع سجل الحضور والدفعات والإحصائيات والسجل الطبي)<br>
                     ✅ طلبات التسجيل (اعتماد، رفض، طلب تعديل)<br>
                     ✅ الحصص التدريبية، المباريات، البطولات<br>
                     ✅ رسائل الأكاديمية، إدارة الفئات، الإعدادات العامة والأمان
